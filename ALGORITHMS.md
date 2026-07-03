@@ -31,6 +31,16 @@ Format per entry: what / variant / where in the codebase / source.
 | Cadence estimation from accelerometer | Peak detection on vertical acceleration magnitude | M5 | Standard signal-processing practice (documented in report) |
 | Fuzzy string matching | RapidFuzz token-based ratio for playlist→catalog join | M5 | RapidFuzz library docs |
 
+## Methodology
+
+| Method | Variant used | Where | Source |
+|---|---|---|---|
+| Competency-question ontology design | Client-interview style from class; 10 CQs that become SPARQL pytest cases | `report/ontology_design.md` | Course Block 12; Grüninger & Fox (1995), *Methodology for the Design and Evaluation of Ontologies* |
+| Upper-ontology foundation | Three mutually disjoint cores (Agent / Process / InformationEntity), IOF-Core style | `report/ontology_design.md` (v0.2 plan) | Course Block 12 (IOF Core, github.com/iofoundry/ontology); Arp, Smith & Spear (2015), *Building Ontologies with BFO* |
+| OWL + SKOS split | OWL for constrained axioms; SKOS concept schemes for evolving taxonomies (genres, workout types) | v0.2 plan | Course Block 12; W3C SKOS Reference (2009) |
+| Ontology engineering how-to | 7-step iterative development | background reading | Noy & McGuinness (2001), *Ontology Development 101*, Stanford KSL |
+| OWA vs CWA distinction | OWL/RDFS inference (open world) for reasoning; SHACL (closed world) for validation | `tests/test_shacl_gate.py`, report | Baader et al., *The Description Logic Handbook*, ch. 2–3; W3C SHACL (2017) |
+
 ## Code sources of inspiration
 
 - Course Block 14 PDF (Avola-Lezochè, AI-LAB 2025/2026) — pipeline order,

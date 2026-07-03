@@ -27,6 +27,35 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-03 21:00] — Danny (with Claude Code)
+**What I did:**
+- Studied Block 12 (Logistic Ontology — Conception & Dataset): the class
+  method is IOF-Core-style disjoint cores + subclassing + forward/inverse
+  properties + OWL/SKOS split + competency-question interviews.
+- Wrote `report/ontology_design.md`: full v0.2 ontology plan — 10 competency
+  questions (they become SPARQL pytest cases), three disjoint cores
+  (Agent / Process / InformationEntity), SKOS concept schemes for genres and
+  workout types, complete inverses, `prefersGenre`, reading list (class
+  blocks + Noy & McGuinness, Grüninger & Fox, DL Handbook, W3C primers),
+  and the v0.1→v0.2 gap list as an implementation ticket.
+- Extended ALGORITHMS.md with the methodology sources.
+
+**Ideas that came up:**
+- Competency questions double as the ontology's test suite — CQ → SPARQL →
+  pytest. Elegant and exactly what Block 12's interview phases imply.
+- `LOTROntology.owl` in Block 04(B) Miscellaneous is a complete class-made
+  OWL file worth imitating structurally.
+
+**TODOs for the other teammate:**
+- Read `report/ontology_design.md` and challenge the 10 CQs: what would YOU
+  ask the playlist AI? Missing CQs = missing ontology coverage.
+- Skim Block 12 slides (16 pages, quick) before touching the ontology.
+
+**Open questions:**
+- v0.2 keeps WorkoutType/Genre as OWL individuals AND SKOS concepts
+  (double typing) so the NER label dictionary keeps working — any objection?
+
+---
 ### [2026-07-03 20:00] — Danny (with Claude Code)
 **What I did:**
 - **New collaboration rules** (now in `CLAUDE.md` + `GUIDELINES.md` Rules 6–8):

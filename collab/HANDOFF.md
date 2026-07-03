@@ -27,6 +27,40 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-03 19:30] — Danny (with Claude Code)
+**What I did:**
+- **M2 complete.** `src/algorun/datagen/`: LLM-authored sentence templates
+  for the 4 complexity tiers (`templates.py`), generator that instantiates
+  them with surface forms drawn from the ontology label dictionary and
+  computes gold annotations (entity spans + triples) automatically
+  (`generator.py`), dataset validation script (`validate.py`).
+- Generated `data/synthetic/{train,val,test}.jsonl`: 800 records, exact
+  70/15/15 split, perfectly tier-balanced (140/30/30 per tier per split).
+  Committed to git — it is a course deliverable.
+- Package now installs editable (`pip install -e .`); 17 tests green.
+
+**Ideas that came up:**
+- Implicit-tier records draw surface forms from skos:altLabel only (e.g.,
+  "pulse" for heart rate, "HIIT" for interval) — synonym resolution is thus
+  guaranteed to be required, matching the tier definition.
+- Implicit graph nodes (the session, the readings) get `mentioned: false`
+  entities with no text span — the extraction pipeline will have to mint
+  those nodes per record. Keep this convention in mind for M3.
+
+**TODOs for the other teammate:**
+- Read a few records of each tier in `data/synthetic/train.jsonl` and sanity
+  check the English + the annotations.
+- If you want more lexical variety, add templates to `templates.py` and
+  regenerate (`python -m algorun.datagen.generator`) — seed is fixed so
+  results stay reproducible.
+- Still pending: Sensor Logger recordings, Kaggle Spotify dataset, Python
+  3.11 decision.
+
+**Open questions:**
+- 200 records/tier enough for fine-tuning the M4 validator? We can bump
+  `--per-tier` cheaply if needed.
+
+---
 ### [2026-07-03 19:00] — Danny (with Claude Code)
 **What I did:**
 - **M1 complete.** Built `ontology/algorun.owl` (Turtle/OWL): hierarchical

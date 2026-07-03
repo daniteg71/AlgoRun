@@ -47,7 +47,7 @@ gate. The playlist recommender reads exclusively from the KG via SPARQL.
 
 - [x] **M0** — Scaffolding (protocol files, repo tree)
 - [x] **M1** — OWL ontology + SHACL shapes + label dictionary
-- [ ] **M2** — Synthetic tiered dataset (JSONL, 70/15/15)
+- [x] **M2** — Synthetic tiered dataset (JSONL, 70/15/15)
 - [ ] **M3** — Baseline pipeline (spaCy rule-based → SHACL → RDF) + first P/R/F1
 - [ ] **M4** — Advanced pipeline (GLiNER, GLiREL, DistilBERT/RoBERTa validators)
 - [ ] **M5** — Sensors + music catalog + SPARQL recommender + demo CLI

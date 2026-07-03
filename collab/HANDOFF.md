@@ -27,6 +27,36 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-03 20:00] — Danny (with Claude Code)
+**What I did:**
+- **New collaboration rules** (now in `CLAUDE.md` + `GUIDELINES.md` Rules 6–8):
+  1. Session start = `git pull`, always, for both of us.
+  2. After every medium-or-larger task: update the communication files,
+     commit on a feature branch, open a PR — no direct commits to `main`.
+  3. Merge conflicts: the more reliable version wins (stronger rationale:
+     green tests, guideline compliance, cited source); resolution documented
+     here in HANDOFF.
+  4. Code style is binding: essential, zero pomposity, symmetric interfaces,
+     class-taught algorithms first.
+- Created `ALGORITHMS.md`: provenance ledger (algorithm + exact variant +
+  location + source/paper), already back-filled for M0–M2 and pre-filled
+  with planned M3–M5 entries. It feeds the final presentation.
+
+**Ideas that came up:**
+- Final deliverable = code + presentation; the ledger doubles as the
+  presentation outline (esp. the SHACL-vs-RDFS finding).
+
+**TODOs for the other teammate:**
+- Install the GitHub CLI (`brew install gh && gh auth login`) so PRs can be
+  opened automatically from the terminal.
+- Adopt the new workflow from your next session: pull → read HANDOFF → work
+  on a feature branch → PR.
+
+**Open questions:**
+- Branch naming: I propose `m<N>-<short-name>` for milestones,
+  `fix-<short-name>` for fixes. OK?
+
+---
 ### [2026-07-03 19:30] — Danny (with Claude Code)
 **What I did:**
 - **M2 complete.** `src/algorun/datagen/`: LLM-authored sentence templates

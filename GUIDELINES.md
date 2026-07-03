@@ -111,6 +111,35 @@ raw text → Tokenization → Lemmatization → Entity & Mention Detection (→ 
       rigor over shortcuts: every algorithmic choice must be justifiable with
       respect to the course material.
 
+## Rule 6 — Collaboration workflow (two people, two AIs)
+
+- [ ] **Session start = `git pull`**, always, for both teammates.
+- [ ] After every **medium-or-larger task**: update `collab/HANDOFF.md` (and
+      `ALGORITHMS.md` when applicable), commit on a **feature branch**, and
+      **open a pull request** — no direct commits to `main`.
+- [ ] Merge conflicts: **the more reliable version wins** — the one with the
+      stronger documented rationale (green tests, guideline compliance,
+      cited course algorithm or paper). The resolution and its motivation are
+      recorded in `collab/HANDOFF.md`.
+
+## Rule 7 — Code style: essential, symmetric, class-first
+
+- [ ] **Zero pomposity**: the simplest code that solves the problem. No
+      speculative abstraction, no unnecessary layers, no cleverness.
+- [ ] **Symmetry**: analogous problems get analogous code — interchangeable
+      backends share the same interface, parallel modules mirror each other's
+      structure.
+- [ ] Algorithms follow what was **used and explained in class**; any
+      deviation is a conscious, documented choice.
+
+## Rule 8 — Provenance ledger (feeds the final presentation)
+
+- [ ] Every algorithm and its **exact variant**, every **code source of
+      inspiration**, and every **scientific paper** behind a design choice is
+      recorded in `ALGORITHMS.md` when it enters the codebase, not later.
+- [ ] Final deliverable = **code + presentation**; the ledger is the raw
+      material for the presentation.
+
 ## Session protocol reminder
 
 Before writing any code, also read `CLAUDE.md` (session protocol) and

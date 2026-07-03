@@ -32,8 +32,9 @@ gate. The playlist recommender reads exclusively from the KG via SPARQL.
 
 | Path | Purpose |
 |---|---|
-| `CLAUDE.md` | AI session protocol (handoff-first rule) |
+| `CLAUDE.md` | AI session protocol (pull-first, handoff-first, PR-always) |
 | `GUIDELINES.md` | Binding course rules — read before coding |
+| `ALGORITHMS.md` | Provenance ledger: algorithms, variants, sources, papers |
 | `collab/HANDOFF.md` | Two-person/two-AI coordination log |
 | `ontology/` | OWL ontology + SHACL shapes |
 | `data/synthetic/` | Tiered JSONL dataset (70/15/15) |

@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Data & models — data/synthetic/ IS a course deliverable and stays in git
+data/sensor/*
+data/music/*
+!data/**/.gitkeep
+!data/**/sample_*
+models/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

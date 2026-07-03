@@ -1,0 +1,320 @@
+@prefix ar:   <http://algorun.org/ontology#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+<http://algorun.org/ontology> a owl:Ontology ;
+    rdfs:label "AlgoRun Ontology" ;
+    rdfs:comment "Domain ontology for the AlgoRun ontology-driven running playlist manager (AI-LAB 2025/2026). The ontology restricts and validates data; it never generates it. Every relation carries explicit domain/range constraints, mirrored by SHACL shapes in shapes.ttl." ;
+    owl:versionInfo "0.1.0" .
+
+#################################################################
+# Classes (hierarchical)
+#################################################################
+
+ar:Agent a owl:Class ;
+    rdfs:label "agent" .
+
+ar:Runner a owl:Class ;
+    rdfs:subClassOf ar:Agent ;
+    rdfs:label "runner" ;
+    skos:altLabel "athlete", "user", "jogger" .
+
+ar:Workout a owl:Class ;
+    rdfs:label "workout" .
+
+ar:WorkoutSession a owl:Class ;
+    rdfs:subClassOf ar:Workout ;
+    rdfs:label "workout session" ;
+    skos:altLabel "session", "run", "training session", "running session" .
+
+ar:WorkoutType a owl:Class ;
+    rdfs:subClassOf ar:Workout ;
+    rdfs:label "workout type" ;
+    skos:altLabel "training type" .
+
+ar:TrainingPhase a owl:Class ;
+    rdfs:label "training phase" ;
+    skos:altLabel "phase", "segment" .
+
+ar:SensorReading a owl:Class ;
+    rdfs:label "sensor reading" ;
+    skos:altLabel "reading", "measurement" .
+
+ar:HeartRateReading a owl:Class ;
+    rdfs:subClassOf ar:SensorReading ;
+    rdfs:label "heart rate reading" ;
+    skos:altLabel "heart rate", "HR", "pulse", "heartbeat" .
+
+ar:PaceReading a owl:Class ;
+    rdfs:subClassOf ar:SensorReading ;
+    rdfs:label "pace reading" ;
+    skos:altLabel "pace", "speed", "tempo of running" .
+
+ar:CadenceReading a owl:Class ;
+    rdfs:subClassOf ar:SensorReading ;
+    rdfs:label "cadence reading" ;
+    skos:altLabel "cadence", "step rate", "steps per minute", "stride rate" .
+
+ar:ElevationReading a owl:Class ;
+    rdfs:subClassOf ar:SensorReading ;
+    rdfs:label "elevation reading" ;
+    skos:altLabel "elevation", "altitude", "climb" .
+
+ar:IntensityZone a owl:Class ;
+    rdfs:label "intensity zone" ;
+    skos:altLabel "zone", "heart rate zone", "HR zone" .
+
+ar:MusicEntity a owl:Class ;
+    rdfs:label "music entity" .
+
+ar:Song a owl:Class ;
+    rdfs:subClassOf ar:MusicEntity ;
+    rdfs:label "song" ;
+    skos:altLabel "track", "tune", "piece" .
+
+ar:Genre a owl:Class ;
+    rdfs:subClassOf ar:MusicEntity ;
+    rdfs:label "genre" ;
+    skos:altLabel "musical genre", "style" .
+
+ar:Playlist a owl:Class ;
+    rdfs:subClassOf ar:MusicEntity ;
+    rdfs:label "playlist" ;
+    skos:altLabel "queue", "mix" .
+
+#################################################################
+# Workout type individuals
+#################################################################
+
+ar:Interval a ar:WorkoutType ;
+    rdfs:label "interval" ;
+    skos:altLabel "interval training", "intervals", "HIIT", "speed work" .
+
+ar:Endurance a ar:WorkoutType ;
+    rdfs:label "endurance" ;
+    skos:altLabel "endurance run", "aerobic run", "base run" .
+
+ar:Recovery a ar:WorkoutType ;
+    rdfs:label "recovery" ;
+    skos:altLabel "recovery run", "easy run", "regeneration run" .
+
+ar:Tempo a ar:WorkoutType ;
+    rdfs:label "tempo" ;
+    skos:altLabel "tempo run", "threshold run", "threshold workout" .
+
+ar:LongRun a ar:WorkoutType ;
+    rdfs:label "long run" ;
+    skos:altLabel "long distance run", "LSD run" .
+
+#################################################################
+# Training phase individuals
+#################################################################
+
+ar:WarmUp a ar:TrainingPhase ;
+    rdfs:label "warm-up" ;
+    skos:altLabel "warm up", "warmup" .
+
+ar:Steady a ar:TrainingPhase ;
+    rdfs:label "steady" ;
+    skos:altLabel "steady state", "cruise" .
+
+ar:Sprint a ar:TrainingPhase ;
+    rdfs:label "sprint" ;
+    skos:altLabel "surge", "push", "burst" .
+
+ar:CoolDown a ar:TrainingPhase ;
+    rdfs:label "cool-down" ;
+    skos:altLabel "cool down", "cooldown" .
+
+#################################################################
+# Intensity zone individuals (Karvonen 5-zone model)
+#################################################################
+
+ar:Z1 a ar:IntensityZone ;
+    rdfs:label "zone 1" ;
+    skos:altLabel "Z1", "very light zone" .
+
+ar:Z2 a ar:IntensityZone ;
+    rdfs:label "zone 2" ;
+    skos:altLabel "Z2", "light zone", "fat burn zone" .
+
+ar:Z3 a ar:IntensityZone ;
+    rdfs:label "zone 3" ;
+    skos:altLabel "Z3", "moderate zone", "aerobic zone" .
+
+ar:Z4 a ar:IntensityZone ;
+    rdfs:label "zone 4" ;
+    skos:altLabel "Z4", "hard zone", "threshold zone" .
+
+ar:Z5 a ar:IntensityZone ;
+    rdfs:label "zone 5" ;
+    skos:altLabel "Z5", "maximum zone", "red zone" .
+
+#################################################################
+# Object properties (directional, with explicit domain/range
+# and inverses — the ontology's Constraint Gate)
+#################################################################
+
+ar:performsSession a owl:ObjectProperty ;
+    rdfs:domain ar:Runner ;
+    rdfs:range ar:WorkoutSession ;
+    rdfs:label "performs session" ;
+    skos:altLabel "performs", "completes", "does", "runs" ;
+    owl:inverseOf ar:performedBy .
+
+ar:performedBy a owl:ObjectProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range ar:Runner ;
+    rdfs:label "performed by" .
+
+ar:hasWorkoutType a owl:ObjectProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range ar:WorkoutType ;
+    rdfs:label "has workout type" ;
+    skos:altLabel "is a", "typed as", "planned as" .
+
+ar:hasPhase a owl:ObjectProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range ar:TrainingPhase ;
+    rdfs:label "has phase" ;
+    skos:altLabel "includes phase", "goes through", "starts with", "ends with" ;
+    owl:inverseOf ar:phaseOf .
+
+ar:phaseOf a owl:ObjectProperty ;
+    rdfs:domain ar:TrainingPhase ;
+    rdfs:range ar:WorkoutSession ;
+    rdfs:label "phase of" .
+
+ar:recordsReading a owl:ObjectProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range ar:SensorReading ;
+    rdfs:label "records reading" ;
+    skos:altLabel "records", "logs", "registers", "measures" ;
+    owl:inverseOf ar:recordedIn .
+
+ar:recordedIn a owl:ObjectProperty ;
+    rdfs:domain ar:SensorReading ;
+    rdfs:range ar:WorkoutSession ;
+    rdfs:label "recorded in" .
+
+ar:readingInZone a owl:ObjectProperty ;
+    rdfs:domain ar:HeartRateReading ;
+    rdfs:range ar:IntensityZone ;
+    rdfs:label "reading in zone" ;
+    skos:altLabel "in zone", "falls in", "reaches" .
+
+ar:targetsZone a owl:ObjectProperty ;
+    rdfs:domain ar:TrainingPhase ;
+    rdfs:range ar:IntensityZone ;
+    rdfs:label "targets zone" ;
+    skos:altLabel "targets", "aims for", "stays in" .
+
+ar:suitsPhase a owl:ObjectProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range ar:TrainingPhase ;
+    rdfs:label "suits phase" ;
+    skos:altLabel "suits", "fits", "matches phase", "is good for" .
+
+ar:matchesZone a owl:ObjectProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range ar:IntensityZone ;
+    rdfs:label "matches zone" ;
+    skos:altLabel "matches", "pairs with" .
+
+ar:hasGenre a owl:ObjectProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range ar:Genre ;
+    rdfs:label "has genre" ;
+    skos:altLabel "belongs to genre", "classified as" .
+
+ar:includedIn a owl:ObjectProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range ar:Playlist ;
+    rdfs:label "included in" ;
+    skos:altLabel "added to", "queued in", "part of" ;
+    owl:inverseOf ar:containsSong .
+
+ar:containsSong a owl:ObjectProperty ;
+    rdfs:domain ar:Playlist ;
+    rdfs:range ar:Song ;
+    rdfs:label "contains song" ;
+    skos:altLabel "contains", "features" .
+
+ar:builtForSession a owl:ObjectProperty ;
+    rdfs:domain ar:Playlist ;
+    rdfs:range ar:WorkoutSession ;
+    rdfs:label "built for session" ;
+    skos:altLabel "built for", "created for", "tailored to" .
+
+#################################################################
+# Data properties
+#################################################################
+
+ar:bpmValue a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "bpm value" ;
+    skos:altLabel "tempo", "BPM", "beats per minute" .
+
+ar:energyValue a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "energy value" ;
+    skos:altLabel "energy" .
+
+ar:valenceValue a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "valence value" ;
+    skos:altLabel "valence", "positivity" .
+
+ar:songTitle a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range xsd:string ;
+    rdfs:label "song title" .
+
+ar:artistName a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ;
+    rdfs:range xsd:string ;
+    rdfs:label "artist name" .
+
+ar:heartRateBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:HeartRateReading ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "heart rate bpm" ;
+    skos:altLabel "bpm", "beats per minute" .
+
+ar:paceMinPerKm a owl:DatatypeProperty ;
+    rdfs:domain ar:PaceReading ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "pace min per km" ;
+    skos:altLabel "min/km" .
+
+ar:cadenceSpm a owl:DatatypeProperty ;
+    rdfs:domain ar:CadenceReading ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "cadence spm" ;
+    skos:altLabel "spm", "steps per minute" .
+
+ar:elevationMeters a owl:DatatypeProperty ;
+    rdfs:domain ar:ElevationReading ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "elevation meters" .
+
+ar:timestamp a owl:DatatypeProperty ;
+    rdfs:domain ar:SensorReading ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+
+ar:durationMinutes a owl:DatatypeProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "duration minutes" .
+
+ar:distanceKm a owl:DatatypeProperty ;
+    rdfs:domain ar:WorkoutSession ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "distance km" .

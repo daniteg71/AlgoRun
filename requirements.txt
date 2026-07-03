@@ -1,0 +1,28 @@
+# Core NLP
+spacy>=3.7,<4.0
+
+# Ontology / RDF / SHACL
+rdflib>=7.0
+owlready2>=0.46
+pyshacl>=0.26
+
+# Transformers & training
+torch>=2.2
+transformers>=4.40
+datasets>=2.19
+accelerate>=0.30
+
+# Advanced NER / RE (M4)
+gliner>=0.2
+glirel>=1.0
+
+# Data handling
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+
+# Fuzzy matching for personal playlist join
+rapidfuzz>=3.6
+
+# Testing
+pytest>=8.0

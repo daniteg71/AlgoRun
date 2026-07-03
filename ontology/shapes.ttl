@@ -1,0 +1,279 @@
+@prefix ar:  <http://algorun.org/ontology#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# SHACL Constraint Gate — mirrors every domain/range pair of the
+# ontology. A triple that violates any shape here is rejected
+# BEFORE it can enter the RDF Knowledge Graph (Rule 3/Rule 1 of
+# GUIDELINES.md: "SHACL enforces truth").
+#
+# Pattern per object property P(D → R):
+#   - subject shape:  every subject of P must be an instance of D
+#   - object shape:   every value  of P must be an instance of R
+#################################################################
+
+### performsSession (Runner → WorkoutSession)
+
+ar:PerformsSessionSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:performsSession ;
+    sh:class ar:Runner ;
+    sh:message "Domain violation: subject of ar:performsSession must be an ar:Runner." .
+
+ar:PerformsSessionObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:performsSession ;
+    sh:property [
+        sh:path ar:performsSession ;
+        sh:class ar:WorkoutSession ;
+        sh:message "Range violation: object of ar:performsSession must be an ar:WorkoutSession." ;
+    ] .
+
+### performedBy (WorkoutSession → Runner)
+
+ar:PerformedBySubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:performedBy ;
+    sh:class ar:WorkoutSession ;
+    sh:message "Domain violation: subject of ar:performedBy must be an ar:WorkoutSession." .
+
+ar:PerformedByObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:performedBy ;
+    sh:property [
+        sh:path ar:performedBy ;
+        sh:class ar:Runner ;
+        sh:message "Range violation: object of ar:performedBy must be an ar:Runner." ;
+    ] .
+
+### hasWorkoutType (WorkoutSession → WorkoutType)
+
+ar:HasWorkoutTypeSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasWorkoutType ;
+    sh:class ar:WorkoutSession ;
+    sh:message "Domain violation: subject of ar:hasWorkoutType must be an ar:WorkoutSession." .
+
+ar:HasWorkoutTypeObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasWorkoutType ;
+    sh:property [
+        sh:path ar:hasWorkoutType ;
+        sh:class ar:WorkoutType ;
+        sh:message "Range violation: object of ar:hasWorkoutType must be an ar:WorkoutType." ;
+    ] .
+
+### hasPhase (WorkoutSession → TrainingPhase)
+
+ar:HasPhaseSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasPhase ;
+    sh:class ar:WorkoutSession ;
+    sh:message "Domain violation: subject of ar:hasPhase must be an ar:WorkoutSession." .
+
+ar:HasPhaseObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasPhase ;
+    sh:property [
+        sh:path ar:hasPhase ;
+        sh:class ar:TrainingPhase ;
+        sh:message "Range violation: object of ar:hasPhase must be an ar:TrainingPhase." ;
+    ] .
+
+### recordsReading (WorkoutSession → SensorReading)
+
+ar:RecordsReadingSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:recordsReading ;
+    sh:class ar:WorkoutSession ;
+    sh:message "Domain violation: subject of ar:recordsReading must be an ar:WorkoutSession." .
+
+ar:RecordsReadingObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:recordsReading ;
+    sh:property [
+        sh:path ar:recordsReading ;
+        sh:class ar:SensorReading ;
+        sh:message "Range violation: object of ar:recordsReading must be an ar:SensorReading." ;
+    ] .
+
+### readingInZone (HeartRateReading → IntensityZone)
+
+ar:ReadingInZoneSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:readingInZone ;
+    sh:class ar:HeartRateReading ;
+    sh:message "Domain violation: subject of ar:readingInZone must be an ar:HeartRateReading." .
+
+ar:ReadingInZoneObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:readingInZone ;
+    sh:property [
+        sh:path ar:readingInZone ;
+        sh:class ar:IntensityZone ;
+        sh:message "Range violation: object of ar:readingInZone must be an ar:IntensityZone." ;
+    ] .
+
+### targetsZone (TrainingPhase → IntensityZone)
+
+ar:TargetsZoneSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:targetsZone ;
+    sh:class ar:TrainingPhase ;
+    sh:message "Domain violation: subject of ar:targetsZone must be an ar:TrainingPhase." .
+
+ar:TargetsZoneObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:targetsZone ;
+    sh:property [
+        sh:path ar:targetsZone ;
+        sh:class ar:IntensityZone ;
+        sh:message "Range violation: object of ar:targetsZone must be an ar:IntensityZone." ;
+    ] .
+
+### suitsPhase (Song → TrainingPhase)
+
+ar:SuitsPhaseSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:suitsPhase ;
+    sh:class ar:Song ;
+    sh:message "Domain violation: subject of ar:suitsPhase must be an ar:Song." .
+
+ar:SuitsPhaseObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:suitsPhase ;
+    sh:property [
+        sh:path ar:suitsPhase ;
+        sh:class ar:TrainingPhase ;
+        sh:message "Range violation: object of ar:suitsPhase must be an ar:TrainingPhase." ;
+    ] .
+
+### matchesZone (Song → IntensityZone)
+
+ar:MatchesZoneSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:matchesZone ;
+    sh:class ar:Song ;
+    sh:message "Domain violation: subject of ar:matchesZone must be an ar:Song." .
+
+ar:MatchesZoneObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:matchesZone ;
+    sh:property [
+        sh:path ar:matchesZone ;
+        sh:class ar:IntensityZone ;
+        sh:message "Range violation: object of ar:matchesZone must be an ar:IntensityZone." ;
+    ] .
+
+### hasGenre (Song → Genre)
+
+ar:HasGenreSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasGenre ;
+    sh:class ar:Song ;
+    sh:message "Domain violation: subject of ar:hasGenre must be an ar:Song." .
+
+ar:HasGenreObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasGenre ;
+    sh:property [
+        sh:path ar:hasGenre ;
+        sh:class ar:Genre ;
+        sh:message "Range violation: object of ar:hasGenre must be an ar:Genre." ;
+    ] .
+
+### includedIn (Song → Playlist)
+
+ar:IncludedInSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:includedIn ;
+    sh:class ar:Song ;
+    sh:message "Domain violation: subject of ar:includedIn must be an ar:Song." .
+
+ar:IncludedInObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:includedIn ;
+    sh:property [
+        sh:path ar:includedIn ;
+        sh:class ar:Playlist ;
+        sh:message "Range violation: object of ar:includedIn must be an ar:Playlist." ;
+    ] .
+
+### containsSong (Playlist → Song)
+
+ar:ContainsSongSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:containsSong ;
+    sh:class ar:Playlist ;
+    sh:message "Domain violation: subject of ar:containsSong must be an ar:Playlist." .
+
+ar:ContainsSongObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:containsSong ;
+    sh:property [
+        sh:path ar:containsSong ;
+        sh:class ar:Song ;
+        sh:message "Range violation: object of ar:containsSong must be an ar:Song." ;
+    ] .
+
+### builtForSession (Playlist → WorkoutSession)
+
+ar:BuiltForSessionSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:builtForSession ;
+    sh:class ar:Playlist ;
+    sh:message "Domain violation: subject of ar:builtForSession must be an ar:Playlist." .
+
+ar:BuiltForSessionObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:builtForSession ;
+    sh:property [
+        sh:path ar:builtForSession ;
+        sh:class ar:WorkoutSession ;
+        sh:message "Range violation: object of ar:builtForSession must be an ar:WorkoutSession." ;
+    ] .
+
+#################################################################
+# Value constraints on data properties
+#################################################################
+
+ar:HeartRateValueShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:heartRateBpm ;
+    sh:class ar:HeartRateReading ;
+    sh:property [
+        sh:path ar:heartRateBpm ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 25 ;
+        sh:maxInclusive 240 ;
+        sh:message "ar:heartRateBpm must be a decimal in [25, 240] on an ar:HeartRateReading." ;
+    ] .
+
+ar:SongBpmShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:bpmValue ;
+    sh:class ar:Song ;
+    sh:property [
+        sh:path ar:bpmValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 30 ;
+        sh:maxInclusive 260 ;
+        sh:message "ar:bpmValue must be a decimal in [30, 260] on an ar:Song." ;
+    ] .
+
+ar:EnergyShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:energyValue ;
+    sh:class ar:Song ;
+    sh:property [
+        sh:path ar:energyValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "ar:energyValue must be a decimal in [0, 1] on an ar:Song." ;
+    ] .
+
+ar:ValenceShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:valenceValue ;
+    sh:class ar:Song ;
+    sh:property [
+        sh:path ar:valenceValue ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "ar:valenceValue must be a decimal in [0, 1] on an ar:Song." ;
+    ] .
+
+ar:CadenceShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:cadenceSpm ;
+    sh:class ar:CadenceReading ;
+    sh:property [
+        sh:path ar:cadenceSpm ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 40 ;
+        sh:maxInclusive 260 ;
+        sh:message "ar:cadenceSpm must be a decimal in [40, 260] on an ar:CadenceReading." ;
+    ] .
+
+ar:PaceShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:paceMinPerKm ;
+    sh:class ar:PaceReading ;
+    sh:property [
+        sh:path ar:paceMinPerKm ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 2.0 ;
+        sh:maxInclusive 20.0 ;
+        sh:message "ar:paceMinPerKm must be a decimal in [2, 20] on an ar:PaceReading." ;
+    ] .

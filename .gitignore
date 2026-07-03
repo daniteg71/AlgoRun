@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Data & models (keep small samples only)
+data/sensor/*
+data/music/*
+data/synthetic/*
+!data/**/.gitkeep
+!data/**/sample_*
+models/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/

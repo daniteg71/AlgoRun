@@ -1,0 +1,9 @@
+[project]
+name = "algorun"
+version = "0.1.0"
+description = "Ontology-driven AI running playlist manager (AI-LAB 2025/2026)"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

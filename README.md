@@ -46,7 +46,7 @@ gate. The playlist recommender reads exclusively from the KG via SPARQL.
 ## Milestones
 
 - [x] **M0** — Scaffolding (protocol files, repo tree)
-- [ ] **M1** — OWL ontology + SHACL shapes + label dictionary
+- [x] **M1** — OWL ontology + SHACL shapes + label dictionary
 - [ ] **M2** — Synthetic tiered dataset (JSONL, 70/15/15)
 - [ ] **M3** — Baseline pipeline (spaCy rule-based → SHACL → RDF) + first P/R/F1
 - [ ] **M4** — Advanced pipeline (GLiNER, GLiREL, DistilBERT/RoBERTa validators)
@@ -56,11 +56,13 @@ gate. The playlist recommender reads exclusively from the KG via SPARQL.
 ## Setup
 
 ```bash
-python3.11 -m venv .venv
+python3 -m venv .venv          # Python ≥ 3.9 (3.11+ recommended for M4 training)
 source .venv/bin/activate
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
+
+Run the tests with `python -m pytest`.
 
 ## Team
 

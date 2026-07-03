@@ -27,6 +27,42 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-03 19:00] — Danny (with Claude Code)
+**What I did:**
+- **M1 complete.** Built `ontology/algorun.owl` (Turtle/OWL): hierarchical
+  classes (Runner, WorkoutSession, WorkoutType, TrainingPhase, SensorReading
+  subclasses, IntensityZone Z1–Z5, Song/Genre/Playlist), 14 object properties
+  with explicit domain/range + inverses, 13 data properties, rdfs:label +
+  skos:altLabel synonyms on everything (they feed the rule-based NER
+  dictionary and the implicit complexity tier).
+- Built `ontology/shapes.ttl`: SHACL shapes mirroring every domain/range pair
+  plus value-range constraints (HR ∈ [25,240], energy ∈ [0,1], ...).
+- `src/algorun/ontology/loader.py`: parses the OWL into an OntologySchema,
+  builds the longest-match-first label dictionary and the relation trigger
+  dictionary.
+- 10 pytest tests, all green (`python -m pytest`).
+
+**Ideas that came up:**
+- **Important theory point for the report:** with RDFS inference enabled,
+  rdfs:domain/range *classify* subjects instead of rejecting them (a Playlist
+  "performing" a session just gets inferred to be a Runner!). SHACL validation
+  must run with inference OFF — this concretely demonstrates WHY the course
+  mandates SHACL as the constraint gate. Great paragraph for the report.
+- pyshacl quirk: `ont_graph` is ignored when inference="none"; merge the
+  ontology into the data graph manually.
+
+**TODOs for the other teammate:**
+- Still pending from last entry: Sensor Logger recordings + Kaggle Spotify
+  dataset download.
+- My Mac only has Python 3.9 — fine up to M3, but for M4 fine-tuning let's
+  decide: brew-install Python 3.11 locally or train on Colab. Your setup?
+
+**Open questions:**
+- Do we want genre preferences of the runner in the ontology (e.g.,
+  `prefersGenre(Runner→Genre)`)? I left it out for now (YAGNI) but it would
+  enable personalisation in M5.
+
+---
 ### [2026-07-03 18:30] — Danny (with Claude Code)
 **What I did:**
 - Read the full course Project Description (Block 14) and distilled the

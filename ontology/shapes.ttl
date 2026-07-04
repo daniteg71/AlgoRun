@@ -365,13 +365,3 @@ ar:CadenceShape a sh:NodeShape ;
         sh:message "ar:cadenceSpm must be a decimal in [40, 260] on an ar:CadenceReading." ;
     ] .
 
-ar:PaceShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:paceMinPerKm ;
-    sh:class ar:PaceReading ;
-    sh:property [
-        sh:path ar:paceMinPerKm ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 2.0 ;
-        sh:maxInclusive 20.0 ;
-        sh:message "ar:paceMinPerKm must be a decimal in [2, 20] on an ar:PaceReading." ;
-    ] .

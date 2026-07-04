@@ -70,29 +70,23 @@ ar:SensorReading a owl:Class ;
     rdfs:subClassOf sosa:Observation ;
     rdfs:comment "Aligned to sosa:Observation: an act of measurement of an observable property of a feature of interest (the session/runner)." .
 
+# We use exactly two sensors: the phone accelerometer (Sensor Logger) →
+# cadence, and the watch/chest heart-rate sensor → beats. Pace (GPS) and
+# elevation (barometer/GPS) are intentionally out of scope.
 ar:HeartRateReading a owl:Class ;
     rdfs:subClassOf ar:SensorReading ;
     rdfs:label "heart rate reading" ;
     skos:altLabel "heart rate", "HR", "pulse", "heartbeat" .
 
-ar:PaceReading a owl:Class ;
-    rdfs:subClassOf ar:SensorReading ;
-    rdfs:label "pace reading" ;
-    skos:altLabel "pace", "speed", "tempo of running" .
-
 ar:CadenceReading a owl:Class ;
     rdfs:subClassOf ar:SensorReading ;
     rdfs:label "cadence reading" ;
-    skos:altLabel "cadence", "step rate", "steps per minute", "stride rate" .
-
-ar:ElevationReading a owl:Class ;
-    rdfs:subClassOf ar:SensorReading ;
-    rdfs:label "elevation reading" ;
-    skos:altLabel "elevation", "altitude", "climb" .
+    skos:altLabel "cadence", "step rate", "steps per minute", "stride rate" ;
+    rdfs:comment "Derived from the accelerometer (peak detection on vertical acceleration)." .
 
 # reading types are mutually disjoint
 [] a owl:AllDisjointClasses ;
-    owl:members ( ar:HeartRateReading ar:PaceReading ar:CadenceReading ar:ElevationReading ) .
+    owl:members ( ar:HeartRateReading ar:CadenceReading ) .
 
 ar:IntensityZone a owl:Class ;
     rdfs:subClassOf ar:InformationEntity ;
@@ -436,24 +430,15 @@ ar:heartRateBpm a owl:DatatypeProperty ;
     rdfs:domain ar:HeartRateReading ; rdfs:range xsd:decimal ;
     rdfs:label "heart rate bpm" ; skos:altLabel "bpm", "beats per minute" ;
     rdfs:seeAlso sosa:hasSimpleResult .
-ar:paceMinPerKm a owl:DatatypeProperty ;
-    rdfs:domain ar:PaceReading ; rdfs:range xsd:decimal ;
-    rdfs:label "pace min per km" ; skos:altLabel "min/km" .
 ar:cadenceSpm a owl:DatatypeProperty ;
     rdfs:domain ar:CadenceReading ; rdfs:range xsd:decimal ;
     rdfs:label "cadence spm" ; skos:altLabel "spm", "steps per minute" .
-ar:elevationMeters a owl:DatatypeProperty ;
-    rdfs:domain ar:ElevationReading ; rdfs:range xsd:decimal ;
-    rdfs:label "elevation meters" .
 ar:timestamp a owl:DatatypeProperty ;
     rdfs:domain ar:SensorReading ; rdfs:range xsd:dateTime ;
     rdfs:label "timestamp" ; rdfs:seeAlso sosa:resultTime .
 ar:durationMinutes a owl:DatatypeProperty ;
     rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "duration minutes" .
-ar:distanceKm a owl:DatatypeProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
-    rdfs:label "distance km" .
 
 # --- v0.3 acoustic-target ranges (BPM/energy/valence box) ---
 ar:targetBpmMin a owl:DatatypeProperty ;

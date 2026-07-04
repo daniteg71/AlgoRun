@@ -27,6 +27,31 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-04 18:30] — Danny (with Claude Code)
+**What I did:**
+- **Sensor scope narrowed to two sensors only** (per Danny's decision):
+  accelerometer → cadence, and heart-rate sensor → beats. Removed
+  `PaceReading` + `ElevationReading` classes, their data properties
+  (`paceMinPerKm`, `elevationMeters`), `distanceKm` (GPS-dependent), and the
+  `PaceShape`. Reading-types disjointness now covers HR + cadence. 41 tests
+  still green, ontology still consistent.
+- **`report/ontology_criteria.md`** — the full step-by-step criteria for
+  building/judging the ontology (10 steps + acceptance checklist): scope,
+  competency questions, reuse, disjoint cores, taxonomy/relation/attribute
+  criteria, SKOS, SHACL, 3-level validation, naming hygiene.
+
+**Ideas that came up:**
+- Best way to *see* the ontology visually (answered to Danny): Protégé's
+  **OntoGraf** and **OWLViz** tabs for interactive graphs; **WebVOWL**
+  (webvowl.dev) for a polished VOWL diagram to drop into the presentation.
+
+**TODOs for the other teammate:**
+- If you still want distance/elevation for LongRun stats, say so — I removed
+  them because we dropped GPS/barometer; easy to re-add.
+
+**Open questions:** none.
+
+---
 ### [2026-07-04 17:30] — Danny (with Claude Code)
 **What I did:**
 - **Decided the panic-button threshold: 93% HRmax** (was proposed 95%).

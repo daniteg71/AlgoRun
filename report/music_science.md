@@ -100,10 +100,12 @@ to act, to avoid "schizophrenic" changes:
   **bypasses the lock** and calls `sp.next_track()` for a hard cut. The SHACL
   `EmergencyTargetShape` guarantees the emergency target is calming (≤ 140 bpm).
 
-### Open decision — the panic-button threshold
-Proposed default: **EmergencyPriority fires when the smoothed HR ≥ 95% HRmax
-OR ≥ safeMaxHeartRateBpm**, whichever the runner set. To be confirmed with the
-teammate (see HANDOFF).
+### Panic-button threshold (decided)
+**EmergencyPriority fires when the smoothed HR ≥ 93% HRmax OR ≥
+safeMaxHeartRateBpm**, whichever is lower. 93% HRmax sits just below the top of
+the Z5 training band, so hard intervals still run normally while a genuine
+overshoot triggers the immediate skip. `safeMaxHeartRateBpm` defaults to 93%
+HRmax and can be overridden per runner (e.g. a clinician-set absolute value).
 
 ## References
 

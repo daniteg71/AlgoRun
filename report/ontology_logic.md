@@ -159,8 +159,7 @@ behaviour that keeps the experience from being "schizophrenic":
 `safeMaxHeartRateBpm` is the **emergency** threshold, deliberately *above* the
 normal training zones — Z5 (90–100% HRmax) is legitimate hard training with a
 150+ target; the emergency fires only past the runner's personal danger line
-(proposed default: 95% HRmax or a clinician-set absolute value — open decision
-with the teammate).
+(default: **93% HRmax**, or a clinician-set absolute value per runner).
 
 ---
 

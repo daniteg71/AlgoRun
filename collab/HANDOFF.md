@@ -27,6 +27,16 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-04 17:30] — Danny (with Claude Code)
+**What I did:**
+- **Decided the panic-button threshold: 93% HRmax** (was proposed 95%).
+  EmergencyPriority fires when smoothed HR ≥ 93% HRmax OR ≥ safeMaxHeartRateBpm.
+  Updated `report/music_science.md` and `report/ontology_logic.md`.
+  `safeMaxHeartRateBpm` defaults to 93% HRmax, overridable per runner.
+
+**Open questions:** none new. The panic-button question below is now closed.
+
+---
 ### [2026-07-04 17:00] — Danny (with Claude Code)
 **What I did (on the v0.3 branch, extends PR #5):**
 - **Reworked the acoustic-target taxonomy to 4 zone-indexed levels** matching

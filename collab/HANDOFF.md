@@ -27,6 +27,42 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-04 17:00] — Danny (with Claude Code)
+**What I did (on the v0.3 branch, extends PR #5):**
+- **Reworked the acoustic-target taxonomy to 4 zone-indexed levels** matching
+  the training-zone × music table: RecoveryTarget (Z1, 90–110, energy 0.1–0.3),
+  EasyTarget (Z2, 120–130), ThresholdTarget (Z3–Z4, 130–150), IntervalTarget
+  (Z5, 150–180). Targets are now prescribed by **IntensityZone**, not phase, so
+  the reasoning chain is `phase → targetsZone → zone → prescribesTarget →
+  target` (sensor-driven and plan-driven routes meet at the same target).
+- **`report/ontology_logic.md`** — the full theory document you asked for:
+  physiological-states modelling, the three-core backbone, the reasoning chain,
+  the zone×music table, entrainment, the **1:1 vs half-time BPM-cadence trick**
+  (why recovery is 90–110 not 160), arousal/dissociation, the tempo ceiling,
+  and the full "when a song is too fast" safety logic.
+- Updated `report/music_science.md` table + added the Google Scholar pointer
+  ("Training Intensity Zones Music Synchronization") and practitioner guides.
+- 41 tests green (new test for the zone→target chain).
+
+**Ideas that came up:**
+- The half-time ratio is the single most important idea to get across in the
+  presentation: low intensity → optimize *arousal* (calm), high intensity →
+  optimize *synchronization* (drive). It explains the whole BPM table.
+- Note: I lowered the BPM bands vs my earlier v0.3 (was 120–180). The new
+  numbers match your table and the practitioner literature better.
+
+**TODOs for the other teammate:**
+- Note about Protégé: our `algorun.owl` is hand-written Turtle but 100%
+  Protégé-compatible. For the presentation, open it in Protégé and run the
+  built-in HermiT reasoner to get screenshots (same consistency our tests
+  already prove).
+- Still open: panic-button threshold (below).
+
+**Open questions:**
+- Confirm `safeMaxHeartRateBpm` default = 95% HRmax (emergency line, ABOVE the
+  Z5 training band). Or a fixed absolute BPM?
+
+---
 ### [2026-07-04 15:00] — Danny (with Claude Code)
 **What I did:**
 - **Ontology v0.3 — health/music-science layer** (branch `ontology-v0.3-health`,

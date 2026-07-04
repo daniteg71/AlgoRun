@@ -34,19 +34,29 @@ of Music in Sport and Exercise* (book chapter). Key claims we rely on:
 
 ## 3. BPM mapping (ontology AcousticTarget individuals)
 
-| State (zone) | BPM band | Energy | Duration | Genres |
-|---|---|---|---|---|
-| Warm-up / Recovery (Z1–Z2) | **120–140** | 0.2–0.5 | — | ambient, soft electronic, hypnotic |
-| Tempo / Moderate (Z3) | **150–160** | 0.5–0.75 | ≥ 6 min (flow) | steady house, driving rock |
-| Interval / Peak (Z4–Z5) | **170–180** | 0.75–1.0 | ≤ 4 min (bouts) | techno, drum & bass |
+Indexed by intensity zone (the physiological key). These are the
+`RecoveryTarget` / `EasyTarget` / `ThresholdTarget` / `IntervalTarget`
+individuals in the ontology.
 
-**Honesty note (important for the report).** The 120–140 band is directly
-supported by Terry & Karageorghis as the core *motivational* range, and the
-chapter warns that few tracks exist at very high tempi (ceiling above 80%
-maxHRR). The **150–180** targets come instead from the **cadence-synchronization**
-literature (Van Dyck et al. 2015; Karageorghis et al. beat-synchronized
-running), where the target is footfall entrainment, not tempo preference. We
-cite both and keep the two rationales separate rather than overclaiming.
+| Workout type | HR zone | Energy | BPM | Musical character |
+|---|---|---|---|---|
+| Recovery run | Z1 (50–60%) | 0.1–0.3 | **90–110** | ambient, chill-out, downtempo |
+| Easy / Long run | Z2 (60–70%) | 0.4–0.6 | **120–130** | deep house, pop, podcast-friendly |
+| Tempo / Threshold | Z3–Z4 (80–90%) | 0.6–0.8 | **130–150** | techno, drum & bass, steady rhythm |
+| Intervals / HIIT | Z5 (90–100%) | 0.8–1.0 | **150+** | hard techno, metal, dubstep |
+
+**The BPM–cadence ratio (key point, see `ontology_logic.md` §4.2).** The low
+recovery band (90–110) is not a contradiction: at low intensity the foot
+entrains in **half-time** (one step every two beats) and the goal is *calm*
+(low arousal), while at high intensity the track is a **1:1 metronome** driving
+cadence. So we optimize arousal at the bottom and synchronization at the top.
+
+**Honesty note.** Practitioner BPM guides broadly agree (<120 warm-up/cool-down,
+120–140 cruising, 140–160+ HIIT). The chapter's tempo-*preference* evidence
+(Karageorghis) centres on 80–140 bpm with a ceiling above ~80% maxHRR; the
+higher synchronization targets rest on the cadence-entrainment literature
+(Van Dyck et al. 2015). We keep the two rationales separate rather than
+overclaiming, and cite practitioner guides only as corroboration.
 
 ## 4. Cardiac benchmarks — where to hold back vs. push harder
 
@@ -111,3 +121,7 @@ teammate (see HANDOFF).
   heart rate.* Ann. Med. Exp. Biol. Fenn.
 - Szmedra, L. & Bacharach, D. W. (1998). *Effect of music on perceived exertion,
   heart rate, blood pressure and lactate.* Int. J. Sports Med.
+
+Google Scholar entry point for further sources: search
+*"Training Intensity Zones Music Synchronization"*. Practitioner corroboration:
+Runlovers (2025/2026), RunDida, Runo, Runners Need BPM guides.

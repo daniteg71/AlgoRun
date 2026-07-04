@@ -227,8 +227,8 @@ ar:PrefersGenreObjectShape a sh:NodeShape ;
 
 ar:PrescribesTargetSubjectShape a sh:NodeShape ;
     sh:targetSubjectsOf ar:prescribesTarget ;
-    sh:class ar:TrainingPhase ;
-    sh:message "Domain violation: subject of ar:prescribesTarget must be an ar:TrainingPhase." .
+    sh:class ar:IntensityZone ;
+    sh:message "Domain violation: subject of ar:prescribesTarget must be an ar:IntensityZone." .
 
 ar:PrescribesTargetObjectShape a sh:NodeShape ;
     sh:targetSubjectsOf ar:prescribesTarget ;

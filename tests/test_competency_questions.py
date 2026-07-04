@@ -91,3 +91,15 @@ def test_cq10_bpm_curve_for_session_phases():
         ?song ar:suitsPhase ex:warm ; ar:bpmValue ?bpm .
     }""")
     assert any(float(r[1]) == 128 for r in rows)
+
+
+def test_zone_prescribes_acoustic_target():
+    """The reasoning chain phase → zone → acoustic target (BPM band)."""
+    rows = _ask("""SELECT ?bpmMin ?bpmMax WHERE {
+        ex:sprint ar:targetsZone ?zone .
+        ?zone ar:prescribesTarget ?t .
+        ?t ar:targetBpmMin ?bpmMin ; ar:targetBpmMax ?bpmMax .
+    }""")
+    assert len(rows) == 1
+    # sprint → Z5 → IntervalTarget (150–180)
+    assert int(rows[0][0]) == 150 and int(rows[0][1]) == 180

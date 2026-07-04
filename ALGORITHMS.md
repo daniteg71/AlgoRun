@@ -16,6 +16,11 @@ Format per entry: what / variant / where in the codebase / source.
 | Stratified random split | Per-tier shuffle + 70/15/15 cut, fixed seed 42 | `src/algorun/datagen/generator.py` (`split_records`) | Course Block 14 requirement (70/15/15) |
 | Template-based synthetic text generation | LLM-authored templates instantiated with ontology surface forms; gold spans computed by substring search | `src/algorun/datagen/templates.py`, `generator.py` | Course Block 14, "Synthetic Data Generation via LLMs" (tiered complexity) |
 | Heart-rate intensity zones | 5-zone model (Z1–Z5) | `ontology/algorun.owl` (IntensityZone individuals) | Karvonen, Kentala & Mustala (1957), *Ann. Med. Exp. Biol. Fenn.* 35(3) |
+| Ontology conception | Three disjoint IOF-style cores (Agent/Process/InformationEntity), forward+inverse properties, OWL+SKOS split, competency-question driven | `ontology/algorun.owl` | Course Block 12; Grüninger & Fox (1995); Noy & McGuinness (2001) |
+| Vocabulary reuse by alignment | `rdfs:seeAlso`/`subClassOf` bridges to SOSA/SSN (sensors), OWL-Time (phases), Music Ontology (BPM) — no external imports | `ontology/algorun.owl` | Suárez-Figueroa et al. (2015) NeOn; Haller et al. (2019) SOSA/SSN; Raimond et al. (2007) Music Ontology |
+| Competency-question evaluation | 10 CQs as SPARQL over a sample KG (functional evaluation) | `tests/test_competency_questions.py`, `evaluation.py::sample_kg` | Course Block 13; Grüninger & Fox (1995) |
+| OWL DL reasoning (consistency) | HermiT via owlready2; disjoint-core violation → inconsistent | `src/algorun/ontology/evaluation.py`, `tests/test_ontology_v2.py` | Course Block 13; Baader et al., *DL Handbook* |
+| Ontology quality diagnosis | OOPS! pitfall scan + informal OntoClean taxonomy check | `report/ontology_eval.md` | Poveda-Villalón et al. (2014) OOPS!; Guarino & Welty OntoClean |
 
 ## Planned (entered when the module lands)
 

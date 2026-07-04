@@ -208,6 +208,21 @@ ar:BuiltForSessionObjectShape a sh:NodeShape ;
         sh:message "Range violation: object of ar:builtForSession must be an ar:WorkoutSession." ;
     ] .
 
+### prefersGenre (Runner → Genre)
+
+ar:PrefersGenreSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:prefersGenre ;
+    sh:class ar:Runner ;
+    sh:message "Domain violation: subject of ar:prefersGenre must be an ar:Runner." .
+
+ar:PrefersGenreObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:prefersGenre ;
+    sh:property [
+        sh:path ar:prefersGenre ;
+        sh:class ar:Genre ;
+        sh:message "Range violation: object of ar:prefersGenre must be an ar:Genre." ;
+    ] .
+
 #################################################################
 # Value constraints on data properties
 #################################################################

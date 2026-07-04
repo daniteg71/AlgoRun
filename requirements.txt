@@ -3,7 +3,7 @@ spacy>=3.7,<4.0
 
 # Ontology / RDF / SHACL
 rdflib>=7.0
-owlready2>=0.46
+owlready2>=0.46   # OWL DL reasoner (HermiT) for consistency checks — needs Java
 pyshacl>=0.26
 
 # Transformers & training

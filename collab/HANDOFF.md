@@ -27,6 +27,43 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-04 12:00] — Danny (with Claude Code)
+**What I did:**
+- **Ontology v0.2** (branch `ontology-v0.2`, PR open). Followed the Block 12
+  method:
+  - Three disjoint IOF-style cores: Agent / Process / InformationEntity
+    (`owl:disjointWith`). Reading types and Song/Genre/Playlist also disjoint.
+  - Completed all forward/inverse property pairs (was 4/14, now all).
+  - New `prefersGenre (Runner→Genre)` + SHACL shape (enables personalisation).
+  - SKOS layer: WorkoutType and Genre are now `skos:Concept` in concept
+    schemes (double-typed, so the NER dictionary is unchanged).
+  - Light **standard alignment** (no imports, just axioms): SensorReading ⊑
+    sosa:Observation, phases ↔ OWL-Time, BPM ↔ Music Ontology.
+- **Formal evaluation** (Block 13 deliverable): 10 competency questions as
+  SPARQL tests, reasoner consistency check (HermiT via owlready2 — a
+  disjoint-core violation is proven inconsistent), OOPS!/OntoClean write-up
+  in `report/ontology_eval.md`.
+- 34 tests green. ALGORITHMS.md + this handoff updated. Design doc recovered
+  from PR #2 into `report/ontology_design.md`.
+
+**Ideas that came up:**
+- The reasoner check and the SHACL gate are the two halves of the same idea:
+  reasoner proves the *schema* is coherent (open world), SHACL rejects *bad
+  data* (closed world). Strong slide for the presentation.
+- SOSA/SSN maps 1:1 onto our sensor side — worth a dedicated slide.
+
+**TODOs for the other teammate:**
+- Run `ontology/algorun.owl` through OOPS! (https://oops.linkeddata.es/) and
+  paste the result into `report/ontology_eval.md` §3.
+- Reasoner needs Java — check you have it (`java -version`) before running
+  the ontology tests.
+- PR #2 (old design-doc branch) is now superseded by this PR — close it.
+
+**Open questions:**
+- Add `nextPhase` chains to the sample KG for longer BPM-curve CQs, or keep
+  the fixture minimal? I kept it minimal for now.
+
+---
 ### [2026-07-03 20:00] — Danny (with Claude Code)
 **What I did:**
 - **New collaboration rules** (now in `CLAUDE.md` + `GUIDELINES.md` Rules 6–8):

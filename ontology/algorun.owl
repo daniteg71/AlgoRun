@@ -14,7 +14,8 @@
 <http://algorun.org/ontology> a owl:Ontology ;
     rdfs:label "AlgoRun Ontology" ;
     rdfs:comment "Domain ontology for the AlgoRun ontology-driven running playlist manager (AI-LAB 2025/2026). Method: Block 12 (three disjoint IOF-style cores, forward/inverse properties, OWL+SKOS split, competency-question driven). The ontology restricts and validates data; it never generates it. Sensor part aligned to W3C/OGC SOSA/SSN; phases aligned to OWL-Time; tempo aligned to the Music Ontology." ;
-    owl:versionInfo "0.2.0" .
+    owl:versionInfo "0.3.0" ;
+    rdfs:comment "v0.3 adds the health/music-science layer: AcousticTarget (the target point in BPM/energy/valence space produced by the reasoner), per-zone tempo mappings, and safety constraints (critical heart rate, gradual cadence change ≤5%). Evidence: Terry & Karageorghis (2011); see report/music_science.md." .
 
 #################################################################
 # Three disjoint cores (IOF-style foundation, Block 12)
@@ -99,6 +100,23 @@ ar:IntensityZone a owl:Class ;
     skos:altLabel "zone", "heart rate zone", "HR zone" ;
     rdfs:seeAlso sosa:ObservableProperty ;
     rdfs:comment "A classification of effort (Karvonen 5-zone model)." .
+
+ar:AcousticTarget a owl:Class ;
+    rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "acoustic target" ;
+    skos:altLabel "target", "sound target", "target point" ;
+    rdfs:comment "The target point the reasoner produces (a region in BPM/energy/valence space, plus optional track-duration bounds), NOT a song. Vector search then finds the nearest track (project objective, step 4)." .
+
+ar:ActionPriority a owl:Class ;
+    rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "action priority" ;
+    skos:altLabel "priority", "status severity" ;
+    rdfs:comment "Severity of the runner's state. Normal → the playback lock is respected (soft transitions); Emergency → the controller bypasses the lock and cuts the track immediately (immediate skip)." .
+
+ar:NormalPriority a ar:ActionPriority ;
+    rdfs:label "normal priority" ; skos:altLabel "normal", "routine" .
+ar:EmergencyPriority a ar:ActionPriority ;
+    rdfs:label "emergency priority" ; skos:altLabel "emergency", "critical", "panic" .
 
 ar:MusicEntity a owl:Class ;
     rdfs:subClassOf ar:InformationEntity ;
@@ -204,6 +222,40 @@ ar:Z4 a ar:IntensityZone ; rdfs:label "zone 4" ; skos:altLabel "Z4", "hard zone"
 ar:Z5 a ar:IntensityZone ; rdfs:label "zone 5" ; skos:altLabel "Z5", "maximum zone", "red zone" .
 
 #################################################################
+# Acoustic targets per training phase (health/music evidence).
+# BPM bands: recovery/warm-up 120–140, tempo 150–160, peak 170–180.
+# See report/music_science.md for the citations and the caveat that
+# 120–140 is the core "motivational" band (Karageorghis), while the
+# higher bands come from cadence-synchronization studies.
+#################################################################
+
+ar:RecoveryTarget a ar:AcousticTarget ;
+    rdfs:label "recovery target" ;
+    ar:targetBpmMin 120 ; ar:targetBpmMax 140 ;
+    ar:targetEnergyMin 0.2 ; ar:targetEnergyMax 0.5 ;
+    rdfs:comment "Warm-up / recovery (Z1–Z2): steady, hypnotic, soft electronic / ambient. Slow tempo speeds HR and lactate recovery." .
+
+ar:TempoTarget a ar:AcousticTarget ;
+    rdfs:label "tempo target" ;
+    ar:targetBpmMin 150 ; ar:targetBpmMax 160 ;
+    ar:targetEnergyMin 0.5 ; ar:targetEnergyMax 0.75 ;
+    ar:targetDurationMinMs 360000 ;
+    rdfs:comment "Moderate effort / tempo run (Z3): faster stride transitions. Long tracks (≥ 6 min) — fewer changes, agonistic flow state." .
+
+ar:PeakTarget a ar:AcousticTarget ;
+    rdfs:label "peak target" ;
+    ar:targetBpmMin 170 ; ar:targetBpmMax 180 ;
+    ar:targetEnergyMin 0.75 ; ar:targetEnergyMax 1.0 ;
+    ar:targetDurationMaxMs 240000 ;
+    rdfs:comment "Intervals / max effort (Z4–Z5): rhythmic aggression, high energy (techno, drum&bass). Short tracks (≤ 4 min) matching short work bouts." .
+
+# phase → prescribed acoustic target
+ar:WarmUp   ar:prescribesTarget ar:RecoveryTarget .
+ar:Steady   ar:prescribesTarget ar:TempoTarget .
+ar:Sprint   ar:prescribesTarget ar:PeakTarget .
+ar:CoolDown ar:prescribesTarget ar:RecoveryTarget .
+
+#################################################################
 # Object properties — every forward property has a declared inverse
 # (Block 12). Explicit domain/range = the Constraint Gate (Rule 1).
 #################################################################
@@ -274,6 +326,24 @@ ar:targetedByPhase a owl:ObjectProperty ;
     rdfs:domain ar:IntensityZone ; rdfs:range ar:TrainingPhase ;
     rdfs:label "targeted by phase" .
 
+ar:prescribesTarget a owl:ObjectProperty ;
+    rdfs:domain ar:TrainingPhase ; rdfs:range ar:AcousticTarget ;
+    rdfs:label "prescribes target" ;
+    skos:altLabel "prescribes", "calls for", "asks for" ;
+    owl:inverseOf ar:prescribedFor .
+ar:prescribedFor a owl:ObjectProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range ar:TrainingPhase ;
+    rdfs:label "prescribed for" .
+
+ar:hasActionPriority a owl:ObjectProperty ;
+    rdfs:domain ar:WorkoutSession ; rdfs:range ar:ActionPriority ;
+    rdfs:label "has action priority" ;
+    skos:altLabel "escalated to", "flagged as" ;
+    owl:inverseOf ar:priorityOf .
+ar:priorityOf a owl:ObjectProperty ;
+    rdfs:domain ar:ActionPriority ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "priority of" .
+
 ar:suitsPhase a owl:ObjectProperty ;
     rdfs:domain ar:Song ; rdfs:range ar:TrainingPhase ;
     rdfs:label "suits phase" ;
@@ -343,6 +413,11 @@ ar:energyValue a owl:DatatypeProperty ;
 ar:valenceValue a owl:DatatypeProperty ;
     rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
     rdfs:label "valence value" ; skos:altLabel "valence", "positivity" .
+ar:trackDurationMs a owl:DatatypeProperty ;
+    rdfs:domain ar:Song ; rdfs:range xsd:integer ;
+    rdfs:label "track duration ms" ;
+    skos:altLabel "duration", "length" ;
+    rdfs:comment "Track length in milliseconds (as provided by Spotify). Lets targets filter by duration: long tracks for endurance flow, short tracks for intervals." .
 ar:songTitle a owl:DatatypeProperty ;
     rdfs:domain ar:Song ; rdfs:range xsd:string ; rdfs:label "song title" .
 ar:artistName a owl:DatatypeProperty ;
@@ -370,3 +445,48 @@ ar:durationMinutes a owl:DatatypeProperty ;
 ar:distanceKm a owl:DatatypeProperty ;
     rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "distance km" .
+
+# --- v0.3 acoustic-target ranges (BPM/energy/valence box) ---
+ar:targetBpmMin a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
+    rdfs:label "target bpm min" .
+ar:targetBpmMax a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
+    rdfs:label "target bpm max" .
+ar:targetEnergyMin a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
+    rdfs:label "target energy min" .
+ar:targetEnergyMax a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
+    rdfs:label "target energy max" .
+ar:targetDurationMinMs a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ;
+    rdfs:label "target duration min ms" .
+ar:targetDurationMaxMs a owl:DatatypeProperty ;
+    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ;
+    rdfs:label "target duration max ms" .
+
+# --- v0.3 runner health baselines (feed the Karvonen zone computation) ---
+ar:maxHeartRateBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+    rdfs:label "max heart rate bpm" ;
+    rdfs:comment "Estimated HRmax (Tanaka et al. 2001: 208 − 0.7·age, or Fox 220 − age)." .
+ar:restingHeartRateBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+    rdfs:label "resting heart rate bpm" .
+ar:safeMaxHeartRateBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+    rdfs:label "safe max heart rate bpm" ;
+    rdfs:comment "Above this the system must force a relaxing acoustic target (safety constraint)." .
+
+# --- v0.3 decision-time stamps on a session (used by the SHACL safety gate) ---
+ar:currentCadenceSpm a owl:DatatypeProperty ;
+    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+    rdfs:label "current cadence spm" .
+ar:currentHeartRateBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+    rdfs:label "current heart rate bpm" .
+ar:appliedTargetBpm a owl:DatatypeProperty ;
+    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+    rdfs:label "applied target bpm" ;
+    rdfs:comment "The BPM the recommender is about to apply; checked against the safety constraints before the song switch. The runner link reuses ar:performedBy." .

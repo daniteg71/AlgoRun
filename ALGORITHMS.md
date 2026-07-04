@@ -21,6 +21,11 @@ Format per entry: what / variant / where in the codebase / source.
 | Competency-question evaluation | 10 CQs as SPARQL over a sample KG (functional evaluation) | `tests/test_competency_questions.py`, `evaluation.py::sample_kg` | Course Block 13; Grüninger & Fox (1995) |
 | OWL DL reasoning (consistency) | HermiT via owlready2; disjoint-core violation → inconsistent | `src/algorun/ontology/evaluation.py`, `tests/test_ontology_v2.py` | Course Block 13; Baader et al., *DL Handbook* |
 | Ontology quality diagnosis | OOPS! pitfall scan + informal OntoClean taxonomy check | `report/ontology_eval.md` | Poveda-Villalón et al. (2014) OOPS!; Guarino & Welty OntoClean |
+| Per-state BPM/energy targets | AcousticTarget individuals: recovery 120–140, tempo 150–160, peak 170–180 | `ontology/algorun.owl`, `report/music_science.md` | Terry & Karageorghis (2011); Van Dyck et al. (2015) |
+| Cadence-safety constraint | SPARQL-SHACL: applied BPM ≤ 1.05 × current cadence | `ontology/shapes.ttl` (`CadenceStepShape`) | Heiderscheit et al. (2011) |
+| Critical-HR & emergency guards | SPARQL-SHACL: no target > 140 bpm at/above safe max HR or under EmergencyPriority | `ontology/shapes.ttl` | Terry & Karageorghis (2011); Szmedra & Bacharach (1998) |
+| HRmax / zone models | Tanaka (208−0.7·age), Fox (220−age), Karvonen HR reserve, 5-zone % HRmax | `report/music_science.md`, ontology HR props | Tanaka et al. (2001); Fox et al. (1971); Karvonen et al. (1957) |
+| Control-system smoothing (planned M5) | HR moving average (hysteresis) + playback lock + emergency bypass skip | M5 server | standard control-systems practice; documented in `report/music_science.md` |
 
 ## Planned (entered when the module lands)
 

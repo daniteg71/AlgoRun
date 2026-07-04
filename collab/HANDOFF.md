@@ -27,6 +27,44 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-04 15:00] — Danny (with Claude Code)
+**What I did:**
+- **Ontology v0.3 — health/music-science layer** (branch `ontology-v0.3-health`,
+  built ON TOP of v0.2). Read Terry & Karageorghis (2011) "Chariots of Fire"
+  and encoded the evidence:
+  - `AcousticTarget` class = the target point (BPM/energy/valence + duration
+    bounds) the reasoner produces, NOT a song → feeds the vector search.
+  - Per-phase targets: recovery 120–140, tempo 150–160 (≥6 min, flow), peak
+    170–180 (≤4 min, intervals).
+  - `trackDurationMs` on Song + duration bounds on targets (the "haDurata"
+    idea).
+  - Runner health props: max/resting/safeMax heart rate (Tanaka/Karvonen).
+  - `ActionPriority` (Normal/Emergency) for the dual-speed controller.
+  - **3 SPARQL-SHACL safety constraints**: cadence jump ≤5%, no energetic
+    target above safe-max HR, no energetic target under EmergencyPriority.
+- `report/music_science.md`: full evidence doc — BPM table, cardiac benchmark
+  models (Fox/Tanaka/Karvonen/5-zone), where to push vs. hold back, the
+  hysteresis + playback-lock + panic-button control rules for M5.
+- 40 tests green (6 new health-constraint tests). ALGORITHMS.md updated.
+
+**Ideas that came up:**
+- Honesty flagged in the report: 120–140 is the Karageorghis *motivational*
+  band; 150–180 comes from cadence-*synchronization* studies. Two rationales,
+  cited separately — don't overclaim.
+- The ontology sets WHAT + HOW-URGENT; the M5 Python server owns WHEN
+  (smoothing + lock + emergency bypass). Clean separation for the report.
+
+**TODOs for the other teammate:**
+- **Decide the panic-button threshold** (open question below).
+- PRs are piling up unmerged: #2 (old design doc — close it), #3 (v0.2
+  ontology), #4 (CLAUDE objective), and this v0.3 PR. Please merge in order
+  #3 → #4 → v0.3 so `main` catches up.
+
+**Open questions:**
+- Panic-button trigger: proposed default is smoothed HR ≥ 95% HRmax OR ≥
+  runner's safeMaxHeartRateBpm. Agree, or set a fixed BPM (e.g. 190)?
+
+---
 ### [2026-07-04 12:00] — Danny (with Claude Code)
 **What I did:**
 - **Ontology v0.2** (branch `ontology-v0.2`, PR open). Followed the Block 12

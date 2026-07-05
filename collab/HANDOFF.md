@@ -27,6 +27,20 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 00:30] — Danny (with Claude Code)
+**What I did:** `src/algorun/fusion.py` — il livello di **fusione** prompt +
+sensore che mancava. Tre regole in ordine: (1) sicurezza vince sempre (HR ≥
+93% HRmax → target calmo), (2) prompt quantitativo → BPM chirurgico MA
+ri-validato dal gate SHACL con lo stato del corpo nello stesso grafo (chiuso
+il buco: prima "12 km/h" scavalcava la sicurezza), (3) prompt qualitativo →
+decide il sensore. Demo: `python -m algorun.fusion` (3 scenari). 63 test
+verdi (4 fusion + 4 casi limite del routing). Decisioni di sessione: niente
+training per ora (prima il baseline M3), niente benchmark formale qual/quant
+(solo unit test).
+**Open questions:** none. Prossimo passo concordato in scaletta: M3 Data
+Refinery (il pezzo valutato dall'esame).
+
+---
 ### [2026-07-05 19:00] — Danny (with Claude Code)
 **What I did:**
 - **Commenti in italiano** in `nlp.py` e `pipeline.py` (codice identico) —

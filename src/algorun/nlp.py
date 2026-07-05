@@ -1,19 +1,23 @@
-"""NLP perception: user prompt -> entities -> RDF triples for the ontology.
+"""Percezione NLP: prompt dell'utente -> entità -> triple RDF per l'ontologia.
 
-Turns a free-text intent ("I want to do intervals for 30 minutes") into the
-ontology's vocabulary, so the A-Box can be populated and validated.
+Trasforma un intento in linguaggio libero ("I want to do intervals for 30
+minutes") nel vocabolario dell'ontologia, così la A-Box può essere popolata
+e validata dal gate SHACL.
 
-Two extraction backends behind ONE interface (course Rule 3 & 7):
-  - "dictionary": rule-based longest-match over the ontology labels (the course
-    baseline; always available, reuses `loader.label_dictionary`).
-  - "gliner": zero-shot NER (advanced; `pip install gliner`, lazy-loaded).
-Numbers/units (speed, duration) are pulled by a small regex — NER models find
-the span but do not parse the value.
+Due backend di estrazione dietro UN'UNICA interfaccia (Rule 3 e 7 del corso):
+  - "dictionary": matching rule-based longest-match-first sulle label
+    dell'ontologia (la baseline del corso; sempre disponibile, riusa
+    `loader.label_dictionary`).
+  - "gliner": NER zero-shot (avanzato; `pip install gliner`, import lazy —
+    il modulo funziona anche senza).
+I numeri con unità (velocità, durata) li estrae una piccola regex: i modelli
+NER trovano lo *span* ("5 km/h") ma non interpretano il valore numerico.
 
-Routing (the qualitative/quantitative distinction):
-  - quantitative prompt (a speed/duration is stated) -> use the declared target;
-  - qualitative prompt (only mood/effort words)      -> defer to the sensors
-    (the HR -> effort -> target bridge in pipeline.py).
+Routing (la distinzione qualitativo/quantitativo — un solo if, non due sistemi):
+  - prompt quantitativo (velocità/durata dichiarate) -> si usa il target
+    dichiarato dall'utente (calcolo "chirurgico" del BPM);
+  - prompt qualitativo (solo parole di umore/sforzo)  -> si delega ai sensori
+    (il ponte HR -> effort -> target in pipeline.py).
 
 CLI:  python -m algorun.nlp "I want an easy recovery run for 40 minutes"
 """
@@ -30,27 +34,29 @@ from algorun.ontology.loader import AR, load_ontology, load_shapes
 
 EX = Namespace("http://algorun.org/data#")
 
-# Labels for the GLiNER backend, mapped 1:1 onto ontology classes.
+# Label per il backend GLiNER, mappate 1:1 sulle classi dell'ontologia.
 GLINER_LABELS = ["workout goal", "training phase", "intensity", "music genre"]
 
-# Regex for the quantitative slots (value + unit).
+# Regex per gli slot quantitativi (valore + unità).
 _DURATION_RE = re.compile(r"(\d+)\s*(?:min|minute|minutes|minuti)\b", re.I)
 _HOURS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:h|hour|hours|ora|ore)\b", re.I)
 _SPEED_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:km/?h|kmh|km/hour|km orari)\b", re.I)
 
 
-# ---------------------------------------------------------------- extraction
+# ---------------------------------------------------------------- estrazione
 
 def dictionary_extract(text: str) -> list[dict]:
-    """Baseline: longest-match-first dictionary matching over ontology labels.
+    """Baseline: dictionary matching longest-match-first sulle label OWL.
 
-    Returns entities [{surface, iri, type_iri, start, end}] without overlaps.
+    Scorre il dizionario (già ordinato dalla forma più lunga alla più corta,
+    come richiede il corso) e marca i caratteri già "presi" per evitare
+    sovrapposizioni. Ritorna entità [{surface, iri, type_iri, start, end}].
     """
     schema = load_ontology()
     lowered = text.lower()
-    taken = [False] * len(text)
+    taken = [False] * len(text)          # caratteri già assegnati a un'entità
     entities: list[dict] = []
-    for surface, iri, kind in schema.label_dictionary():   # already longest-first
+    for surface, iri, kind in schema.label_dictionary():   # longest-first
         if kind != "individual":
             continue
         start = lowered.find(surface)
@@ -69,17 +75,30 @@ def dictionary_extract(text: str) -> list[dict]:
 
 
 def gliner_extract(text: str, threshold: float = 0.4) -> list[dict]:
-    """Advanced backend: zero-shot GLiNER. Lazy import so the module works
-    without it installed. Spans are grounded back to ontology IRIs by label."""
+    """Backend avanzato: GLiNER zero-shot (nessun fine-tuning).
+
+    Import lazy: il modulo funziona anche senza GLiNER installato. Gli span
+    trovati vengono "ancorati" agli IRI dell'ontologia cercando la superficie
+    nel dizionario delle label (grounding per label).
+    """
     from gliner import GLiNER  # pip install gliner
 
     model = GLiNER.from_pretrained("urchade/gliner_small-v2.1")
     schema = load_ontology()
-    label_to_iri = {s: iri for s, iri, _ in schema.label_dictionary()}
+    label_dict = schema.label_dictionary()          # già longest-match-first
+    label_to_iri = {s: iri for s, iri, _ in label_dict}
     out: list[dict] = []
     for ent in model.predict_entities(text, GLINER_LABELS, threshold=threshold):
         surface = ent["text"].lower()
+        # grounding: match esatto con la label, altrimenti la label più lunga
+        # CONTENUTA nello span (GLiNER trova "easy recovery run", noi ancoriamo
+        # "recovery run" -> ar:Easy). Senza questo passo il recall crolla.
         iri = label_to_iri.get(surface)
+        if iri is None:
+            for s, cand, kind in label_dict:
+                if kind == "individual" and s in surface:
+                    iri = cand
+                    break
         out.append({"surface": ent["text"], "iri": str(iri) if iri else None,
                     "type_iri": None, "start": ent["start"], "end": ent["end"],
                     "gliner_label": ent["label"]})
@@ -87,7 +106,7 @@ def gliner_extract(text: str, threshold: float = 0.4) -> list[dict]:
 
 
 def parse_quantities(text: str) -> dict:
-    """Regex for the quantitative slots. Returns {} when the prompt is qualitative."""
+    """Regex per gli slot quantitativi. Ritorna {} se il prompt è qualitativo."""
     q: dict = {}
     if (m := _DURATION_RE.search(text)):
         q["duration_min"] = float(m.group(1))
@@ -101,36 +120,37 @@ def parse_quantities(text: str) -> dict:
 # ------------------------------------------------------------------- routing
 
 def classify(quantities: dict) -> str:
-    """The qual/quant router: one if, not two systems."""
+    """Il router qualitativo/quantitativo: un solo if, non due sistemi."""
     return "quantitative" if quantities else "qualitative"
 
 
-# ------------------------------------------- quantitative: surgical BPM target
-# Cadence rises with pace (155-168 easy, 170-178 tempo, 176-186 race). Simple
-# linear regression calibrated on those ranges; then 1:1 auditory-motor
-# entrainment (BPM = cadence) with half-time as fallback (Van Dyck et al. 2015).
+# ------------------------------------- quantitativo: target BPM "chirurgico"
+# La cadenza cresce con la velocità (155-168 spm a ritmo facile, 170-178 a
+# tempo, 176-186 in gara). Regressione lineare calibrata su quei range; poi
+# entrainment uditivo-motorio 1:1 (BPM = cadenza) con half-time come ripiego
+# (un passo ogni due beat) — Van Dyck et al. (2015).
 CADENCE_INTERCEPT = 134.0
-CADENCE_SLOPE = 2.9          # spm per km/h
+CADENCE_SLOPE = 2.9          # spm per ogni km/h in più
 CADENCE_MIN, CADENCE_MAX = 150.0, 190.0
 
 
 def target_cadence_from_speed(speed_kmh: float) -> float:
-    """Declared running speed -> target cadence (steps per minute)."""
+    """Velocità dichiarata -> cadenza target (passi al minuto)."""
     cadence = CADENCE_INTERCEPT + CADENCE_SLOPE * speed_kmh
     return round(min(max(cadence, CADENCE_MIN), CADENCE_MAX), 1)
 
 
 def target_bpm(speed_kmh: float) -> dict:
-    """Surgical BPM target from a declared speed: exact value, not a band.
-    1:1 = cadence; half_time = cadence/2 (for calmer tracks / easier catalog)."""
+    """Target BPM chirurgico dalla velocità dichiarata: un valore esatto,
+    non una banda. 1:1 = cadenza; half_time = cadenza/2 (tracce più calme)."""
     cadence = target_cadence_from_speed(speed_kmh)
     return {"cadence_spm": cadence, "bpm_one_to_one": cadence,
             "bpm_half_time": round(cadence / 2, 1)}
 
 
-# ------------------------------------------------------------------ grounding
+# ----------------------------------------------------------------- grounding
 
-# which ontology predicate to use, per entity class
+# quale predicato dell'ontologia usare, per ciascuna classe di entità
 _PREDICATE = {
     str(AR.WorkoutType): AR.hasWorkoutType,
     str(AR.TrainingPhase): AR.hasPhase,
@@ -139,10 +159,11 @@ _PREDICATE = {
 
 
 def ground(text: str, backend: str = "dictionary") -> dict:
-    """Wrapper of grounding: prompt -> RDF triples for the A-Box, plus routing.
+    """Wrapper di grounding: prompt -> triple RDF per la A-Box, più routing.
 
-    Returns {entities, quantities, mode, graph, shacl_ok}. `speed_kmh` is parsed
-    but not yet grounded (needs the GPS sensor); it is reported for later.
+    Ritorna {entities, quantities, mode, bpm_target, graph, shacl_ok}.
+    Nota: `speed_kmh` viene interpretata e trasformata in BPM target; il
+    *controllo* live della velocità arriverà col sensore GPS (vedi gps.py).
     """
     extract = gliner_extract if backend == "gliner" else dictionary_extract
     entities = extract(text)
@@ -163,8 +184,8 @@ def ground(text: str, backend: str = "dictionary") -> dict:
         g.add((EX.session, AR.durationMinutes,
                Literal(str(quantities["duration_min"]), datatype=XSD.decimal)))
 
-    # Quantitative + speed -> surgical BPM target (exact, from the declared
-    # speed). Qualitative prompts leave this None and defer to the HR bridge.
+    # Quantitativo + velocità -> BPM chirurgico (esatto, dalla velocità
+    # dichiarata). I prompt qualitativi lasciano None e delegano al ponte HR.
     bpm_target = None
     if "speed_kmh" in quantities:
         bpm_target = target_bpm(quantities["speed_kmh"])
@@ -185,7 +206,7 @@ def _validate(graph: Graph):
 # ----------------------------------------------------------------- benchmark
 
 def prf1(predicted: set, gold: set) -> dict:
-    """Precision / Recall / F1 (course Block 14 metrics), set-based on IRIs."""
+    """Precision / Recall / F1 (metriche del Block 14), su insiemi di IRI."""
     tp = len(predicted & gold)
     precision = tp / len(predicted) if predicted else 0.0
     recall = tp / len(gold) if gold else 0.0
@@ -194,7 +215,11 @@ def prf1(predicted: set, gold: set) -> dict:
 
 
 def evaluate(cases: list[dict], backend: str = "dictionary") -> dict:
-    """Micro-averaged P/R/F1 of entity extraction over annotated prompts."""
+    """P/R/F1 micro-mediate dell'estrazione di entità su prompt annotati.
+
+    `cases` è il gold set: [{"text": ..., "gold_iris": [...]}]. Serve per il
+    confronto baseline (dictionary) vs avanzato (gliner) richiesto dal corso.
+    """
     tp = fp = fn = 0
     for c in cases:
         pred = {e["iri"] for e in ground(c["text"], backend)["entities"] if e["iri"]}
@@ -215,8 +240,8 @@ def main() -> None:
     text = " ".join(sys.argv[1:]) or "I want an easy recovery run for 40 minutes"
     r = ground(text)
     print(f'Prompt: "{text}"')
-    print(f"Mode:   {r['mode']}  (quantitative = declared target; "
-          f"qualitative = defer to HR sensor)")
+    print(f"Mode:   {r['mode']}  (quantitative = target dichiarato; "
+          f"qualitative = delega al sensore HR)")
     print("Entities:")
     for e in r["entities"]:
         print(f"  '{e['surface']}' -> {e['iri']}")
@@ -225,7 +250,7 @@ def main() -> None:
     if r["bpm_target"]:
         t = r["bpm_target"]
         print(f"Surgical target: cadence {t['cadence_spm']} spm -> "
-              f"BPM {t['bpm_one_to_one']} (1:1) or {t['bpm_half_time']} (half-time)")
+              f"BPM {t['bpm_one_to_one']} (1:1) o {t['bpm_half_time']} (half-time)")
     print(f"SHACL valid: {r['shacl_ok']}")
     print("Triples:")
     for s, p, o in r["graph"]:

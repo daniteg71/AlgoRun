@@ -38,7 +38,8 @@ Format per entry: what / variant / where in the codebase / source.
 | Qual/quant routing | One `if`: declared value → quantitative target; else → defer to HR sensors | `src/algorun/nlp.py` (`classify`) | project design (dual-mode grounding) |
 | Speed → cadence → BPM | Linear cadence regression (134 + 2.9·kmh, clamp 150–190) then 1:1 / half-time entrainment | `src/algorun/nlp.py` (`target_bpm`) | Van Dyck et al. (2015); cadence-vs-pace literature (155–186 spm ranges) |
 | Prompt grounding | GLiNER/dict spans + quantities → RDF triples for the A-Box, SHACL-validated | `src/algorun/nlp.py` (`ground`) | course Block 14 (grounding + SHACL gate) |
-| Entity extraction P/R/F1 | Micro-averaged over an annotated prompt gold set (baseline 0.95 F1) | `src/algorun/nlp.py` (`evaluate`), `tests/test_nlp.py` | course Block 14 evaluation framework |
+| Entity extraction P/R/F1 | Micro-averaged over an annotated prompt gold set. **Measured 2026-07-05: dictionary F1 0.947 vs GLiNER-small 0.20** — on a closed ontology vocabulary the rule-based baseline dominates; GLiNER's value is out-of-vocabulary phrasing (to retest with gliner_medium on Colab and an OOV gold set) | `src/algorun/nlp.py` (`evaluate`), `tests/test_nlp.py` | course Block 14 evaluation framework |
+| GPS speed from Location.csv | Sensor Logger `speed` column preferred; fallback Haversine d=2R·asin(√a) between fixes; accuracy filter ≤20 m; moving-average smoothing; kmh/pace conversions; speed→cadence→BPM reuse | `src/algorun/sensors/gps.py`, `tests/test_gps.py` | Haversine (standard geodesy); Van Dyck et al. (2015) for the BPM step |
 
 ## Planned (entered when the module lands)
 
@@ -48,7 +49,7 @@ Format per entry: what / variant / where in the codebase / source.
 | Tokenization + lemmatization | spaCy `en_core_web_sm` | M3 | Course Block 14 pipeline order; Honnibal & Montani, spaCy |
 | Graph P/R/F1 evaluation | Triple-level TP/FP/FN, predicted vs. ground-truth graph, per tier | M3 | Course Block 14, "Evaluation Framework" |
 | Label-guided NER | GLiNER, labels derived from ontology | M4 | Zaratiana et al. (2024), *GLiNER: Generalist Model for NER using Bidirectional Transformer*, NAACL 2024, arXiv:2311.08526 |
-| Zero-shot relation candidate generation | GLiREL over ontology relation labels | M4 | GLiREL (2025), arXiv:2501.03172 |
+| Relation candidate generation | **Decision: NO GLiREL** — pairwise candidates constrained by ontology domain/range + trigger words (course "GLiREL / pairwise" Architecture A). Our relations are schema-determined; GLiREL adds a heavy immature dependency for nothing | M3/M4 | Course Block 14 (pairwise option); decision recorded 2026-07-05 |
 | Supervised binary relation validator | Fine-tuned DistilBERT and RoBERTa-base, sentence + candidate pair → VALID/INVALID | M4 | Sanh et al. (2019) arXiv:1910.01108; Liu et al. (2019) arXiv:1907.11692; course "Generator→Validator" architectural shift |
 | Music–exercise tempo matching | Song BPM ≈ target cadence (or half-time); energy scaled to intensity zone | M5 | Karageorghis & Priest (2012), *Music in the exercise domain: a review and synthesis*, Int. Rev. Sport Exerc. Psychol. |
 | Cadence estimation from accelerometer | Peak detection on vertical acceleration magnitude | M5 | Standard signal-processing practice (documented in report) |

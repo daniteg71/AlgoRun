@@ -223,6 +223,89 @@ ar:PrefersGenreObjectShape a sh:NodeShape ;
         sh:message "Range violation: object of ar:prefersGenre must be an ar:Genre." ;
     ] .
 
+### prescribesTarget (TrainingPhase → AcousticTarget)
+
+ar:PrescribesTargetSubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:prescribesTarget ;
+    sh:class ar:IntensityZone ;
+    sh:message "Domain violation: subject of ar:prescribesTarget must be an ar:IntensityZone." .
+
+ar:PrescribesTargetObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:prescribesTarget ;
+    sh:property [
+        sh:path ar:prescribesTarget ;
+        sh:class ar:AcousticTarget ;
+        sh:message "Range violation: object of ar:prescribesTarget must be an ar:AcousticTarget." ;
+    ] .
+
+#################################################################
+# Health / safety constraints (v0.3) — the "life-saving" rules.
+# SPARQL-based so they can compare two values on the same node. The
+# recommender stamps ar:currentCadenceSpm / ar:currentHeartRateBpm /
+# ar:appliedTargetBpm / ar:forRunner on the session at decision time.
+#################################################################
+
+# Cadence guard (injury prevention): the applied target BPM must not
+# exceed the current cadence by more than 5% — never jump a runner from
+# 140 spm straight to a 180 bpm track (Heiderscheit et al. 2011).
+ar:CadenceStepShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:appliedTargetBpm ;
+    sh:sparql [
+        sh:message "Unsafe cadence jump: applied target BPM exceeds current cadence by more than 5%." ;
+        sh:select """
+            SELECT $this ?b ?c WHERE {
+                $this <http://algorun.org/ontology#appliedTargetBpm> ?b ;
+                      <http://algorun.org/ontology#currentCadenceSpm> ?c .
+                FILTER (?b > 1.05 * ?c)
+            }""" ] .
+
+# Critical heart-rate guard: an energetic target (BPM > 140) is forbidden
+# once the runner is at or above their safe max HR — the system must force
+# a relaxing target instead (Terry & Karageorghis 2011: fast music raises
+# HR and arousal).
+ar:CriticalHeartRateShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:currentHeartRateBpm ;
+    sh:sparql [
+        sh:message "Critical heart rate: an energetic target (BPM > 140) is forbidden at or above the runner's safe max HR." ;
+        sh:select """
+            SELECT $this ?hr ?b WHERE {
+                $this <http://algorun.org/ontology#currentHeartRateBpm> ?hr ;
+                      <http://algorun.org/ontology#appliedTargetBpm> ?b ;
+                      <http://algorun.org/ontology#performedBy> ?r .
+                ?r <http://algorun.org/ontology#safeMaxHeartRateBpm> ?safe .
+                FILTER (?hr >= ?safe && ?b > 140)
+            }""" ] .
+
+### hasActionPriority (WorkoutSession → ActionPriority)
+
+ar:HasActionPrioritySubjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasActionPriority ;
+    sh:class ar:WorkoutSession ;
+    sh:message "Domain violation: subject of ar:hasActionPriority must be an ar:WorkoutSession." .
+
+ar:HasActionPriorityObjectShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasActionPriority ;
+    sh:property [
+        sh:path ar:hasActionPriority ;
+        sh:class ar:ActionPriority ;
+        sh:message "Range violation: object of ar:hasActionPriority must be an ar:ActionPriority." ;
+    ] .
+
+# Emergency guard: a session flagged EmergencyPriority must not carry an
+# energetic applied target — the controller must cut to a relaxing track,
+# bypassing the playback lock (dual-speed architecture).
+ar:EmergencyTargetShape a sh:NodeShape ;
+    sh:targetSubjectsOf ar:hasActionPriority ;
+    sh:sparql [
+        sh:message "Emergency state: applied target BPM must be ≤ 140 when the session is flagged EmergencyPriority." ;
+        sh:select """
+            SELECT $this ?b WHERE {
+                $this <http://algorun.org/ontology#hasActionPriority>
+                      <http://algorun.org/ontology#EmergencyPriority> ;
+                      <http://algorun.org/ontology#appliedTargetBpm> ?b .
+                FILTER (?b > 140)
+            }""" ] .
+
 #################################################################
 # Value constraints on data properties
 #################################################################
@@ -282,13 +365,3 @@ ar:CadenceShape a sh:NodeShape ;
         sh:message "ar:cadenceSpm must be a decimal in [40, 260] on an ar:CadenceReading." ;
     ] .
 
-ar:PaceShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:paceMinPerKm ;
-    sh:class ar:PaceReading ;
-    sh:property [
-        sh:path ar:paceMinPerKm ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 2.0 ;
-        sh:maxInclusive 20.0 ;
-        sh:message "ar:paceMinPerKm must be a decimal in [2, 20] on an ar:PaceReading." ;
-    ] .

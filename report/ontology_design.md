@@ -30,7 +30,7 @@ CQ6. Which sessions did a runner perform, and of which workout type?
 CQ7. Which songs in the catalog match zone Z3 AND belong to a preferred genre?
 CQ8. What phase sequence (warm-up → ... → cool-down) does a session have,
      and which zone does each phase target?
-CQ9. Which readings (HR, cadence, pace, elevation) were recorded in a session?
+CQ9. Which readings (heart rate, cadence) were recorded in a session?
 CQ10. Given a workout type, which BPM curve should the playlist follow?
 
 Acceptance rule: v0.2 is done when every CQ is answerable by a SPARQL query
@@ -50,7 +50,7 @@ ar:Process                   # what happens in time
  └─ ar:TrainingPhase         # WarmUp, Steady, Sprint, CoolDown
 
 ar:InformationEntity         # what describes/records/prescribes
- ├─ ar:SensorReading         # HeartRate-, Pace-, Cadence-, ElevationReading
+ ├─ ar:SensorReading         # HeartRateReading, CadenceReading
  ├─ ar:MusicEntity           # Song, Genre, Playlist
  └─ ar:IntensityZone         # Z1..Z5 (classification of effort)
 ```

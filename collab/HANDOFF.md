@@ -29,35 +29,128 @@
 ---
 ### [2026-07-05 12:30] — Danny (with Claude Code)
 **What I did:**
-- **Integrated the teammate's sensor/BPM pipeline** into the repo under
-  `src/algorun/sensors/` (added **as-is**, not rewritten):
-  - `physiological_state.py` — window → PhysiologicalAnalysis (HRR, effort
-    state, HR trend via linear slope).
-  - `generate_simulated_bpm.py` — synthetic BPM sessions (2 users × 3 workout
-    types, seed 42) → `data/simulated/bpm_sessions.csv`.
-  - `build_dataset.py` — 30 s / 5 s sliding windows → `data/processed/
-    physiological_windows.csv`.
-  - Verified both scripts run end-to-end. Recorded the algorithms in
-    ALGORITHMS.md. Generated CSVs are git-ignored (reproducible, seed 42).
-- Removed a stray 1-byte `data/simulated` file that was tracked by mistake and
-  blocked the output folder.
+- **Integrated the teammate's sensor/BPM pipeline** into `src/algorun/sensors/`
+  (added **as-is**): `physiological_state.py` (window → HRR/effort/trend),
+  `generate_simulated_bpm.py` (synthetic BPM, seed 42), `build_dataset.py`
+  (30 s / 5 s sliding windows). Both verified end-to-end; generated CSVs
+  git-ignored. Fixed a stray tracked `data/simulated` file.
+
+**TODOs for the other teammate (alignment — did NOT change your code):**
+- `build_dataset.py` import → package-relative for `import`-based use.
+- Map the 4 effort states to the ontology's 5 zones (Z1–Z5).
+- Map workout goals `easy/moderate/interval` → `Recovery/Endurance/Tempo/
+  Interval/LongRun`.
+
+**Open questions:** 30 s window (offline) vs 10 s (live) — unify or keep both?
+
+---
+### [2026-07-04 18:30] — Danny (with Claude Code)
+**What I did:**
+- **Sensor scope narrowed to two sensors only** (per Danny's decision):
+  accelerometer → cadence, and heart-rate sensor → beats. Removed
+  `PaceReading` + `ElevationReading` classes, their data properties
+  (`paceMinPerKm`, `elevationMeters`), `distanceKm` (GPS-dependent), and the
+  `PaceShape`. Reading-types disjointness now covers HR + cadence. 41 tests
+  still green, ontology still consistent.
+- **`report/ontology_criteria.md`** — the full step-by-step criteria for
+  building/judging the ontology (10 steps + acceptance checklist): scope,
+  competency questions, reuse, disjoint cores, taxonomy/relation/attribute
+  criteria, SKOS, SHACL, 3-level validation, naming hygiene.
 
 **Ideas that came up:**
-- This gives us the ground-truth sensor→features path (Karvonen HRR) that the
-  ontology's `readingInZone` / effort logic can be validated against.
+- Best way to *see* the ontology visually (answered to Danny): Protégé's
+  **OntoGraf** and **OWLViz** tabs for interactive graphs; **WebVOWL**
+  (webvowl.dev) for a polished VOWL diagram to drop into the presentation.
 
-**TODOs for the other teammate (alignment, to agree — I did NOT change your code):**
-- **Import:** `build_dataset.py` does `from physiological_state import ...`
-  (works standalone). For package use it should become
-  `from algorun.sensors.physiological_state import ...`. OK to change?
-- **Effort vs zones:** your code uses 4 effort states (Low/Target/High/
-  VeryHigh); the ontology uses 5 zones (Z1–Z5). We should map one to the other.
-- **Workout goals:** your `easy/moderate/interval` vs the ontology's
-  `Recovery/Endurance/Tempo/Interval/LongRun`. Needs a mapping table.
+**TODOs for the other teammate:**
+- If you still want distance/elevation for LongRun stats, say so — I removed
+  them because we dropped GPS/barometer; easy to re-add.
+
+**Open questions:** none.
+
+---
+### [2026-07-04 17:30] — Danny (with Claude Code)
+**What I did:**
+- **Decided the panic-button threshold: 93% HRmax** (was proposed 95%).
+  EmergencyPriority fires when smoothed HR ≥ 93% HRmax OR ≥ safeMaxHeartRateBpm.
+  Updated `report/music_science.md` and `report/ontology_logic.md`.
+  `safeMaxHeartRateBpm` defaults to 93% HRmax, overridable per runner.
+
+**Open questions:** none new. The panic-button question below is now closed.
+
+---
+### [2026-07-04 17:00] — Danny (with Claude Code)
+**What I did (on the v0.3 branch, extends PR #5):**
+- **Reworked the acoustic-target taxonomy to 4 zone-indexed levels** matching
+  the training-zone × music table: RecoveryTarget (Z1, 90–110, energy 0.1–0.3),
+  EasyTarget (Z2, 120–130), ThresholdTarget (Z3–Z4, 130–150), IntervalTarget
+  (Z5, 150–180). Targets are now prescribed by **IntensityZone**, not phase, so
+  the reasoning chain is `phase → targetsZone → zone → prescribesTarget →
+  target` (sensor-driven and plan-driven routes meet at the same target).
+- **`report/ontology_logic.md`** — the full theory document you asked for:
+  physiological-states modelling, the three-core backbone, the reasoning chain,
+  the zone×music table, entrainment, the **1:1 vs half-time BPM-cadence trick**
+  (why recovery is 90–110 not 160), arousal/dissociation, the tempo ceiling,
+  and the full "when a song is too fast" safety logic.
+- Updated `report/music_science.md` table + added the Google Scholar pointer
+  ("Training Intensity Zones Music Synchronization") and practitioner guides.
+- 41 tests green (new test for the zone→target chain).
+
+**Ideas that came up:**
+- The half-time ratio is the single most important idea to get across in the
+  presentation: low intensity → optimize *arousal* (calm), high intensity →
+  optimize *synchronization* (drive). It explains the whole BPM table.
+- Note: I lowered the BPM bands vs my earlier v0.3 (was 120–180). The new
+  numbers match your table and the practitioner literature better.
+
+**TODOs for the other teammate:**
+- Note about Protégé: our `algorun.owl` is hand-written Turtle but 100%
+  Protégé-compatible. For the presentation, open it in Protégé and run the
+  built-in HermiT reasoner to get screenshots (same consistency our tests
+  already prove).
+- Still open: panic-button threshold (below).
 
 **Open questions:**
-- Window is 30 s here vs the 10 s sliding window in the real-time design doc —
-  keep 30 s for offline training and 10 s live, or unify?
+- Confirm `safeMaxHeartRateBpm` default = 95% HRmax (emergency line, ABOVE the
+  Z5 training band). Or a fixed absolute BPM?
+
+---
+### [2026-07-04 15:00] — Danny (with Claude Code)
+**What I did:**
+- **Ontology v0.3 — health/music-science layer** (branch `ontology-v0.3-health`,
+  built ON TOP of v0.2). Read Terry & Karageorghis (2011) "Chariots of Fire"
+  and encoded the evidence:
+  - `AcousticTarget` class = the target point (BPM/energy/valence + duration
+    bounds) the reasoner produces, NOT a song → feeds the vector search.
+  - Per-phase targets: recovery 120–140, tempo 150–160 (≥6 min, flow), peak
+    170–180 (≤4 min, intervals).
+  - `trackDurationMs` on Song + duration bounds on targets (the "haDurata"
+    idea).
+  - Runner health props: max/resting/safeMax heart rate (Tanaka/Karvonen).
+  - `ActionPriority` (Normal/Emergency) for the dual-speed controller.
+  - **3 SPARQL-SHACL safety constraints**: cadence jump ≤5%, no energetic
+    target above safe-max HR, no energetic target under EmergencyPriority.
+- `report/music_science.md`: full evidence doc — BPM table, cardiac benchmark
+  models (Fox/Tanaka/Karvonen/5-zone), where to push vs. hold back, the
+  hysteresis + playback-lock + panic-button control rules for M5.
+- 40 tests green (6 new health-constraint tests). ALGORITHMS.md updated.
+
+**Ideas that came up:**
+- Honesty flagged in the report: 120–140 is the Karageorghis *motivational*
+  band; 150–180 comes from cadence-*synchronization* studies. Two rationales,
+  cited separately — don't overclaim.
+- The ontology sets WHAT + HOW-URGENT; the M5 Python server owns WHEN
+  (smoothing + lock + emergency bypass). Clean separation for the report.
+
+**TODOs for the other teammate:**
+- **Decide the panic-button threshold** (open question below).
+- PRs are piling up unmerged: #2 (old design doc — close it), #3 (v0.2
+  ontology), #4 (CLAUDE objective), and this v0.3 PR. Please merge in order
+  #3 → #4 → v0.3 so `main` catches up.
+
+**Open questions:**
+- Panic-button trigger: proposed default is smoothed HR ≥ 95% HRmax OR ≥
+  runner's safeMaxHeartRateBpm. Agree, or set a fixed BPM (e.g. 190)?
 
 ---
 ### [2026-07-04 12:00] — Danny (with Claude Code)

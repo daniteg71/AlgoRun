@@ -36,13 +36,17 @@ gate. The playlist recommender reads exclusively from the KG via SPARQL.
 | `GUIDELINES.md` | Binding course rules — read before coding |
 | `ALGORITHMS.md` | Provenance ledger: algorithms, variants, sources, papers |
 | `collab/HANDOFF.md` | Two-person/two-AI coordination log |
-| `ontology/` | OWL ontology + SHACL shapes |
+| `ontology/` | OWL ontology + SHACL shapes (theory in the comments) |
 | `data/synthetic/` | Tiered JSONL dataset (70/15/15) |
-| `data/sensor/` | Sensor Logger exports |
-| `data/music/` | Music catalog + personal playlist export |
-| `src/algorun/` | Pipeline source code |
+| `src/algorun/ontology/` | Ontology loader + evaluation (reasoner, competency questions) |
+| `src/algorun/datagen/` | Synthetic NLP-dataset generator |
+| `src/algorun/sensors/` | Sensor pipeline (BPM → effort state; simulator; window builder) |
 | `tests/` | pytest suites |
-| `report/` | Benchmarking report (ACSAI template) |
+
+Folders for data that isn't in git yet are created on demand: real Sensor
+Logger exports (`data/sensor/`), the music catalog (`data/music/`), and the
+regenerable sensor outputs (`data/simulated/`, `data/processed/`) — all
+git-ignored.
 
 ## Milestones
 

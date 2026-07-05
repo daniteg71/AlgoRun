@@ -1,4 +1,7 @@
 # Core NLP
+# Nota: su Python 3.9 installare spacy<3.8 (es. 3.7.2) — le versioni 3.8.x
+# richiedono thinc>=8.3.12 che a sua volta vuole Python 3.10+. Poi:
+#   python -m spacy download en_core_web_sm
 spacy>=3.7,<4.0
 
 # Ontology / RDF / SHACL

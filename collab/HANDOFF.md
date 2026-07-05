@@ -27,6 +27,23 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 12:30] — Danny (with Claude Code)
+**What I did:**
+- **Integrated the teammate's sensor/BPM pipeline** into `src/algorun/sensors/`
+  (added **as-is**): `physiological_state.py` (window → HRR/effort/trend),
+  `generate_simulated_bpm.py` (synthetic BPM, seed 42), `build_dataset.py`
+  (30 s / 5 s sliding windows). Both verified end-to-end; generated CSVs
+  git-ignored. Fixed a stray tracked `data/simulated` file.
+
+**TODOs for the other teammate (alignment — did NOT change your code):**
+- `build_dataset.py` import → package-relative for `import`-based use.
+- Map the 4 effort states to the ontology's 5 zones (Z1–Z5).
+- Map workout goals `easy/moderate/interval` → `Recovery/Endurance/Tempo/
+  Interval/LongRun`.
+
+**Open questions:** 30 s window (offline) vs 10 s (live) — unify or keep both?
+
+---
 ### [2026-07-04 18:30] — Danny (with Claude Code)
 **What I did:**
 - **Sensor scope narrowed to two sensors only** (per Danny's decision):

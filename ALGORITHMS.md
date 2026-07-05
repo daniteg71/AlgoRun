@@ -26,6 +26,11 @@ Format per entry: what / variant / where in the codebase / source.
 | Critical-HR & emergency guards | SPARQL-SHACL: no target > 140 bpm at/above safe max HR or under EmergencyPriority | `ontology/shapes.ttl` | Terry & Karageorghis (2011); Szmedra & Bacharach (1998) |
 | HRmax / zone models | Tanaka (208−0.7·age), Fox (220−age), Karvonen HR reserve, 5-zone % HRmax | `report/music_science.md`, ontology HR props | Tanaka et al. (2001); Fox et al. (1971); Karvonen et al. (1957) |
 | Control-system smoothing (planned M5) | HR moving average (hysteresis) + playback lock + emergency bypass skip | M5 server | standard control-systems practice; documented in `report/music_science.md` |
+| Heart Rate Reserve (HRR) | (HR − rest)/(max − rest), clipped [0, 1.2] | `src/algorun/sensors/physiological_state.py` (`compute_hrr`) | Karvonen et al. (1957) |
+| Effort classification | Threshold bins on HRR (Low<0.40, Target<0.70, High<0.85, VeryHigh≥0.85) | `physiological_state.py` (`classify_effort`) | Karvonen zones (thresholds chosen by team) |
+| HR-trend estimation | Least-squares linear slope (`np.polyfit` deg=1) over the window; ±0.05 bpm/s → Increasing/Stable/Decreasing | `physiological_state.py` (`calculate_linear_slope`, `classify_trend`) | standard linear regression |
+| Sliding-window featurization | 30 s window, 5 s stride; per-window mean/std/min/max/delta + HRR + trend | `src/algorun/sensors/build_dataset.py` | standard time-series windowing |
+| Simulated BPM sessions | Piecewise-linear phase ramps + sinusoidal oscillation + Gaussian noise, seed 42 | `src/algorun/sensors/generate_simulated_bpm.py` | team (synthetic sensor data for offline dev) |
 
 ## Planned (entered when the module lands)
 

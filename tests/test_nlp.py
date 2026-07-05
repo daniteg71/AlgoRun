@@ -46,6 +46,14 @@ def test_routing_qualitative_vs_quantitative():
     assert ground("run at 11 km/h")["mode"] == "quantitative"
 
 
+def test_routing_edge_cases():
+    # casi limite del router qual/quant
+    assert ground("let's do a 5k")["mode"] == "qualitative"          # niente unità note
+    assert ground("push as hard as you can")["mode"] == "qualitative"  # solo parole
+    assert ground("steady for 90 minutes")["mode"] == "quantitative"   # durata
+    assert ground("90 minuti tranquilli")["mode"] == "quantitative"    # unità italiana
+
+
 def test_surgical_bpm_from_speed():
     # 12 km/h -> cadence 134 + 2.9*12 = 168.8 -> BPM 168.8 (1:1), 84.4 (half)
     assert target_cadence_from_speed(12.0) == 168.8

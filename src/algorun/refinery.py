@@ -186,6 +186,37 @@ def _nearest_of_type(window: list[tuple], type_iri: str) -> str | None:
     return None
 
 
+def _all_of_type(window: list[tuple], type_iri: str) -> list[str]:
+    return [e["iri"] for _, _, e in window if e["type_iri"] == type_iri]
+
+
+def extract_candidates(text: str, entities: list[dict]) -> list[tuple]:
+    """Generatore PAIRWISE per il validator (M4) — Architecture A del corso.
+
+    A differenza della baseline (`extract_relations`, che richiede un trigger
+    e sceglie la coppia più vicina), qui si SOVRA-GENERA di proposito: ogni
+    coppia di entità compatibile con domain/range di OGNI relazione diventa
+    un candidato, senza cercare trigger. Misurato su 100 record di train:
+    47 positivi + 199 negativi (ceiling recall 0.39 vs 0.14 della baseline)
+    — è questo che dà al validator supervisionato un compito reale, la
+    "dissociazione generatore/validator" richiesta dal corso.
+    """
+    schema = load_ontology()
+    keys = [(e["iri"], e["type_iri"]) for e in entities]
+    keys.append((_canonical_key(str(AR.WorkoutSession)), str(AR.WorkoutSession)))
+
+    candidates: list[tuple] = []
+    for prop_iri, spec in schema.object_properties.items():
+        if spec.domain is None or spec.range is None:
+            continue
+        dom, rng = str(spec.domain), str(spec.range)
+        for s_iri, s_type in keys:
+            for o_iri, o_type in keys:
+                if s_iri != o_iri and s_type == dom and o_type == rng:
+                    candidates.append((s_iri, str(prop_iri), o_iri))
+    return list(dict.fromkeys(candidates))   # dedup preservando l'ordine
+
+
 def build_graph(text: str) -> tuple[Graph, list[tuple]]:
     """Orchestrazione: entità -> relazioni candidate -> cancello SHACL.
 

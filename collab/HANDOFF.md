@@ -27,6 +27,31 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 03:00] — Danny (with Claude Code)
+**What I did:** **M4 — validator DistilBERT** (`src/algorun/validator.py`).
+Prima una verifica onesta: il generatore trigger-based produceva SOLO
+candidati giusti (0 negativi) → un validator sopra non avrebbe avuto senso.
+Soluzione dal corso stesso (Architecture A): generatore **pairwise puro**
+(tutte le coppie domain/range-compatibili, senza trigger) → 502 pos/2080 neg
+su train, ceiling recall 0.39. Poi fine-tuning DistilBERT (frase, candidato
+verbalizzato) → VALID/INVALID: 3 epoche su MPS (~2 min), val accuracy 0.99.
+
+**Risultato sul test set (mai visto): baseline F1 0.24 → validator F1 0.48.**
+Per tier: long_distance 0.00→0.47 (il modello legge tutta la frase, niente
+finestra di token), implicit 0.16→0.57, explicit 0.42→0.58, nested 0.27→0.44.
+Precision 1.00→0.90 (prezzo piccolo per +138% di recall). Questo È il
+confronto Rule 4 baseline-vs-Transformer, con numeri veri.
+
+Comandi: `python -m algorun.validator train` (ri-allena, modello in models/,
+fuori git) e `python -m algorun.validator eval` (stampa il confronto).
+73 test verdi (4 nuovi; l'inferenza si salta se il modello non c'è).
+
+**TODOs for the other teammate:** allena il modello anche tu (train, ~2 min
+con GPU Apple) così hai models/ in locale; se vuoi contribuire il confronto
+RoBERTa (stesso script, MODEL_NAME diverso) è il prossimo passo naturale.
+**Open questions:** none.
+
+---
 ### [2026-07-06 02:00] — Danny (with Claude Code)
 **What I did:** `src/algorun/refinery.py` — la **Data Refinery** del corso
 (M3): la pipeline testo-libero → tokenize/lemmatize (spaCy) → entità (riuso

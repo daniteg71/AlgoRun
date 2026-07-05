@@ -21,6 +21,11 @@ Format per entry: what / variant / where in the codebase / source.
 | Competency-question evaluation | 10 CQs as SPARQL over a sample KG (functional evaluation) | `tests/test_competency_questions.py`, `evaluation.py::sample_kg` | Course Block 13; Grüninger & Fox (1995) |
 | OWL DL reasoning (consistency) | HermiT via owlready2; disjoint-core violation → inconsistent | `src/algorun/ontology/evaluation.py`, `tests/test_ontology_v2.py` | Course Block 13; Baader et al., *DL Handbook* |
 | Ontology quality diagnosis | OOPS! pitfall scan + informal OntoClean taxonomy check | `report/ontology_eval.md` | Poveda-Villalón et al. (2014) OOPS!; Guarino & Welty OntoClean |
+| Heart Rate Reserve (HRR) | (HR − rest)/(max − rest), clipped [0, 1.2] | `src/algorun/sensors/physiological_state.py` (`compute_hrr`) | Karvonen et al. (1957) |
+| Effort classification | Threshold bins on HRR (Low<0.40, Target<0.70, High<0.85, VeryHigh≥0.85) | `physiological_state.py` (`classify_effort`) | Karvonen zones (thresholds chosen by team) |
+| HR-trend estimation | Least-squares linear slope (`np.polyfit` deg=1) over the window; ±0.05 bpm/s → Increasing/Stable/Decreasing | `physiological_state.py` (`calculate_linear_slope`, `classify_trend`) | standard linear regression |
+| Sliding-window featurization | 30 s window, 5 s stride; per-window mean/std/min/max/delta + HRR + trend | `src/algorun/sensors/build_dataset.py` | standard time-series windowing |
+| Simulated BPM sessions | Piecewise-linear phase ramps + sinusoidal oscillation + Gaussian noise, seed 42 | `src/algorun/sensors/generate_simulated_bpm.py` | team (synthetic sensor data for offline dev) |
 
 ## Planned (entered when the module lands)
 

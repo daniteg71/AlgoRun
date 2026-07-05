@@ -27,6 +27,39 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 12:30] — Danny (with Claude Code)
+**What I did:**
+- **Integrated the teammate's sensor/BPM pipeline** into the repo under
+  `src/algorun/sensors/` (added **as-is**, not rewritten):
+  - `physiological_state.py` — window → PhysiologicalAnalysis (HRR, effort
+    state, HR trend via linear slope).
+  - `generate_simulated_bpm.py` — synthetic BPM sessions (2 users × 3 workout
+    types, seed 42) → `data/simulated/bpm_sessions.csv`.
+  - `build_dataset.py` — 30 s / 5 s sliding windows → `data/processed/
+    physiological_windows.csv`.
+  - Verified both scripts run end-to-end. Recorded the algorithms in
+    ALGORITHMS.md. Generated CSVs are git-ignored (reproducible, seed 42).
+- Removed a stray 1-byte `data/simulated` file that was tracked by mistake and
+  blocked the output folder.
+
+**Ideas that came up:**
+- This gives us the ground-truth sensor→features path (Karvonen HRR) that the
+  ontology's `readingInZone` / effort logic can be validated against.
+
+**TODOs for the other teammate (alignment, to agree — I did NOT change your code):**
+- **Import:** `build_dataset.py` does `from physiological_state import ...`
+  (works standalone). For package use it should become
+  `from algorun.sensors.physiological_state import ...`. OK to change?
+- **Effort vs zones:** your code uses 4 effort states (Low/Target/High/
+  VeryHigh); the ontology uses 5 zones (Z1–Z5). We should map one to the other.
+- **Workout goals:** your `easy/moderate/interval` vs the ontology's
+  `Recovery/Endurance/Tempo/Interval/LongRun`. Needs a mapping table.
+
+**Open questions:**
+- Window is 30 s here vs the 10 s sliding window in the real-time design doc —
+  keep 30 s for offline training and 10 s live, or unify?
+
+---
 ### [2026-07-04 12:00] — Danny (with Claude Code)
 **What I did:**
 - **Ontology v0.2** (branch `ontology-v0.2`, PR open). Followed the Block 12

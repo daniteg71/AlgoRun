@@ -27,6 +27,47 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 02:00] — Danny (with Claude Code)
+**What I did:** `src/algorun/refinery.py` — la **Data Refinery** del corso
+(M3): la pipeline testo-libero → tokenize/lemmatize (spaCy) → entità (riuso
+`nlp.dictionary_extract`) → **relazioni candidate** (NUOVO: trigger+distanza,
+Rule 3) → SHACL → RDF, con benchmark P/R/F1 (overall + per tier + per
+relazione) sul dataset sintetico.
+
+**Numeri misurati su `test.jsonl` (held-out):** P=1.00 R=0.14 F1=0.24
+complessivo. Precisione perfetta ovunque scatta (il filtro domain/range non
+sbaglia mai una coppia); recall bassa per due limiti REALI, non bug:
+1. `hasWorkoutType`/`hasEffortState` non hanno mai il loro trigger letterale
+   vicino all'entità in questo corpus (sono relazioni implicite dal
+   co-riferimento, non da un trigger) → R=0.00.
+2. ~60% delle triple gold hanno un endpoint fuori dal vocabolario chiuso
+   (titoli canzoni, nomi playlist, generi come stringa, nomi dei runner —
+   nessuno di questi è un individuo dell'ontologia) → strutturalmente
+   irrecuperabili da NER a dizionario.
+`hasPhase`/`targetsEffort` invece: R=1.00 (trigger sempre presente e vicino).
+Tier `long_distance`: R=0.00 (entità troppo lontane per la finestra di 10
+token — il limite "fragile su frasi complesse" del corso, ora con un numero).
+
+Bug trovato e corretto durante l'implementazione: `rdflib.URIRef` non è
+`==` a una stringa Python identica (override deliberato in rdflib, anche se
+`URIRef` eredita da `str`) — le triple predette vanno confrontate come
+stringhe pure, non come `URIRef`, altrimenti il confronto con le triple gold
+del JSONL (stringhe semplici) fallisce silenziosamente sempre.
+
+Installato spaCy 3.7.2 (non 3.8.x: richiede Python 3.10+, noi siamo su 3.9)
++ `en_core_web_sm`. Demo: `python -m algorun.refinery --dataset data/synthetic/test.jsonl`.
+69 test verdi (6 nuovi, con soglie sui numeri REALMENTE misurati, non
+aspirazionali).
+
+**TODOs for the other teammate:** se hai Python 3.10+, spacy 3.8.x andrà
+benissimo (nessun vincolo di versione specifico salvo la nostra nota nel
+requirements.txt).
+
+**Open questions:** none. Prossimo naturale: M4 (validator supervisionato
+DistilBERT/RoBERTa da confrontare contro questo baseline, sullo split train
+del dataset).
+
+---
 ### [2026-07-06 00:30] — Danny (with Claude Code)
 **What I did:** `src/algorun/fusion.py` — il livello di **fusione** prompt +
 sensore che mancava. Tre regole in ordine: (1) sicurezza vince sempre (HR ≥

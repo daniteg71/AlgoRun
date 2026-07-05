@@ -27,6 +27,19 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 16:00] — Danny (with Claude Code)
+**What I did:** Built the **bridge** `src/algorun/pipeline.py` — the first
+end-to-end slice. It takes your BPM window (`analyze_bpm_window`), turns the
+effort state into RDF, validates it with SHACL, and reads the acoustic target
+back out of the ontology via SPARQL, plus the 93%-HRmax safety override.
+`python -m algorun.pipeline` prints HR → effort → SHACL → target. 44 tests
+green (4 new, incl. HermiT consistency on the generated graph). Nothing of
+yours was modified.
+**Note:** your data has no cadence, so the cadence-step rule can't fire yet —
+it will once the accelerometer feature lands.
+**Open questions:** none.
+
+---
 ### [2026-07-05 15:00] — Danny (with Claude Code)
 **What I did:** Rebuilt the ontology (v0.4) **aligned to your sensor code**:
 replaced the 5 HR zones with your 4 `EffortState`s (LowEffort/TargetEffort/

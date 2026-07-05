@@ -27,6 +27,31 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 19:00] — Danny (with Claude Code)
+**What I did:**
+- **Commenti in italiano** in `nlp.py` e `pipeline.py` (codice identico) —
+  regola aggiornata in GUIDELINES: identificatori/dati/report in inglese,
+  commenti in italiano.
+- **GLiNER installato e benchmarkato** sul gold set: dictionary **F1 0.947**
+  vs GLiNER-small **0.20** — sul nostro vocabolario chiuso vince la baseline;
+  GLiNER serve per il fraseggio fuori-vocabolario (da ritestare con
+  gliner_medium su Colab + gold set OOV). Aggiunto grounding "label contenuta
+  nello span".
+- **`sensors/gps.py`** — matematica GPS pronta per il tuo Location.csv:
+  colonna `speed` preferita, fallback Haversine, filtro accuratezza ≤20 m,
+  media mobile, km/h → passo, velocità → cadenza → BPM (stessa regressione di
+  nlp.py). 6 test con fixture a velocità nota. Quando carichi i dati veri,
+  si aggancia senza modifiche.
+- **Decisione GLiREL: NO.** Le nostre relazioni sono determinate dallo schema
+  → candidati pairwise vincolati da domain/range + trigger (l'opzione
+  "pairwise" del Block 14). Benchmark relazioni: P/R/F1 a livello di triple
+  per tier su data/synthetic/test.jsonl (arriva con M3).
+**TODOs for the other teammate:** quando hai i dati GPS veri mettili in
+`data/sensor/` e prova `gps_window_summary`; aggiungi al GOLD di test_nlp
+frasi "fuori vocabolario" (es. "voglio spingere") per il retest GLiNER.
+**Open questions:** none.
+
+---
 ### [2026-07-05 17:30] — Danny (with Claude Code)
 **What I did:** Built the **NLP perception** module `src/algorun/nlp.py` —
 user prompt → entities → RDF triples for the ontology.

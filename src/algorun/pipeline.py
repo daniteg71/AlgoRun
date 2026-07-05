@@ -1,16 +1,16 @@
-"""The bridge: simulated sensor data -> ontology -> SHACL -> acoustic target.
+"""Il ponte: dati simulati del sensore -> ontologia -> SHACL -> target acustico.
 
-This is the first end-to-end slice of AlgoRun. It shows that the teammate's
-physiological analysis (BPM window -> effort state) actually *activates* the
-ontology: the effort populates an RDF graph, SHACL validates it, and a SPARQL
-query reads the prescribed acoustic target back out of the ontology.
+È la prima fetta end-to-end di AlgoRun. Dimostra che l'analisi fisiologica del
+socio (finestra BPM -> effort state) *attiva* davvero l'ontologia: l'effort
+popola un grafo RDF, SHACL lo valida, e una query SPARQL legge dall'ontologia
+il target acustico prescritto.
 
-Four small steps (see the plan / the ontology comments for the theory):
-  1-2. HRR + effort state         -> done by sensors/physiological_state.py
-  3.   effort -> acoustic target  -> read from the ontology via SPARQL
-  4.   safety override            -> if HR >= 93% HRmax, force a calm target
+Quattro passi piccoli (la teoria è nei commenti dell'ontologia):
+  1-2. HRR + effort state          -> già fatti da sensors/physiological_state.py
+  3.   effort -> target acustico   -> letto dall'ontologia via SPARQL
+  4.   override di sicurezza       -> se HR >= 93% HRmax, forza un target calmo
 
-Run the demo:  python -m algorun.pipeline
+Demo:  python -m algorun.pipeline
 """
 
 from __future__ import annotations
@@ -24,18 +24,18 @@ from algorun.sensors.physiological_state import PhysiologicalAnalysis, analyze_b
 
 EX = Namespace("http://algorun.org/data#")
 
-# Safety line: at or above this fraction of HRmax we force a calm target.
+# Linea di sicurezza: a/oltre questa frazione di HRmax si forza un target calmo.
 SAFE_MAX_FRACTION = 0.93
-# A target is "energetic" (forbidden in the danger zone) above this BPM.
+# Un target è "energico" (vietato in zona pericolo) sopra questo BPM.
 CALM_BPM_CEILING = 140
 
-# The teammate's effort-state strings map 1:1 onto ontology individuals by
-# label, so ar[state] is the right IRI (e.g. "LowEffort" -> ar:LowEffort).
+# Le stringhe di effort del socio mappano 1:1 sugli individui dell'ontologia
+# per label: ar[stato] è l'IRI giusto (es. "LowEffort" -> ar:LowEffort).
 
 
 def window_to_graph(analysis: PhysiologicalAnalysis, resting_hr: float,
                     max_hr: float, workout_goal: str) -> Graph:
-    """Step 1-2 result -> RDF triples the ontology can validate and query."""
+    """Risultato dei passi 1-2 -> triple RDF che l'ontologia valida e interroga."""
     g = Graph()
     g.bind("ar", AR)
     g.bind("ex", EX)
@@ -60,7 +60,11 @@ def window_to_graph(analysis: PhysiologicalAnalysis, resting_hr: float,
 
 
 def validate(graph: Graph) -> tuple[bool, str]:
-    """Step: the SHACL gate. Ontology merged in, inference OFF (closed world)."""
+    """Il gate SHACL: ontologia fusa nei dati, inferenza SPENTA (closed world).
+
+    Con l'inferenza accesa le violazioni di dominio verrebbero "classificate"
+    invece che respinte — per questo il corso impone SHACL come constraint gate.
+    """
     merged = graph + load_ontology().graph
     conforms, _, report = shacl_validate(
         data_graph=merged, shacl_graph=load_shapes(), inference="none")
@@ -77,7 +81,10 @@ SELECT ?bpmMin ?bpmMax ?enMin ?enMax WHERE {
 
 
 def acoustic_target(effort_state: str) -> dict:
-    """Step 3: ask the ontology (SPARQL) which target this effort prescribes."""
+    """Passo 3: chiede all'ontologia (SPARQL) quale target prescrive l'effort.
+
+    La conoscenza sta nell'ontologia (prescribesTarget); il codice la legge.
+    """
     g = load_ontology().graph
     rows = list(g.query(_TARGET_QUERY,
                         initBindings={"effort": AR[effort_state]}))
@@ -88,14 +95,15 @@ def acoustic_target(effort_state: str) -> dict:
 
 def decide(analysis: PhysiologicalAnalysis, resting_hr: float, max_hr: float,
            workout_goal: str) -> dict:
-    """Put it together: graph -> SHACL -> target -> step 4 safety override."""
+    """Orchestrazione: grafo -> SHACL -> target -> passo 4 (override sicurezza)."""
     graph = window_to_graph(analysis, resting_hr, max_hr, workout_goal)
     shacl_ok, report = validate(graph)
 
     target = acoustic_target(analysis.effort_state)
 
-    # Step 4: safety override. Above the safe-max line, force a calm target
-    # regardless of the effort state (Terry & Karageorghis 2011).
+    # Passo 4: override di sicurezza. Oltre la linea safe-max si forza un
+    # target calmo qualunque sia l'effort (Terry & Karageorghis 2011: la
+    # musica veloce alza HR e arousal — qui serve l'opposto).
     forced = False
     if analysis.current_bpm >= max_hr * SAFE_MAX_FRACTION and target["bpm_max"] > CALM_BPM_CEILING:
         target = acoustic_target("LowEffort")
@@ -107,8 +115,8 @@ def decide(analysis: PhysiologicalAnalysis, resting_hr: float, max_hr: float,
 
 
 def _demo_window(bpm_level: float, resting_hr: float, max_hr: float):
-    """Build a rising 10 s BPM window centred on bpm_level (in-memory)."""
-    values = [bpm_level - 3 + i for i in range(10)]  # gentle upward ramp
+    """Costruisce una finestra BPM di 10 s in leggera salita (in memoria)."""
+    values = [bpm_level - 3 + i for i in range(10)]  # rampa dolce verso l'alto
     analysis = analyze_bpm_window(values, resting_hr=resting_hr, max_hr=max_hr)
     return analysis
 

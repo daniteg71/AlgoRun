@@ -107,9 +107,10 @@ raw text → Tokenization → Lemmatization → Entity & Mention Detection (→ 
 - [ ] The playlist recommender reads **only from the RDF Knowledge Graph via
       SPARQL** — never directly from raw CSVs. The KG is the single source of
       truth.
-- [ ] All code, comments, docs, and the report are in **English**. Theoretical
-      rigor over shortcuts: every algorithmic choice must be justifiable with
-      respect to the course material.
+- [ ] Code identifiers, data and the report are in **English**; **comments and
+      docstrings are in Italian** so both teammates read the implementation
+      easily (team decision, 2026-07-05). Theoretical rigor over shortcuts:
+      every algorithmic choice must be justifiable w.r.t. the course material.
 
 ## Rule 6 — Collaboration workflow (two people, two AIs)
 

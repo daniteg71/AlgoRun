@@ -36,11 +36,10 @@ def test_new_prefers_genre_property_present():
     assert spec.domain == AR.Runner and spec.range == AR.Genre
 
 
-def test_workout_types_are_also_skos_concepts():
+def test_effort_states_prescribe_targets():
     g = load_ontology().graph
-    from rdflib.namespace import SKOS
-    for wt in (AR.Interval, AR.Endurance, AR.Recovery, AR.Tempo, AR.LongRun):
-        assert (wt, RDF.type, SKOS.Concept) in g
+    for effort in (AR.LowEffort, AR.TargetEffort, AR.HighEffort, AR.VeryHighEffort):
+        assert list(g.objects(effort, AR.prescribesTarget)), f"{effort} has no target"
 
 
 def test_ontology_alone_is_consistent():

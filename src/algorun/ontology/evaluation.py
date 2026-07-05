@@ -59,8 +59,8 @@ def sample_kg() -> Graph:
     """A small valid ABox exercising every competency question.
 
     One runner, one interval session with two ordered phases, HR/cadence
-    readings in zones, a genre preference, two songs, and a playlist built
-    for the session.
+    readings, effort states, a genre preference, two songs, and a playlist
+    built for the session.
     """
     g = Graph()
     g.bind("ar", AR)
@@ -87,13 +87,16 @@ def sample_kg() -> Graph:
     g.add((EX.session1, AR.hasPhase, EX.warm))
     g.add((EX.session1, AR.hasPhase, EX.sprint))
     g.add((EX.warm, AR.nextPhase, EX.sprint))
-    g.add((EX.warm, AR.targetsZone, AR.Z2))
-    g.add((EX.sprint, AR.targetsZone, AR.Z5))
+    g.add((EX.warm, AR.targetsEffort, AR.LowEffort))
+    g.add((EX.sprint, AR.targetsEffort, AR.VeryHighEffort))
+
+    # current effort + trend
+    g.add((EX.session1, AR.hasEffortState, AR.VeryHighEffort))
+    g.add((EX.session1, AR.hasTrend, AR.Increasing))
 
     # readings
     g.add((EX.hr1, RDF.type, AR.HeartRateReading))
     g.add((EX.session1, AR.recordsReading, EX.hr1))
-    g.add((EX.hr1, AR.readingInZone, AR.Z5))
     g.add((EX.hr1, AR.heartRateBpm, dec("185")))
     g.add((EX.cad1, RDF.type, AR.CadenceReading))
     g.add((EX.session1, AR.recordsReading, EX.cad1))
@@ -105,14 +108,14 @@ def sample_kg() -> Graph:
     g.add((EX.song_pulse, AR.bpmValue, dec("172")))
     g.add((EX.song_pulse, AR.hasGenre, EX.techno))
     g.add((EX.song_pulse, AR.suitsPhase, EX.sprint))
-    g.add((EX.song_pulse, AR.matchesZone, AR.Z5))
+    g.add((EX.song_pulse, AR.matchesEffort, AR.VeryHighEffort))
 
     g.add((EX.song_calm, RDF.type, AR.Song))
     g.add((EX.song_calm, AR.songTitle, Literal("Silver Lungs")))
     g.add((EX.song_calm, AR.bpmValue, dec("128")))
     g.add((EX.song_calm, AR.hasGenre, EX.rock))
     g.add((EX.song_calm, AR.suitsPhase, EX.warm))
-    g.add((EX.song_calm, AR.matchesZone, AR.Z2))
+    g.add((EX.song_calm, AR.matchesEffort, AR.LowEffort))
 
     # playlist
     g.add((EX.pl1, RDF.type, AR.Playlist))

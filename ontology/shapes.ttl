@@ -3,365 +3,147 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 #################################################################
-# SHACL Constraint Gate — mirrors every domain/range pair of the
-# ontology. A triple that violates any shape here is rejected
-# BEFORE it can enter the RDF Knowledge Graph (Rule 3/Rule 1 of
-# GUIDELINES.md: "SHACL enforces truth").
-#
-# Pattern per object property P(D → R):
-#   - subject shape:  every subject of P must be an instance of D
-#   - object shape:   every value  of P must be an instance of R
+# SHACL Constraint Gate — one shape per object property enforces
+# its domain (subject class) and range (object class). Runs with
+# inference OFF, so a violating triple is rejected, not classified
+# away. Nothing enters the Knowledge Graph without passing here.
 #################################################################
 
-### performsSession (Runner → WorkoutSession)
-
-ar:PerformsSessionSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:performsSession ;
+ar:PerformsSessionShape a sh:NodeShape ; sh:targetSubjectsOf ar:performsSession ;
     sh:class ar:Runner ;
-    sh:message "Domain violation: subject of ar:performsSession must be an ar:Runner." .
+    sh:property [ sh:path ar:performsSession ; sh:class ar:WorkoutSession ;
+        sh:message "ar:performsSession must go Runner -> WorkoutSession." ] .
 
-ar:PerformsSessionObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:performsSession ;
-    sh:property [
-        sh:path ar:performsSession ;
-        sh:class ar:WorkoutSession ;
-        sh:message "Range violation: object of ar:performsSession must be an ar:WorkoutSession." ;
-    ] .
-
-### performedBy (WorkoutSession → Runner)
-
-ar:PerformedBySubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:performedBy ;
+ar:HasWorkoutTypeShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasWorkoutType ;
     sh:class ar:WorkoutSession ;
-    sh:message "Domain violation: subject of ar:performedBy must be an ar:WorkoutSession." .
+    sh:property [ sh:path ar:hasWorkoutType ; sh:class ar:WorkoutType ;
+        sh:message "ar:hasWorkoutType must go WorkoutSession -> WorkoutType." ] .
 
-ar:PerformedByObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:performedBy ;
-    sh:property [
-        sh:path ar:performedBy ;
-        sh:class ar:Runner ;
-        sh:message "Range violation: object of ar:performedBy must be an ar:Runner." ;
-    ] .
-
-### hasWorkoutType (WorkoutSession → WorkoutType)
-
-ar:HasWorkoutTypeSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasWorkoutType ;
+ar:HasPhaseShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasPhase ;
     sh:class ar:WorkoutSession ;
-    sh:message "Domain violation: subject of ar:hasWorkoutType must be an ar:WorkoutSession." .
+    sh:property [ sh:path ar:hasPhase ; sh:class ar:TrainingPhase ;
+        sh:message "ar:hasPhase must go WorkoutSession -> TrainingPhase." ] .
 
-ar:HasWorkoutTypeObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasWorkoutType ;
-    sh:property [
-        sh:path ar:hasWorkoutType ;
-        sh:class ar:WorkoutType ;
-        sh:message "Range violation: object of ar:hasWorkoutType must be an ar:WorkoutType." ;
-    ] .
-
-### hasPhase (WorkoutSession → TrainingPhase)
-
-ar:HasPhaseSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasPhase ;
+ar:RecordsReadingShape a sh:NodeShape ; sh:targetSubjectsOf ar:recordsReading ;
     sh:class ar:WorkoutSession ;
-    sh:message "Domain violation: subject of ar:hasPhase must be an ar:WorkoutSession." .
+    sh:property [ sh:path ar:recordsReading ; sh:class ar:SensorReading ;
+        sh:message "ar:recordsReading must go WorkoutSession -> SensorReading." ] .
 
-ar:HasPhaseObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasPhase ;
-    sh:property [
-        sh:path ar:hasPhase ;
-        sh:class ar:TrainingPhase ;
-        sh:message "Range violation: object of ar:hasPhase must be an ar:TrainingPhase." ;
-    ] .
-
-### recordsReading (WorkoutSession → SensorReading)
-
-ar:RecordsReadingSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:recordsReading ;
+ar:HasEffortStateShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasEffortState ;
     sh:class ar:WorkoutSession ;
-    sh:message "Domain violation: subject of ar:recordsReading must be an ar:WorkoutSession." .
+    sh:property [ sh:path ar:hasEffortState ; sh:class ar:EffortState ;
+        sh:message "ar:hasEffortState must go WorkoutSession -> EffortState." ] .
 
-ar:RecordsReadingObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:recordsReading ;
-    sh:property [
-        sh:path ar:recordsReading ;
-        sh:class ar:SensorReading ;
-        sh:message "Range violation: object of ar:recordsReading must be an ar:SensorReading." ;
-    ] .
+ar:HasTrendShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasTrend ;
+    sh:class ar:WorkoutSession ;
+    sh:property [ sh:path ar:hasTrend ; sh:class ar:TrendState ;
+        sh:message "ar:hasTrend must go WorkoutSession -> TrendState." ] .
 
-### readingInZone (HeartRateReading → IntensityZone)
-
-ar:ReadingInZoneSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:readingInZone ;
-    sh:class ar:HeartRateReading ;
-    sh:message "Domain violation: subject of ar:readingInZone must be an ar:HeartRateReading." .
-
-ar:ReadingInZoneObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:readingInZone ;
-    sh:property [
-        sh:path ar:readingInZone ;
-        sh:class ar:IntensityZone ;
-        sh:message "Range violation: object of ar:readingInZone must be an ar:IntensityZone." ;
-    ] .
-
-### targetsZone (TrainingPhase → IntensityZone)
-
-ar:TargetsZoneSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:targetsZone ;
+ar:TargetsEffortShape a sh:NodeShape ; sh:targetSubjectsOf ar:targetsEffort ;
     sh:class ar:TrainingPhase ;
-    sh:message "Domain violation: subject of ar:targetsZone must be an ar:TrainingPhase." .
+    sh:property [ sh:path ar:targetsEffort ; sh:class ar:EffortState ;
+        sh:message "ar:targetsEffort must go TrainingPhase -> EffortState." ] .
 
-ar:TargetsZoneObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:targetsZone ;
-    sh:property [
-        sh:path ar:targetsZone ;
-        sh:class ar:IntensityZone ;
-        sh:message "Range violation: object of ar:targetsZone must be an ar:IntensityZone." ;
-    ] .
+ar:PrescribesTargetShape a sh:NodeShape ; sh:targetSubjectsOf ar:prescribesTarget ;
+    sh:class ar:EffortState ;
+    sh:property [ sh:path ar:prescribesTarget ; sh:class ar:AcousticTarget ;
+        sh:message "ar:prescribesTarget must go EffortState -> AcousticTarget." ] .
 
-### suitsPhase (Song → TrainingPhase)
-
-ar:SuitsPhaseSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:suitsPhase ;
+ar:SuitsPhaseShape a sh:NodeShape ; sh:targetSubjectsOf ar:suitsPhase ;
     sh:class ar:Song ;
-    sh:message "Domain violation: subject of ar:suitsPhase must be an ar:Song." .
+    sh:property [ sh:path ar:suitsPhase ; sh:class ar:TrainingPhase ;
+        sh:message "ar:suitsPhase must go Song -> TrainingPhase." ] .
 
-ar:SuitsPhaseObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:suitsPhase ;
-    sh:property [
-        sh:path ar:suitsPhase ;
-        sh:class ar:TrainingPhase ;
-        sh:message "Range violation: object of ar:suitsPhase must be an ar:TrainingPhase." ;
-    ] .
-
-### matchesZone (Song → IntensityZone)
-
-ar:MatchesZoneSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:matchesZone ;
+ar:MatchesEffortShape a sh:NodeShape ; sh:targetSubjectsOf ar:matchesEffort ;
     sh:class ar:Song ;
-    sh:message "Domain violation: subject of ar:matchesZone must be an ar:Song." .
+    sh:property [ sh:path ar:matchesEffort ; sh:class ar:EffortState ;
+        sh:message "ar:matchesEffort must go Song -> EffortState." ] .
 
-ar:MatchesZoneObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:matchesZone ;
-    sh:property [
-        sh:path ar:matchesZone ;
-        sh:class ar:IntensityZone ;
-        sh:message "Range violation: object of ar:matchesZone must be an ar:IntensityZone." ;
-    ] .
-
-### hasGenre (Song → Genre)
-
-ar:HasGenreSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasGenre ;
+ar:HasGenreShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasGenre ;
     sh:class ar:Song ;
-    sh:message "Domain violation: subject of ar:hasGenre must be an ar:Song." .
+    sh:property [ sh:path ar:hasGenre ; sh:class ar:Genre ;
+        sh:message "ar:hasGenre must go Song -> Genre." ] .
 
-ar:HasGenreObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasGenre ;
-    sh:property [
-        sh:path ar:hasGenre ;
-        sh:class ar:Genre ;
-        sh:message "Range violation: object of ar:hasGenre must be an ar:Genre." ;
-    ] .
-
-### includedIn (Song → Playlist)
-
-ar:IncludedInSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:includedIn ;
-    sh:class ar:Song ;
-    sh:message "Domain violation: subject of ar:includedIn must be an ar:Song." .
-
-ar:IncludedInObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:includedIn ;
-    sh:property [
-        sh:path ar:includedIn ;
-        sh:class ar:Playlist ;
-        sh:message "Range violation: object of ar:includedIn must be an ar:Playlist." ;
-    ] .
-
-### containsSong (Playlist → Song)
-
-ar:ContainsSongSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:containsSong ;
-    sh:class ar:Playlist ;
-    sh:message "Domain violation: subject of ar:containsSong must be an ar:Playlist." .
-
-ar:ContainsSongObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:containsSong ;
-    sh:property [
-        sh:path ar:containsSong ;
-        sh:class ar:Song ;
-        sh:message "Range violation: object of ar:containsSong must be an ar:Song." ;
-    ] .
-
-### builtForSession (Playlist → WorkoutSession)
-
-ar:BuiltForSessionSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:builtForSession ;
-    sh:class ar:Playlist ;
-    sh:message "Domain violation: subject of ar:builtForSession must be an ar:Playlist." .
-
-ar:BuiltForSessionObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:builtForSession ;
-    sh:property [
-        sh:path ar:builtForSession ;
-        sh:class ar:WorkoutSession ;
-        sh:message "Range violation: object of ar:builtForSession must be an ar:WorkoutSession." ;
-    ] .
-
-### prefersGenre (Runner → Genre)
-
-ar:PrefersGenreSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:prefersGenre ;
+ar:PrefersGenreShape a sh:NodeShape ; sh:targetSubjectsOf ar:prefersGenre ;
     sh:class ar:Runner ;
-    sh:message "Domain violation: subject of ar:prefersGenre must be an ar:Runner." .
+    sh:property [ sh:path ar:prefersGenre ; sh:class ar:Genre ;
+        sh:message "ar:prefersGenre must go Runner -> Genre." ] .
 
-ar:PrefersGenreObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:prefersGenre ;
-    sh:property [
-        sh:path ar:prefersGenre ;
-        sh:class ar:Genre ;
-        sh:message "Range violation: object of ar:prefersGenre must be an ar:Genre." ;
-    ] .
+ar:IncludedInShape a sh:NodeShape ; sh:targetSubjectsOf ar:includedIn ;
+    sh:class ar:Song ;
+    sh:property [ sh:path ar:includedIn ; sh:class ar:Playlist ;
+        sh:message "ar:includedIn must go Song -> Playlist." ] .
 
-### prescribesTarget (TrainingPhase → AcousticTarget)
+ar:ContainsSongShape a sh:NodeShape ; sh:targetSubjectsOf ar:containsSong ;
+    sh:class ar:Playlist ;
+    sh:property [ sh:path ar:containsSong ; sh:class ar:Song ;
+        sh:message "ar:containsSong must go Playlist -> Song." ] .
 
-ar:PrescribesTargetSubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:prescribesTarget ;
-    sh:class ar:IntensityZone ;
-    sh:message "Domain violation: subject of ar:prescribesTarget must be an ar:IntensityZone." .
+ar:BuiltForSessionShape a sh:NodeShape ; sh:targetSubjectsOf ar:builtForSession ;
+    sh:class ar:Playlist ;
+    sh:property [ sh:path ar:builtForSession ; sh:class ar:WorkoutSession ;
+        sh:message "ar:builtForSession must go Playlist -> WorkoutSession." ] .
 
-ar:PrescribesTargetObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:prescribesTarget ;
-    sh:property [
-        sh:path ar:prescribesTarget ;
-        sh:class ar:AcousticTarget ;
-        sh:message "Range violation: object of ar:prescribesTarget must be an ar:AcousticTarget." ;
-    ] .
-
-#################################################################
-# Health / safety constraints (v0.3) — the "life-saving" rules.
-# SPARQL-based so they can compare two values on the same node. The
-# recommender stamps ar:currentCadenceSpm / ar:currentHeartRateBpm /
-# ar:appliedTargetBpm / ar:forRunner on the session at decision time.
-#################################################################
-
-# Cadence guard (injury prevention): the applied target BPM must not
-# exceed the current cadence by more than 5% — never jump a runner from
-# 140 spm straight to a 180 bpm track (Heiderscheit et al. 2011).
-ar:CadenceStepShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:appliedTargetBpm ;
-    sh:sparql [
-        sh:message "Unsafe cadence jump: applied target BPM exceeds current cadence by more than 5%." ;
-        sh:select """
-            SELECT $this ?b ?c WHERE {
-                $this <http://algorun.org/ontology#appliedTargetBpm> ?b ;
-                      <http://algorun.org/ontology#currentCadenceSpm> ?c .
-                FILTER (?b > 1.05 * ?c)
-            }""" ] .
-
-# Critical heart-rate guard: an energetic target (BPM > 140) is forbidden
-# once the runner is at or above their safe max HR — the system must force
-# a relaxing target instead (Terry & Karageorghis 2011: fast music raises
-# HR and arousal).
-ar:CriticalHeartRateShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:currentHeartRateBpm ;
-    sh:sparql [
-        sh:message "Critical heart rate: an energetic target (BPM > 140) is forbidden at or above the runner's safe max HR." ;
-        sh:select """
-            SELECT $this ?hr ?b WHERE {
-                $this <http://algorun.org/ontology#currentHeartRateBpm> ?hr ;
-                      <http://algorun.org/ontology#appliedTargetBpm> ?b ;
-                      <http://algorun.org/ontology#performedBy> ?r .
-                ?r <http://algorun.org/ontology#safeMaxHeartRateBpm> ?safe .
-                FILTER (?hr >= ?safe && ?b > 140)
-            }""" ] .
-
-### hasActionPriority (WorkoutSession → ActionPriority)
-
-ar:HasActionPrioritySubjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasActionPriority ;
+ar:HasActionPriorityShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasActionPriority ;
     sh:class ar:WorkoutSession ;
-    sh:message "Domain violation: subject of ar:hasActionPriority must be an ar:WorkoutSession." .
-
-ar:HasActionPriorityObjectShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasActionPriority ;
-    sh:property [
-        sh:path ar:hasActionPriority ;
-        sh:class ar:ActionPriority ;
-        sh:message "Range violation: object of ar:hasActionPriority must be an ar:ActionPriority." ;
-    ] .
-
-# Emergency guard: a session flagged EmergencyPriority must not carry an
-# energetic applied target — the controller must cut to a relaxing track,
-# bypassing the playback lock (dual-speed architecture).
-ar:EmergencyTargetShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:hasActionPriority ;
-    sh:sparql [
-        sh:message "Emergency state: applied target BPM must be ≤ 140 when the session is flagged EmergencyPriority." ;
-        sh:select """
-            SELECT $this ?b WHERE {
-                $this <http://algorun.org/ontology#hasActionPriority>
-                      <http://algorun.org/ontology#EmergencyPriority> ;
-                      <http://algorun.org/ontology#appliedTargetBpm> ?b .
-                FILTER (?b > 140)
-            }""" ] .
+    sh:property [ sh:path ar:hasActionPriority ; sh:class ar:ActionPriority ;
+        sh:message "ar:hasActionPriority must go WorkoutSession -> ActionPriority." ] .
 
 #################################################################
-# Value constraints on data properties
+# Value bounds on measured quantities
 #################################################################
 
-ar:HeartRateValueShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:heartRateBpm ;
-    sh:class ar:HeartRateReading ;
-    sh:property [
-        sh:path ar:heartRateBpm ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 25 ;
-        sh:maxInclusive 240 ;
-        sh:message "ar:heartRateBpm must be a decimal in [25, 240] on an ar:HeartRateReading." ;
-    ] .
+ar:HeartRateValueShape a sh:NodeShape ; sh:targetSubjectsOf ar:heartRateBpm ;
+    sh:property [ sh:path ar:heartRateBpm ; sh:datatype xsd:decimal ;
+        sh:minInclusive 25 ; sh:maxInclusive 240 ;
+        sh:message "ar:heartRateBpm must be in [25, 240]." ] .
 
-ar:SongBpmShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:bpmValue ;
-    sh:class ar:Song ;
-    sh:property [
-        sh:path ar:bpmValue ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 30 ;
-        sh:maxInclusive 260 ;
-        sh:message "ar:bpmValue must be a decimal in [30, 260] on an ar:Song." ;
-    ] .
+ar:CadenceValueShape a sh:NodeShape ; sh:targetSubjectsOf ar:cadenceSpm ;
+    sh:property [ sh:path ar:cadenceSpm ; sh:datatype xsd:decimal ;
+        sh:minInclusive 40 ; sh:maxInclusive 260 ;
+        sh:message "ar:cadenceSpm must be in [40, 260]." ] .
 
-ar:EnergyShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:energyValue ;
-    sh:class ar:Song ;
-    sh:property [
-        sh:path ar:energyValue ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 1.0 ;
-        sh:message "ar:energyValue must be a decimal in [0, 1] on an ar:Song." ;
-    ] .
+ar:SongBpmShape a sh:NodeShape ; sh:targetSubjectsOf ar:bpmValue ;
+    sh:property [ sh:path ar:bpmValue ; sh:datatype xsd:decimal ;
+        sh:minInclusive 30 ; sh:maxInclusive 260 ;
+        sh:message "ar:bpmValue must be in [30, 260]." ] .
 
-ar:ValenceShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:valenceValue ;
-    sh:class ar:Song ;
-    sh:property [
-        sh:path ar:valenceValue ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 1.0 ;
-        sh:message "ar:valenceValue must be a decimal in [0, 1] on an ar:Song." ;
-    ] .
+ar:EnergyShape a sh:NodeShape ; sh:targetSubjectsOf ar:energyValue ;
+    sh:property [ sh:path ar:energyValue ; sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ; sh:maxInclusive 1.0 ;
+        sh:message "ar:energyValue must be in [0, 1]." ] .
 
-ar:CadenceShape a sh:NodeShape ;
-    sh:targetSubjectsOf ar:cadenceSpm ;
-    sh:class ar:CadenceReading ;
-    sh:property [
-        sh:path ar:cadenceSpm ;
-        sh:datatype xsd:decimal ;
-        sh:minInclusive 40 ;
-        sh:maxInclusive 260 ;
-        sh:message "ar:cadenceSpm must be a decimal in [40, 260] on an ar:CadenceReading." ;
-    ] .
+#################################################################
+# Health / safety constraints (SPARQL-based) — the life-saving rules.
+# The recommender stamps ar:currentCadenceSpm / ar:currentHeartRateBpm /
+# ar:appliedTargetBpm / ar:performedBy on the session at decision time.
+#################################################################
 
+# Cadence guard: applied BPM must not exceed current cadence by >5%
+# (injury prevention — Heiderscheit et al. 2011).
+ar:CadenceStepShape a sh:NodeShape ; sh:targetSubjectsOf ar:appliedTargetBpm ;
+    sh:sparql [ sh:message "Unsafe cadence jump: applied BPM exceeds current cadence by more than 5%." ;
+        sh:select """SELECT $this ?b ?c WHERE {
+            $this <http://algorun.org/ontology#appliedTargetBpm> ?b ;
+                  <http://algorun.org/ontology#currentCadenceSpm> ?c .
+            FILTER (?b > 1.05 * ?c) }""" ] .
+
+# Critical-HR guard: an energetic target (>140 bpm) is forbidden at or
+# above the runner's safe max HR (Terry & Karageorghis 2011).
+ar:CriticalHeartRateShape a sh:NodeShape ; sh:targetSubjectsOf ar:currentHeartRateBpm ;
+    sh:sparql [ sh:message "Critical heart rate: energetic target (>140 bpm) forbidden at/above safe max HR." ;
+        sh:select """SELECT $this ?hr ?b WHERE {
+            $this <http://algorun.org/ontology#currentHeartRateBpm> ?hr ;
+                  <http://algorun.org/ontology#appliedTargetBpm> ?b ;
+                  <http://algorun.org/ontology#performedBy> ?r .
+            ?r <http://algorun.org/ontology#safeMaxHeartRateBpm> ?safe .
+            FILTER (?hr >= ?safe && ?b > 140) }""" ] .
+
+# Emergency guard: under EmergencyPriority the target must be calming (<=140).
+ar:EmergencyTargetShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasActionPriority ;
+    sh:sparql [ sh:message "Emergency state: applied BPM must be <=140 under EmergencyPriority." ;
+        sh:select """SELECT $this ?b WHERE {
+            $this <http://algorun.org/ontology#hasActionPriority>
+                  <http://algorun.org/ontology#EmergencyPriority> ;
+                  <http://algorun.org/ontology#appliedTargetBpm> ?b .
+            FILTER (?b > 140) }""" ] .

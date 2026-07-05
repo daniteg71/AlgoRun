@@ -27,6 +27,19 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 15:00] — Danny (with Claude Code)
+**What I did:** Rebuilt the ontology (v0.4) **aligned to your sensor code**:
+replaced the 5 HR zones with your 4 `EffortState`s (LowEffort/TargetEffort/
+HighEffort/VeryHighEffort, HRR thresholds 0.40/0.70/0.85), added `TrendState`
+(Increasing/Stable/Decreasing), and used your workout goals (easy/moderate/
+interval) and phases (warmup/steady/hard/recovery). Chain is now
+phase → targetsEffort → effort → prescribesTarget → target. All the BPM/paper
+theory lives in the ontology comments (no separate docs). Compact SHACL (one
+shape per relation) + the 3 safety rules. Regenerated the synthetic dataset
+to the new relations. 40 tests green. Speed/GPS left out (decided: not now).
+**Open questions:** none.
+
+---
 ### [2026-07-05 14:00] — Danny (with Claude Code)
 **What I did:** Removed the 5 overlapping theory docs in `report/` (keep the
 repo minimal — the pipeline doesn't need them; final ACSAI report comes with

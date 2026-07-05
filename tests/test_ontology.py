@@ -13,7 +13,7 @@ def test_ontology_parses_and_has_core_classes():
         AR.WorkoutType,
         AR.TrainingPhase,
         AR.HeartRateReading,
-        AR.IntensityZone,
+        AR.EffortState,
         AR.Song,
         AR.Playlist,
     ):
@@ -31,9 +31,10 @@ def test_every_object_property_declares_domain_and_range():
 
 def test_workout_type_and_phase_individuals_present():
     schema = load_ontology()
-    for ind in (AR.Interval, AR.Endurance, AR.Recovery, AR.Tempo, AR.LongRun,
-                AR.WarmUp, AR.Steady, AR.Sprint, AR.CoolDown,
-                AR.Z1, AR.Z2, AR.Z3, AR.Z4, AR.Z5):
+    for ind in (AR.Easy, AR.Moderate, AR.Interval,
+                AR.WarmUp, AR.Steady, AR.Hard, AR.Recovery,
+                AR.LowEffort, AR.TargetEffort, AR.HighEffort, AR.VeryHighEffort,
+                AR.Increasing, AR.Stable, AR.Decreasing):
         assert ind in schema.individuals, f"missing individual {ind}"
 
 
@@ -62,4 +63,4 @@ def test_surface_forms_map_back_to_expected_iri():
     schema = load_ontology()
     mapping = {form: iri for form, iri, _ in schema.label_dictionary()}
     assert mapping["hr"] == URIRef(str(AR.HeartRateReading))
-    assert mapping["interval training"] == URIRef(str(AR.Interval))
+    assert mapping["intervals"] == URIRef(str(AR.Interval))

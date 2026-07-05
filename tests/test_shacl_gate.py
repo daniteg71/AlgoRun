@@ -38,9 +38,9 @@ def test_valid_triples_pass_the_gate():
     data.add((EX.session1, RDF.type, AR.WorkoutSession))
     data.add((EX.danny, AR.performsSession, EX.session1))
     data.add((EX.session1, AR.hasWorkoutType, AR.Interval))
+    data.add((EX.session1, AR.hasEffortState, AR.VeryHighEffort))
     data.add((EX.hr1, RDF.type, AR.HeartRateReading))
     data.add((EX.session1, AR.recordsReading, EX.hr1))
-    data.add((EX.hr1, AR.readingInZone, AR.Z4))
     data.add((EX.hr1, AR.heartRateBpm, Literal("172", datatype=XSD.decimal)))
 
     conforms, report = _validate(data)
@@ -56,15 +56,15 @@ def test_domain_violation_is_rejected():
 
     conforms, report = _validate(data)
     assert not conforms
-    assert "performsSession" in report
+    assert "Runner" in report
 
 
 def test_range_violation_is_rejected():
-    """readingInZone must point to an IntensityZone, not a Genre."""
+    """hasEffortState must point to an EffortState, not a Genre."""
     data = Graph()
-    data.add((EX.hr1, RDF.type, AR.HeartRateReading))
+    data.add((EX.session1, RDF.type, AR.WorkoutSession))
     data.add((EX.rock, RDF.type, AR.Genre))
-    data.add((EX.hr1, AR.readingInZone, EX.rock))
+    data.add((EX.session1, AR.hasEffortState, EX.rock))
 
     conforms, _ = _validate(data)
     assert not conforms

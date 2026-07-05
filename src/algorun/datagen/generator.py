@@ -76,7 +76,7 @@ class RecordBuilder:
         rng = self.rng
         wtype = rng.choice(_individual_surfaces(self.schema, AR.WorkoutType, canonical))
         phase = rng.choice(_individual_surfaces(self.schema, AR.TrainingPhase, canonical))
-        zone = rng.choice(_individual_surfaces(self.schema, AR.IntensityZone, canonical))
+        zone = rng.choice(_individual_surfaces(self.schema, AR.EffortState, canonical))
         runner = rng.choice(T.RUNNER_NAMES)
         song = rng.choice(T.SONG_TITLES)
         genre = rng.choice(T.GENRES)
@@ -84,7 +84,7 @@ class RecordBuilder:
         return {
             "wtype": (wtype[1], str(wtype[0]), str(AR.WorkoutType)),
             "phase": (phase[1], str(phase[0]), str(AR.TrainingPhase)),
-            "zone": (zone[1], str(zone[0]), str(AR.IntensityZone)),
+            "zone": (zone[1], str(zone[0]), str(AR.EffortState)),
             "runner": (runner, DATA + "runner_" + _slug(runner), str(AR.Runner)),
             "song": (song, DATA + "song_" + _slug(song), str(AR.Song)),
             "genre": (genre, DATA + "genre_" + _slug(genre), str(AR.Genre)),

@@ -27,6 +27,25 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 17:30] — Danny (with Claude Code)
+**What I did:** Built the **NLP perception** module `src/algorun/nlp.py` —
+user prompt → entities → RDF triples for the ontology.
+- Two backends, one interface: `dictionary` baseline (rule-based, from the
+  ontology labels — always on) and `gliner` zero-shot (lazy import; run
+  `pip install gliner`, ideally on Colab — not installed here, Py3.9 + torch).
+- Regex pulls numbers/units (duration, speed); one `if` routes qual vs quant.
+- **Quantitative = surgical BPM**: declared speed → cadence (134 + 2.9·kmh,
+  clamp 150–190) → BPM target 1:1 or half-time (Van Dyck 2015). E.g. 12 km/h →
+  168.8 bpm, written to the graph. Qualitative → no BPM, defers to the HR
+  bridge.
+- Benchmark: `evaluate()` gives P/R/F1 over a gold set of prompts; the
+  dictionary baseline scores **F1 0.95** (the score GLiNER must beat).
+- CLI: `python -m algorun.nlp "your prompt"`. 52 tests green (8 new).
+**TODOs for the other teammate:** grow the GOLD prompt set in `tests/test_nlp.py`
+with your own phrasings; install GLiNER on Colab when we do the M4 comparison.
+**Open questions:** none.
+
+---
 ### [2026-07-05 16:00] — Danny (with Claude Code)
 **What I did:** Built the **bridge** `src/algorun/pipeline.py` — the first
 end-to-end slice. It takes your BPM window (`analyze_bpm_window`), turns the

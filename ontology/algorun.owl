@@ -4,483 +4,317 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
-# External vocabularies — declared for alignment axioms only, NOT imported.
-# We stay self-contained (GUIDELINES.md Rule 7) but document reuse (NeOn
-# "reuse" scenario) so the ontology is anchored to the de-facto standards.
 @prefix sosa: <http://www.w3.org/ns/sosa/> .
-@prefix time: <http://www.w3.org/2006/time#> .
-@prefix mo:   <http://purl.org/ontology/mo/> .
 
 <http://algorun.org/ontology> a owl:Ontology ;
     rdfs:label "AlgoRun Ontology" ;
-    rdfs:comment "Domain ontology for the AlgoRun ontology-driven running playlist manager (AI-LAB 2025/2026). Method: Block 12 (three disjoint IOF-style cores, forward/inverse properties, OWL+SKOS split, competency-question driven). The ontology restricts and validates data; it never generates it. Sensor part aligned to W3C/OGC SOSA/SSN; phases aligned to OWL-Time; tempo aligned to the Music Ontology." ;
-    owl:versionInfo "0.3.0" ;
-    rdfs:comment "v0.3 adds the health/music-science layer: AcousticTarget (the target point in BPM/energy/valence space produced by the reasoner), per-zone tempo mappings, and safety constraints (critical heart rate, gradual cadence change ≤5%). Evidence: Terry & Karageorghis (2011); see report/music_science.md." .
+    owl:versionInfo "0.4.0" ;
+    rdfs:comment """Domain ontology for AlgoRun (AI-LAB 2025/2026): an ontology-driven running DJ. Reasoning chain: heart-rate reading -> effort state -> acoustic target (BPM/energy) -> nearest song. The ontology restricts and validates; it never generates. Vocabularies (EffortState, TrendState, workout goals, phases) match the teammate's sensor code in src/algorun/sensors/.
+
+Scientific basis embedded in the comments below:
+- Effort from Heart Rate Reserve: Karvonen, Kentala & Mustala (1957).
+- HRmax models: Tanaka et al. (2001) 208-0.7*age; Fox et al. (1971) 220-age.
+- Music tempo, arousal and dissociation: Terry & Karageorghis (2011); Karageorghis & Terry (2009).
+- Cadence-tempo entrainment (1:1 and half-time): Van Dyck et al. (2015).
+- Cadence-change injury limit (<=5%): Heiderscheit et al. (2011).""" .
 
 #################################################################
-# Three disjoint cores (IOF-style foundation, Block 12)
-#   Agent            — who acts
-#   Process          — what happens in time
-#   InformationEntity — what describes / records / prescribes
+# Three disjoint cores (IOF-style foundation, course Block 12)
 #################################################################
 
-ar:Agent a owl:Class ;
-    rdfs:label "agent" .
-
-ar:Process a owl:Class ;
-    rdfs:label "process" .
-
-ar:InformationEntity a owl:Class ;
-    rdfs:label "information entity" .
-
+ar:Agent a owl:Class ; rdfs:label "agent" .
+ar:Process a owl:Class ; rdfs:label "process" .
+ar:InformationEntity a owl:Class ; rdfs:label "information entity" .
 ar:Agent owl:disjointWith ar:Process, ar:InformationEntity .
 ar:Process owl:disjointWith ar:InformationEntity .
 
 #################################################################
-# Domain classes (subclasses of the cores)
+# Domain classes
 #################################################################
 
-# --- Agent branch ---
-ar:Runner a owl:Class ;
-    rdfs:subClassOf ar:Agent ;
-    rdfs:label "runner" ;
-    skos:altLabel "athlete", "user", "jogger" .
+ar:Runner a owl:Class ; rdfs:subClassOf ar:Agent ;
+    rdfs:label "runner" ; skos:altLabel "athlete", "user", "jogger" .
 
-# --- Process branch ---
-ar:WorkoutSession a owl:Class ;
-    rdfs:subClassOf ar:Process ;
+ar:WorkoutSession a owl:Class ; rdfs:subClassOf ar:Process ;
     rdfs:label "workout session" ;
-    skos:altLabel "session", "run", "training session", "running session" ;
-    rdfs:seeAlso time:ProperInterval ;
-    rdfs:comment "A session is a temporal interval that contains ordered training phases (OWL-Time alignment)." .
+    skos:altLabel "session", "run", "training session" .
 
-ar:TrainingPhase a owl:Class ;
-    rdfs:subClassOf ar:Process ;
-    rdfs:label "training phase" ;
-    skos:altLabel "phase", "segment" ;
-    rdfs:seeAlso time:ProperInterval .
-
+ar:TrainingPhase a owl:Class ; rdfs:subClassOf ar:Process ;
+    rdfs:label "training phase" ; skos:altLabel "phase", "segment" .
 ar:WorkoutSession owl:disjointWith ar:TrainingPhase .
 
-# --- InformationEntity branch ---
-ar:SensorReading a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
-    rdfs:label "sensor reading" ;
-    skos:altLabel "reading", "measurement" ;
-    rdfs:subClassOf sosa:Observation ;
-    rdfs:comment "Aligned to sosa:Observation: an act of measurement of an observable property of a feature of interest (the session/runner)." .
+# Sensors: exactly two — accelerometer (-> cadence) and heart-rate sensor.
+ar:SensorReading a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "sensor reading" ; skos:altLabel "reading", "measurement" ;
+    rdfs:subClassOf sosa:Observation .
 
-# We use exactly two sensors: the phone accelerometer (Sensor Logger) →
-# cadence, and the watch/chest heart-rate sensor → beats. Pace (GPS) and
-# elevation (barometer/GPS) are intentionally out of scope.
-ar:HeartRateReading a owl:Class ;
-    rdfs:subClassOf ar:SensorReading ;
+ar:HeartRateReading a owl:Class ; rdfs:subClassOf ar:SensorReading ;
     rdfs:label "heart rate reading" ;
     skos:altLabel "heart rate", "HR", "pulse", "heartbeat" .
 
-ar:CadenceReading a owl:Class ;
-    rdfs:subClassOf ar:SensorReading ;
+ar:CadenceReading a owl:Class ; rdfs:subClassOf ar:SensorReading ;
     rdfs:label "cadence reading" ;
     skos:altLabel "cadence", "step rate", "steps per minute", "stride rate" ;
     rdfs:comment "Derived from the accelerometer (peak detection on vertical acceleration)." .
 
-# reading types are mutually disjoint
-[] a owl:AllDisjointClasses ;
-    owl:members ( ar:HeartRateReading ar:CadenceReading ) .
+[] a owl:AllDisjointClasses ; owl:members ( ar:HeartRateReading ar:CadenceReading ) .
 
-ar:IntensityZone a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
-    rdfs:label "intensity zone" ;
-    skos:altLabel "zone", "heart rate zone", "HR zone" ;
-    rdfs:seeAlso sosa:ObservableProperty ;
-    rdfs:comment "A classification of effort (Karvonen 5-zone model)." .
+ar:EffortState a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "effort state" ;
+    rdfs:comment "Intensity level from Heart Rate Reserve, HRR=(HR-rest)/(max-rest) (Karvonen 1957). Four states match physiological_state.py::classify_effort: Low<0.40, Target<0.70, High<0.85, VeryHigh>=0.85." .
 
-ar:AcousticTarget a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
-    rdfs:label "acoustic target" ;
-    skos:altLabel "target", "sound target", "target point" ;
-    rdfs:comment "The target point the reasoner produces (a region in BPM/energy/valence space, plus optional track-duration bounds), NOT a song. Vector search then finds the nearest track (project objective, step 4)." .
+ar:TrendState a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "trend state" ;
+    rdfs:comment "Direction of heart rate over the window (linear slope), matching physiological_state.py::classify_trend." .
 
-ar:ActionPriority a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
-    rdfs:label "action priority" ;
-    skos:altLabel "priority", "status severity" ;
-    rdfs:comment "Severity of the runner's state. Normal → the playback lock is respected (soft transitions); Emergency → the controller bypasses the lock and cuts the track immediately (immediate skip)." .
+ar:WorkoutType a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "workout type" ; skos:altLabel "training type", "goal" .
 
-ar:NormalPriority a ar:ActionPriority ;
-    rdfs:label "normal priority" ; skos:altLabel "normal", "routine" .
-ar:EmergencyPriority a ar:ActionPriority ;
-    rdfs:label "emergency priority" ; skos:altLabel "emergency", "critical", "panic" .
+ar:AcousticTarget a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "acoustic target" ; skos:altLabel "target", "target point" ;
+    rdfs:comment "The BPM/energy/duration region the reasoner produces (not a song). Vector search then finds the nearest track." .
 
-ar:MusicEntity a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
+ar:ActionPriority a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
+    rdfs:label "action priority" ; skos:altLabel "priority", "severity" ;
+    rdfs:comment "Normal -> the playback lock holds (soft transitions); Emergency -> the controller bypasses the lock and cuts the track immediately." .
+
+ar:MusicEntity a owl:Class ; rdfs:subClassOf ar:InformationEntity ;
     rdfs:label "music entity" .
-
-ar:Song a owl:Class ;
-    rdfs:subClassOf ar:MusicEntity ;
-    rdfs:label "song" ;
-    skos:altLabel "track", "tune", "piece" ;
-    rdfs:seeAlso mo:Track .
-
-ar:Genre a owl:Class ;
-    rdfs:subClassOf ar:MusicEntity ;
-    rdfs:label "genre" ;
-    skos:altLabel "musical genre", "style" ;
-    rdfs:seeAlso mo:Genre .
-
-ar:Playlist a owl:Class ;
-    rdfs:subClassOf ar:MusicEntity ;
-    rdfs:label "playlist" ;
-    skos:altLabel "queue", "mix" ;
-    rdfs:seeAlso mo:Playlist .
-
-[] a owl:AllDisjointClasses ;
-    owl:members ( ar:Song ar:Genre ar:Playlist ) .
-
-# WorkoutType is a controlled vocabulary (see SKOS layer below), typed as a class
-ar:WorkoutType a owl:Class ;
-    rdfs:subClassOf ar:InformationEntity ;
-    rdfs:label "workout type" ;
-    skos:altLabel "training type" .
+ar:Song a owl:Class ; rdfs:subClassOf ar:MusicEntity ; rdfs:label "song" ;
+    skos:altLabel "track", "tune", "piece" .
+ar:Genre a owl:Class ; rdfs:subClassOf ar:MusicEntity ; rdfs:label "genre" ;
+    skos:altLabel "musical genre", "style" .
+ar:Playlist a owl:Class ; rdfs:subClassOf ar:MusicEntity ; rdfs:label "playlist" ;
+    skos:altLabel "queue", "mix" .
+[] a owl:AllDisjointClasses ; owl:members ( ar:Song ar:Genre ar:Playlist ) .
 
 #################################################################
-# SKOS layer (Block 12: OWL for axioms, SKOS for evolving taxonomies).
-# WorkoutType and Genre individuals keep their OWL typing (so the NER label
-# dictionary in loader.py is unchanged) AND become skos:Concept members of a
-# scheme, so the vocabularies can grow without touching the axioms.
+# Individuals — workout goals & phases match the teammate's code
 #################################################################
 
-ar:WorkoutTypeScheme a skos:ConceptScheme ;
-    rdfs:label "workout type scheme" .
+ar:Easy a ar:WorkoutType ; rdfs:label "easy" ;
+    skos:altLabel "easy run", "recovery run", "long run", "endurance" .
+ar:Moderate a ar:WorkoutType ; rdfs:label "moderate" ;
+    skos:altLabel "tempo", "threshold", "moderate run" .
+ar:Interval a ar:WorkoutType ; rdfs:label "interval" ;
+    skos:altLabel "intervals", "HIIT", "speed work" .
 
-ar:GenreScheme a skos:ConceptScheme ;
-    rdfs:label "genre scheme" .
+ar:WarmUp a ar:TrainingPhase ; rdfs:label "warmup" ; skos:altLabel "warm-up", "warm up" .
+ar:Steady a ar:TrainingPhase ; rdfs:label "steady" ; skos:altLabel "steady state", "cruise" .
+ar:Hard a ar:TrainingPhase ; rdfs:label "hard" ; skos:altLabel "surge", "push", "sprint" .
+ar:Recovery a ar:TrainingPhase ; rdfs:label "recovery" ; skos:altLabel "rest", "float" .
 
-#################################################################
-# Workout type individuals (also skos:Concept)
-#################################################################
+# Effort states — HRR thresholds from Karvonen (1957)
+ar:LowEffort a ar:EffortState ; rdfs:label "LowEffort" ;
+    skos:altLabel "very light", "easy effort" ;
+    rdfs:comment "HRR < 0.40." .
+ar:TargetEffort a ar:EffortState ; rdfs:label "TargetEffort" ;
+    skos:altLabel "moderate effort", "aerobic" ;
+    rdfs:comment "0.40 <= HRR < 0.70." .
+ar:HighEffort a ar:EffortState ; rdfs:label "HighEffort" ;
+    skos:altLabel "hard effort", "threshold" ;
+    rdfs:comment "0.70 <= HRR < 0.85." .
+ar:VeryHighEffort a ar:EffortState ; rdfs:label "VeryHighEffort" ;
+    skos:altLabel "maximal effort", "red line" ;
+    rdfs:comment "HRR >= 0.85." .
 
-ar:Interval a ar:WorkoutType, skos:Concept ;
-    skos:inScheme ar:WorkoutTypeScheme ;
-    rdfs:label "interval" ; skos:prefLabel "interval" ;
-    skos:altLabel "interval training", "intervals", "HIIT", "speed work" .
+# Trend states
+ar:Increasing a ar:TrendState ; rdfs:label "Increasing" .
+ar:Stable a ar:TrendState ; rdfs:label "Stable" .
+ar:Decreasing a ar:TrendState ; rdfs:label "Decreasing" .
 
-ar:Endurance a ar:WorkoutType, skos:Concept ;
-    skos:inScheme ar:WorkoutTypeScheme ;
-    rdfs:label "endurance" ; skos:prefLabel "endurance" ;
-    skos:altLabel "endurance run", "aerobic run", "base run" .
-
-ar:Recovery a ar:WorkoutType, skos:Concept ;
-    skos:inScheme ar:WorkoutTypeScheme ;
-    rdfs:label "recovery" ; skos:prefLabel "recovery" ;
-    skos:altLabel "recovery run", "easy run", "regeneration run" .
-
-ar:Tempo a ar:WorkoutType, skos:Concept ;
-    skos:inScheme ar:WorkoutTypeScheme ;
-    rdfs:label "tempo" ; skos:prefLabel "tempo" ;
-    skos:altLabel "tempo run", "threshold run", "threshold workout" .
-
-ar:LongRun a ar:WorkoutType, skos:Concept ;
-    skos:inScheme ar:WorkoutTypeScheme ;
-    rdfs:label "long run" ; skos:prefLabel "long run" ;
-    skos:altLabel "long distance run", "LSD run" .
-
-#################################################################
-# Training phase individuals
-#################################################################
-
-ar:WarmUp a ar:TrainingPhase ;
-    rdfs:label "warm-up" ;
-    skos:altLabel "warm up", "warmup" .
-
-ar:Steady a ar:TrainingPhase ;
-    rdfs:label "steady" ;
-    skos:altLabel "steady state", "cruise" .
-
-ar:Sprint a ar:TrainingPhase ;
-    rdfs:label "sprint" ;
-    skos:altLabel "surge", "push", "burst" .
-
-ar:CoolDown a ar:TrainingPhase ;
-    rdfs:label "cool-down" ;
-    skos:altLabel "cool down", "cooldown" .
+# Action priorities
+ar:NormalPriority a ar:ActionPriority ; rdfs:label "normal priority" ; skos:altLabel "normal", "routine" .
+ar:EmergencyPriority a ar:ActionPriority ; rdfs:label "emergency priority" ; skos:altLabel "emergency", "critical", "panic" .
 
 #################################################################
-# Intensity zone individuals (Karvonen 5-zone model)
+# Acoustic targets per effort state (BPM/energy from the training-
+# zone x music evidence). At low effort optimise arousal (calm, the
+# foot entrains in half-time); at high effort optimise 1:1 beat
+# synchronization. Sources: Terry & Karageorghis (2011); Van Dyck
+# et al. (2015); practitioner BPM guides.
 #################################################################
 
-ar:Z1 a ar:IntensityZone ; rdfs:label "zone 1" ; skos:altLabel "Z1", "very light zone" .
-ar:Z2 a ar:IntensityZone ; rdfs:label "zone 2" ; skos:altLabel "Z2", "light zone", "fat burn zone" .
-ar:Z3 a ar:IntensityZone ; rdfs:label "zone 3" ; skos:altLabel "Z3", "moderate zone", "aerobic zone" .
-ar:Z4 a ar:IntensityZone ; rdfs:label "zone 4" ; skos:altLabel "Z4", "hard zone", "threshold zone" .
-ar:Z5 a ar:IntensityZone ; rdfs:label "zone 5" ; skos:altLabel "Z5", "maximum zone", "red zone" .
-
-#################################################################
-# Acoustic targets, indexed by INTENSITY ZONE (the physiological key).
-# Reasoning chain the AI walks: sensor HR → IntensityZone → AcousticTarget.
-# BPM/energy bands from the training-zone × music mapping; see
-# report/ontology_logic.md and report/music_science.md for the theory
-# (arousal at low intensity, 1:1 vs half-time synchronization at high
-# intensity) and the citations.
-#################################################################
-
-ar:RecoveryTarget a ar:AcousticTarget ;
-    rdfs:label "recovery target" ;
+ar:RecoveryTarget a ar:AcousticTarget ; rdfs:label "recovery target" ;
     ar:targetBpmMin 90 ; ar:targetBpmMax 110 ;
     ar:targetEnergyMin 0.1 ; ar:targetEnergyMax 0.3 ;
-    rdfs:comment "Recovery run (Z1, 50–60% HRmax): ambient, chill-out, downtempo. Low arousal; the foot entrains in half-time (one step every two beats). Slow tempo speeds HR and lactate recovery." .
-
-ar:EasyTarget a ar:AcousticTarget ;
-    rdfs:label "easy target" ;
+    rdfs:comment "LowEffort: ambient, chill-out, downtempo; slow tempo speeds HR/lactate recovery." .
+ar:EasyTarget a ar:AcousticTarget ; rdfs:label "easy target" ;
     ar:targetBpmMin 120 ; ar:targetBpmMax 130 ;
     ar:targetEnergyMin 0.4 ; ar:targetEnergyMax 0.6 ;
     ar:targetDurationMinMs 360000 ;
-    rdfs:comment "Easy / long run (Z2, 60–70% HRmax): deep house, pop, podcast-friendly. Long tracks (≥ 6 min) for a steady flow state." .
-
-ar:ThresholdTarget a ar:AcousticTarget ;
-    rdfs:label "threshold target" ;
+    rdfs:comment "TargetEffort: deep house, pop; long tracks (>=6 min) for a steady flow." .
+ar:ThresholdTarget a ar:AcousticTarget ; rdfs:label "threshold target" ;
     ar:targetBpmMin 130 ; ar:targetBpmMax 150 ;
     ar:targetEnergyMin 0.6 ; ar:targetEnergyMax 0.8 ;
-    rdfs:comment "Tempo / threshold (Z3–Z4, 80–90% HRmax): techno, drum & bass, steady driving rhythm. 1:1 synchronization sustains cadence." .
-
-ar:IntervalTarget a ar:AcousticTarget ;
-    rdfs:label "interval target" ;
+    rdfs:comment "HighEffort: techno, drum & bass; steady driving 1:1 beat." .
+ar:IntervalTarget a ar:AcousticTarget ; rdfs:label "interval target" ;
     ar:targetBpmMin 150 ; ar:targetBpmMax 180 ;
     ar:targetEnergyMin 0.8 ; ar:targetEnergyMax 1.0 ;
     ar:targetDurationMaxMs 240000 ;
-    rdfs:comment "Intervals / HIIT (Z5, 90–100% HRmax): hard techno, metal, dubstep. High-drive metronome for maximal effort; short tracks (≤ 4 min) matching work bouts." .
+    rdfs:comment "VeryHighEffort: hard techno, metal, dubstep; short tracks (<=4 min) for work bouts." .
 
-# intensity zone → prescribed acoustic target (the physiological mapping)
-ar:Z1 ar:prescribesTarget ar:RecoveryTarget .
-ar:Z2 ar:prescribesTarget ar:EasyTarget .
-ar:Z3 ar:prescribesTarget ar:ThresholdTarget .
-ar:Z4 ar:prescribesTarget ar:ThresholdTarget .
-ar:Z5 ar:prescribesTarget ar:IntervalTarget .
+# effort state -> prescribed acoustic target
+ar:LowEffort      ar:prescribesTarget ar:RecoveryTarget .
+ar:TargetEffort   ar:prescribesTarget ar:EasyTarget .
+ar:HighEffort     ar:prescribesTarget ar:ThresholdTarget .
+ar:VeryHighEffort ar:prescribesTarget ar:IntervalTarget .
+
+# phase -> default target effort
+ar:WarmUp   ar:targetsEffort ar:LowEffort .
+ar:Steady   ar:targetsEffort ar:TargetEffort .
+ar:Hard     ar:targetsEffort ar:VeryHighEffort .
+ar:Recovery ar:targetsEffort ar:LowEffort .
 
 #################################################################
-# Object properties — every forward property has a declared inverse
-# (Block 12). Explicit domain/range = the Constraint Gate (Rule 1).
+# Object properties (forward + inverse; domain/range = the gate)
 #################################################################
 
-ar:performsSession a owl:ObjectProperty ;
-    rdfs:domain ar:Runner ; rdfs:range ar:WorkoutSession ;
-    rdfs:label "performs session" ;
-    skos:altLabel "performs", "completes", "does", "runs" ;
+ar:performsSession a owl:ObjectProperty ; rdfs:domain ar:Runner ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "performs session" ; skos:altLabel "performs", "completes", "does", "runs" ;
     owl:inverseOf ar:performedBy .
-ar:performedBy a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:Runner ;
+ar:performedBy a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:Runner ;
     rdfs:label "performed by" .
 
-ar:hasWorkoutType a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:WorkoutType ;
-    rdfs:label "has workout type" ;
-    skos:altLabel "is a", "typed as", "planned as" ;
+ar:hasWorkoutType a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:WorkoutType ;
+    rdfs:label "has workout type" ; skos:altLabel "is a", "typed as", "planned as" ;
     owl:inverseOf ar:isWorkoutTypeOf .
-ar:isWorkoutTypeOf a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutType ; rdfs:range ar:WorkoutSession ;
+ar:isWorkoutTypeOf a owl:ObjectProperty ; rdfs:domain ar:WorkoutType ; rdfs:range ar:WorkoutSession ;
     rdfs:label "is workout type of" .
 
-ar:hasPhase a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:TrainingPhase ;
-    rdfs:label "has phase" ;
-    skos:altLabel "includes phase", "goes through", "starts with", "ends with" ;
+ar:hasPhase a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:TrainingPhase ;
+    rdfs:label "has phase" ; skos:altLabel "includes phase", "goes through" ;
     owl:inverseOf ar:phaseOf .
-ar:phaseOf a owl:ObjectProperty ;
-    rdfs:domain ar:TrainingPhase ; rdfs:range ar:WorkoutSession ;
+ar:phaseOf a owl:ObjectProperty ; rdfs:domain ar:TrainingPhase ; rdfs:range ar:WorkoutSession ;
     rdfs:label "phase of" .
 
-# Sequence pattern (OWL-Time flavoured): ordering of phases within a session
-ar:nextPhase a owl:ObjectProperty ;
-    rdfs:domain ar:TrainingPhase ; rdfs:range ar:TrainingPhase ;
-    rdfs:label "next phase" ;
-    skos:altLabel "followed by", "then" ;
-    rdfs:seeAlso time:intervalMeets ;
+ar:nextPhase a owl:ObjectProperty ; rdfs:domain ar:TrainingPhase ; rdfs:range ar:TrainingPhase ;
+    rdfs:label "next phase" ; skos:altLabel "followed by", "then" ;
     owl:inverseOf ar:previousPhase .
-ar:previousPhase a owl:ObjectProperty ;
-    rdfs:domain ar:TrainingPhase ; rdfs:range ar:TrainingPhase ;
+ar:previousPhase a owl:ObjectProperty ; rdfs:domain ar:TrainingPhase ; rdfs:range ar:TrainingPhase ;
     rdfs:label "previous phase" .
 
-ar:recordsReading a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:SensorReading ;
-    rdfs:label "records reading" ;
-    skos:altLabel "records", "logs", "registers", "measures" ;
-    rdfs:seeAlso sosa:hasFeatureOfInterest ;
+ar:recordsReading a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:SensorReading ;
+    rdfs:label "records reading" ; skos:altLabel "records", "logs", "registers", "measures" ;
     owl:inverseOf ar:recordedIn .
-ar:recordedIn a owl:ObjectProperty ;
-    rdfs:domain ar:SensorReading ; rdfs:range ar:WorkoutSession ;
+ar:recordedIn a owl:ObjectProperty ; rdfs:domain ar:SensorReading ; rdfs:range ar:WorkoutSession ;
     rdfs:label "recorded in" .
 
-ar:readingInZone a owl:ObjectProperty ;
-    rdfs:domain ar:HeartRateReading ; rdfs:range ar:IntensityZone ;
-    rdfs:label "reading in zone" ;
-    skos:altLabel "in zone", "falls in", "reaches" ;
-    owl:inverseOf ar:zoneOfReading .
-ar:zoneOfReading a owl:ObjectProperty ;
-    rdfs:domain ar:IntensityZone ; rdfs:range ar:HeartRateReading ;
-    rdfs:label "zone of reading" .
+ar:hasEffortState a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:EffortState ;
+    rdfs:label "has effort state" ; skos:altLabel "at effort", "in effort" ;
+    owl:inverseOf ar:effortStateOf .
+ar:effortStateOf a owl:ObjectProperty ; rdfs:domain ar:EffortState ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "effort state of" .
 
-ar:targetsZone a owl:ObjectProperty ;
-    rdfs:domain ar:TrainingPhase ; rdfs:range ar:IntensityZone ;
-    rdfs:label "targets zone" ;
-    skos:altLabel "targets", "aims for", "stays in" ;
+ar:hasTrend a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:TrendState ;
+    rdfs:label "has trend" ; skos:altLabel "trending" ;
+    owl:inverseOf ar:trendOf .
+ar:trendOf a owl:ObjectProperty ; rdfs:domain ar:TrendState ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "trend of" .
+
+ar:targetsEffort a owl:ObjectProperty ; rdfs:domain ar:TrainingPhase ; rdfs:range ar:EffortState ;
+    rdfs:label "targets effort" ; skos:altLabel "targets", "aims for" ;
     owl:inverseOf ar:targetedByPhase .
-ar:targetedByPhase a owl:ObjectProperty ;
-    rdfs:domain ar:IntensityZone ; rdfs:range ar:TrainingPhase ;
+ar:targetedByPhase a owl:ObjectProperty ; rdfs:domain ar:EffortState ; rdfs:range ar:TrainingPhase ;
     rdfs:label "targeted by phase" .
 
-ar:prescribesTarget a owl:ObjectProperty ;
-    rdfs:domain ar:IntensityZone ; rdfs:range ar:AcousticTarget ;
-    rdfs:label "prescribes target" ;
-    skos:altLabel "prescribes", "calls for", "asks for" ;
-    rdfs:comment "The physiological mapping: an intensity zone prescribes an acoustic target. Combined with ar:targetsZone (phase→zone) this gives the chain phase→zone→target." ;
+ar:prescribesTarget a owl:ObjectProperty ; rdfs:domain ar:EffortState ; rdfs:range ar:AcousticTarget ;
+    rdfs:label "prescribes target" ; skos:altLabel "prescribes", "calls for" ;
+    rdfs:comment "Physiological mapping: an effort state prescribes an acoustic target. Chain: phase -> targetsEffort -> effort -> prescribesTarget -> target." ;
     owl:inverseOf ar:prescribedFor .
-ar:prescribedFor a owl:ObjectProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range ar:IntensityZone ;
+ar:prescribedFor a owl:ObjectProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range ar:EffortState ;
     rdfs:label "prescribed for" .
 
-ar:hasActionPriority a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:ActionPriority ;
-    rdfs:label "has action priority" ;
-    skos:altLabel "escalated to", "flagged as" ;
-    owl:inverseOf ar:priorityOf .
-ar:priorityOf a owl:ObjectProperty ;
-    rdfs:domain ar:ActionPriority ; rdfs:range ar:WorkoutSession ;
-    rdfs:label "priority of" .
-
-ar:suitsPhase a owl:ObjectProperty ;
-    rdfs:domain ar:Song ; rdfs:range ar:TrainingPhase ;
-    rdfs:label "suits phase" ;
-    skos:altLabel "suits", "fits", "matches phase", "is good for" ;
+ar:suitsPhase a owl:ObjectProperty ; rdfs:domain ar:Song ; rdfs:range ar:TrainingPhase ;
+    rdfs:label "suits phase" ; skos:altLabel "suits", "fits", "is good for" ;
     owl:inverseOf ar:suitedBySong .
-ar:suitedBySong a owl:ObjectProperty ;
-    rdfs:domain ar:TrainingPhase ; rdfs:range ar:Song ;
+ar:suitedBySong a owl:ObjectProperty ; rdfs:domain ar:TrainingPhase ; rdfs:range ar:Song ;
     rdfs:label "suited by song" .
 
-ar:matchesZone a owl:ObjectProperty ;
-    rdfs:domain ar:Song ; rdfs:range ar:IntensityZone ;
-    rdfs:label "matches zone" ;
-    skos:altLabel "matches", "pairs with" ;
+ar:matchesEffort a owl:ObjectProperty ; rdfs:domain ar:Song ; rdfs:range ar:EffortState ;
+    rdfs:label "matches effort" ; skos:altLabel "matches", "pairs with" ;
     owl:inverseOf ar:matchedBySong .
-ar:matchedBySong a owl:ObjectProperty ;
-    rdfs:domain ar:IntensityZone ; rdfs:range ar:Song ;
+ar:matchedBySong a owl:ObjectProperty ; rdfs:domain ar:EffortState ; rdfs:range ar:Song ;
     rdfs:label "matched by song" .
 
-ar:hasGenre a owl:ObjectProperty ;
-    rdfs:domain ar:Song ; rdfs:range ar:Genre ;
-    rdfs:label "has genre" ;
-    skos:altLabel "belongs to genre", "classified as" ;
+ar:hasGenre a owl:ObjectProperty ; rdfs:domain ar:Song ; rdfs:range ar:Genre ;
+    rdfs:label "has genre" ; skos:altLabel "belongs to genre", "classified as" ;
     owl:inverseOf ar:isGenreOf .
-ar:isGenreOf a owl:ObjectProperty ;
-    rdfs:domain ar:Genre ; rdfs:range ar:Song ;
+ar:isGenreOf a owl:ObjectProperty ; rdfs:domain ar:Genre ; rdfs:range ar:Song ;
     rdfs:label "is genre of" .
 
-ar:prefersGenre a owl:ObjectProperty ;
-    rdfs:domain ar:Runner ; rdfs:range ar:Genre ;
-    rdfs:label "prefers genre" ;
-    skos:altLabel "likes", "prefers", "enjoys" ;
+ar:prefersGenre a owl:ObjectProperty ; rdfs:domain ar:Runner ; rdfs:range ar:Genre ;
+    rdfs:label "prefers genre" ; skos:altLabel "likes", "prefers", "enjoys" ;
     owl:inverseOf ar:preferredBy .
-ar:preferredBy a owl:ObjectProperty ;
-    rdfs:domain ar:Genre ; rdfs:range ar:Runner ;
+ar:preferredBy a owl:ObjectProperty ; rdfs:domain ar:Genre ; rdfs:range ar:Runner ;
     rdfs:label "preferred by" .
 
-ar:includedIn a owl:ObjectProperty ;
-    rdfs:domain ar:Song ; rdfs:range ar:Playlist ;
-    rdfs:label "included in" ;
-    skos:altLabel "added to", "queued in", "part of" ;
+ar:includedIn a owl:ObjectProperty ; rdfs:domain ar:Song ; rdfs:range ar:Playlist ;
+    rdfs:label "included in" ; skos:altLabel "added to", "queued in", "part of" ;
     owl:inverseOf ar:containsSong .
-ar:containsSong a owl:ObjectProperty ;
-    rdfs:domain ar:Playlist ; rdfs:range ar:Song ;
-    rdfs:label "contains song" ;
-    skos:altLabel "contains", "features" .
+ar:containsSong a owl:ObjectProperty ; rdfs:domain ar:Playlist ; rdfs:range ar:Song ;
+    rdfs:label "contains song" ; skos:altLabel "contains", "features" .
 
-ar:builtForSession a owl:ObjectProperty ;
-    rdfs:domain ar:Playlist ; rdfs:range ar:WorkoutSession ;
-    rdfs:label "built for session" ;
-    skos:altLabel "built for", "created for", "tailored to" ;
+ar:builtForSession a owl:ObjectProperty ; rdfs:domain ar:Playlist ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "built for session" ; skos:altLabel "built for", "created for" ;
     owl:inverseOf ar:servedByPlaylist .
-ar:servedByPlaylist a owl:ObjectProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range ar:Playlist ;
+ar:servedByPlaylist a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:Playlist ;
     rdfs:label "served by playlist" .
+
+ar:hasActionPriority a owl:ObjectProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range ar:ActionPriority ;
+    rdfs:label "has action priority" ; skos:altLabel "escalated to", "flagged as" ;
+    owl:inverseOf ar:priorityOf .
+ar:priorityOf a owl:ObjectProperty ; rdfs:domain ar:ActionPriority ; rdfs:range ar:WorkoutSession ;
+    rdfs:label "priority of" .
 
 #################################################################
 # Data properties
 #################################################################
 
-ar:bpmValue a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
-    rdfs:label "bpm value" ; skos:altLabel "tempo", "BPM", "beats per minute" ;
-    rdfs:seeAlso mo:bpm .
-ar:energyValue a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
-    rdfs:label "energy value" ; skos:altLabel "energy" .
-ar:valenceValue a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
-    rdfs:label "valence value" ; skos:altLabel "valence", "positivity" .
-ar:trackDurationMs a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:integer ;
-    rdfs:label "track duration ms" ;
-    skos:altLabel "duration", "length" ;
-    rdfs:comment "Track length in milliseconds (as provided by Spotify). Lets targets filter by duration: long tracks for endurance flow, short tracks for intervals." .
-ar:songTitle a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:string ; rdfs:label "song title" .
-ar:artistName a owl:DatatypeProperty ;
-    rdfs:domain ar:Song ; rdfs:range xsd:string ; rdfs:label "artist name" .
-
-ar:heartRateBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:HeartRateReading ; rdfs:range xsd:decimal ;
-    rdfs:label "heart rate bpm" ; skos:altLabel "bpm", "beats per minute" ;
-    rdfs:seeAlso sosa:hasSimpleResult .
-ar:cadenceSpm a owl:DatatypeProperty ;
-    rdfs:domain ar:CadenceReading ; rdfs:range xsd:decimal ;
+ar:heartRateBpm a owl:DatatypeProperty ; rdfs:domain ar:HeartRateReading ; rdfs:range xsd:decimal ;
+    rdfs:label "heart rate bpm" ; skos:altLabel "bpm", "beats per minute" .
+ar:cadenceSpm a owl:DatatypeProperty ; rdfs:domain ar:CadenceReading ; rdfs:range xsd:decimal ;
     rdfs:label "cadence spm" ; skos:altLabel "spm", "steps per minute" .
-ar:timestamp a owl:DatatypeProperty ;
-    rdfs:domain ar:SensorReading ; rdfs:range xsd:dateTime ;
-    rdfs:label "timestamp" ; rdfs:seeAlso sosa:resultTime .
-ar:durationMinutes a owl:DatatypeProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+ar:timestamp a owl:DatatypeProperty ; rdfs:domain ar:SensorReading ; rdfs:range xsd:dateTime ;
+    rdfs:label "timestamp" .
+ar:durationMinutes a owl:DatatypeProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "duration minutes" .
 
-# --- v0.3 acoustic-target ranges (BPM/energy/valence box) ---
-ar:targetBpmMin a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
-    rdfs:label "target bpm min" .
-ar:targetBpmMax a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
-    rdfs:label "target bpm max" .
-ar:targetEnergyMin a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
-    rdfs:label "target energy min" .
-ar:targetEnergyMax a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ;
-    rdfs:label "target energy max" .
-ar:targetDurationMinMs a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ;
-    rdfs:label "target duration min ms" .
-ar:targetDurationMaxMs a owl:DatatypeProperty ;
-    rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ;
-    rdfs:label "target duration max ms" .
-
-# --- v0.3 runner health baselines (feed the Karvonen zone computation) ---
-ar:maxHeartRateBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+# Runner health baselines (Tanaka/Fox HRmax; Karvonen HRR)
+ar:maxHeartRateBpm a owl:DatatypeProperty ; rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
     rdfs:label "max heart rate bpm" ;
-    rdfs:comment "Estimated HRmax (Tanaka et al. 2001: 208 − 0.7·age, or Fox 220 − age)." .
-ar:restingHeartRateBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+    rdfs:comment "Estimated HRmax (Tanaka 208-0.7*age; Fox 220-age)." .
+ar:restingHeartRateBpm a owl:DatatypeProperty ; rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
     rdfs:label "resting heart rate bpm" .
-ar:safeMaxHeartRateBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
+ar:safeMaxHeartRateBpm a owl:DatatypeProperty ; rdfs:domain ar:Runner ; rdfs:range xsd:decimal ;
     rdfs:label "safe max heart rate bpm" ;
-    rdfs:comment "Above this the system must force a relaxing acoustic target (safety constraint)." .
+    rdfs:comment "Emergency line (default 93% HRmax). Above it the system forces a relaxing target." .
 
-# --- v0.3 decision-time stamps on a session (used by the SHACL safety gate) ---
-ar:currentCadenceSpm a owl:DatatypeProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+# Decision-time stamps on a session (used by the SHACL safety gate)
+ar:currentCadenceSpm a owl:DatatypeProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "current cadence spm" .
-ar:currentHeartRateBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+ar:currentHeartRateBpm a owl:DatatypeProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "current heart rate bpm" .
-ar:appliedTargetBpm a owl:DatatypeProperty ;
-    rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
+ar:appliedTargetBpm a owl:DatatypeProperty ; rdfs:domain ar:WorkoutSession ; rdfs:range xsd:decimal ;
     rdfs:label "applied target bpm" ;
-    rdfs:comment "The BPM the recommender is about to apply; checked against the safety constraints before the song switch. The runner link reuses ar:performedBy." .
+    rdfs:comment "The BPM about to be applied; checked by the safety constraints before the song switch." .
+
+# Song attributes (Spotify-like)
+ar:bpmValue a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
+    rdfs:label "bpm value" ; skos:altLabel "tempo", "BPM" .
+ar:energyValue a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
+    rdfs:label "energy value" ; skos:altLabel "energy" .
+ar:valenceValue a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:decimal ;
+    rdfs:label "valence value" ; skos:altLabel "valence", "positivity" .
+ar:trackDurationMs a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:integer ;
+    rdfs:label "track duration ms" ; skos:altLabel "duration", "length" .
+ar:songTitle a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:string ; rdfs:label "song title" .
+ar:artistName a owl:DatatypeProperty ; rdfs:domain ar:Song ; rdfs:range xsd:string ; rdfs:label "artist name" .
+
+# Acoustic-target ranges
+ar:targetBpmMin a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ; rdfs:label "target bpm min" .
+ar:targetBpmMax a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ; rdfs:label "target bpm max" .
+ar:targetEnergyMin a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ; rdfs:label "target energy min" .
+ar:targetEnergyMax a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:decimal ; rdfs:label "target energy max" .
+ar:targetDurationMinMs a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ; rdfs:label "target duration min ms" .
+ar:targetDurationMaxMs a owl:DatatypeProperty ; rdfs:domain ar:AcousticTarget ; rdfs:range xsd:integer ; rdfs:label "target duration max ms" .

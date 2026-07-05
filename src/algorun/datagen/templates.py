@@ -36,7 +36,7 @@ TEMPLATES = {
         },
         {
             "text": "The heart rate reading reaches {zone} during the effort.",
-            "triples": [("hr_reading", "readingInZone", "zone")],
+            "triples": [("session_implicit", "hasEffortState", "zone")],
         },
         {
             "text": "The song {song} suits the {phase} phase.",
@@ -44,7 +44,7 @@ TEMPLATES = {
         },
         {
             "text": "{song} matches {zone} perfectly.",
-            "triples": [("song", "matchesZone", "zone")],
+            "triples": [("song", "matchesEffort", "zone")],
         },
         {
             "text": "The track {song} belongs to genre {genre}.",
@@ -61,7 +61,7 @@ TEMPLATES = {
         },
         {
             "text": "The {phase} phase targets {zone}.",
-            "triples": [("phase", "targetsZone", "zone")],
+            "triples": [("phase", "targetsEffort", "zone")],
         },
         {
             "text": "The session includes a {phase} phase.",
@@ -78,7 +78,7 @@ TEMPLATES = {
         {
             # pulse == heart rate (altLabel), zone phrasing without "reading"
             "text": "Halfway through, the pulse of {runner} climbs into {zone}.",
-            "triples": [("hr_reading", "readingInZone", "zone")],
+            "triples": [("session_implicit", "hasEffortState", "zone")],
         },
         {
             # "fits" instead of "suits"
@@ -109,7 +109,7 @@ TEMPLATES = {
         {
             # "aims for" instead of "targets"
             "text": "Every {phase} aims for {zone}, coach says.",
-            "triples": [("phase", "targetsZone", "zone")],
+            "triples": [("phase", "targetsEffort", "zone")],
         },
     ],
     "long_distance": [
@@ -126,7 +126,7 @@ TEMPLATES = {
                      "watch recorded a heart rate that settled around {hr} bpm, "
                      "which put the reading squarely in {zone}."),
             "triples": [("session_implicit", "recordsReading", "hr_reading"),
-                        ("hr_reading", "readingInZone", "zone")],
+                        ("session_implicit", "hasEffortState", "zone")],
         },
         {
             "text": ("{song} came on just as the rain started. Nobody at the "
@@ -160,10 +160,10 @@ TEMPLATES = {
             "triples": [("runner", "performsSession", "session_implicit"),
                         ("session_implicit", "hasWorkoutType", "wtype"),
                         ("session_implicit", "recordsReading", "hr_reading"),
-                        ("hr_reading", "readingInZone", "zone"),
+                        ("session_implicit", "hasEffortState", "zone"),
                         ("song", "hasGenre", "genre"),
                         ("song", "includedIn", "playlist"),
-                        ("song", "matchesZone", "zone"),
+                        ("song", "matchesEffort", "zone"),
                         ("song", "suitsPhase", "phase")],
         },
         {
@@ -176,17 +176,17 @@ TEMPLATES = {
                         ("playlist", "containsSong", "song"),
                         ("song", "hasGenre", "genre"),
                         ("song", "suitsPhase", "phase"),
-                        ("phase", "targetsZone", "zone")],
+                        ("phase", "targetsEffort", "zone")],
         },
         {
             "text": ("During the {phase} phase, which targets {zone}, the "
                      "session records a cadence of {cad} spm while {song} "
                      "plays from {playlist}; the track matches {zone} and the "
                      "session has a {phase} phase indeed."),
-            "triples": [("phase", "targetsZone", "zone"),
+            "triples": [("phase", "targetsEffort", "zone"),
                         ("session_implicit", "recordsReading", "cad_reading"),
                         ("song", "includedIn", "playlist"),
-                        ("song", "matchesZone", "zone"),
+                        ("song", "matchesEffort", "zone"),
                         ("session_implicit", "hasPhase", "phase")],
         },
     ],

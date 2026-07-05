@@ -31,6 +31,14 @@ Format per entry: what / variant / where in the codebase / source.
 | HR-trend estimation | Least-squares linear slope (`np.polyfit` deg=1) over the window; ±0.05 bpm/s → Increasing/Stable/Decreasing | `physiological_state.py` (`calculate_linear_slope`, `classify_trend`) | standard linear regression |
 | Sliding-window featurization | 30 s window, 5 s stride; per-window mean/std/min/max/delta + HRR + trend | `src/algorun/sensors/build_dataset.py` | standard time-series windowing |
 | Simulated BPM sessions | Piecewise-linear phase ramps + sinusoidal oscillation + Gaussian noise, seed 42 | `src/algorun/sensors/generate_simulated_bpm.py` | team (synthetic sensor data for offline dev) |
+| Sensor→ontology bridge | effort → RDF → SHACL → SPARQL target + 93%-HRmax safety override | `src/algorun/pipeline.py` | course Block 14 (Semantic Grounding); Terry & Karageorghis (2011) |
+| NER (baseline) | Rule-based dictionary matching, longest-match-first over ontology labels | `src/algorun/nlp.py` (`dictionary_extract`) | course Block 14 "Classical Rule-Based" |
+| NER (advanced) | GLiNER zero-shot (no fine-tuning), labels mapped to ontology classes | `src/algorun/nlp.py` (`gliner_extract`) | Zaratiana et al. (2024) GLiNER, NAACL; GLiNER2 (arXiv 2507.18546) |
+| Quantity parsing | Regex for value+unit (duration, speed) — NER finds the span, regex parses the number | `src/algorun/nlp.py` (`parse_quantities`) | standard NER+regex hybrid practice |
+| Qual/quant routing | One `if`: declared value → quantitative target; else → defer to HR sensors | `src/algorun/nlp.py` (`classify`) | project design (dual-mode grounding) |
+| Speed → cadence → BPM | Linear cadence regression (134 + 2.9·kmh, clamp 150–190) then 1:1 / half-time entrainment | `src/algorun/nlp.py` (`target_bpm`) | Van Dyck et al. (2015); cadence-vs-pace literature (155–186 spm ranges) |
+| Prompt grounding | GLiNER/dict spans + quantities → RDF triples for the A-Box, SHACL-validated | `src/algorun/nlp.py` (`ground`) | course Block 14 (grounding + SHACL gate) |
+| Entity extraction P/R/F1 | Micro-averaged over an annotated prompt gold set (baseline 0.95 F1) | `src/algorun/nlp.py` (`evaluate`), `tests/test_nlp.py` | course Block 14 evaluation framework |
 
 ## Planned (entered when the module lands)
 

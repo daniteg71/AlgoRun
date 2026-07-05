@@ -8,6 +8,9 @@ __pycache__/
 # Data & models — data/synthetic/ IS a course deliverable and stays in git
 data/sensor/*
 data/music/*
+# reproducible from generate_simulated_bpm.py / build_dataset.py (fixed seed)
+data/simulated/*
+data/processed/*
 !data/**/.gitkeep
 !data/**/sample_*
 models/

@@ -16,6 +16,11 @@ Format per entry: what / variant / where in the codebase / source.
 | Stratified random split | Per-tier shuffle + 70/15/15 cut, fixed seed 42 | `src/algorun/datagen/generator.py` (`split_records`) | Course Block 14 requirement (70/15/15) |
 | Template-based synthetic text generation | LLM-authored templates instantiated with ontology surface forms; gold spans computed by substring search | `src/algorun/datagen/templates.py`, `generator.py` | Course Block 14, "Synthetic Data Generation via LLMs" (tiered complexity) |
 | Heart-rate intensity zones | 5-zone model (Z1–Z5) | `ontology/algorun.owl` (IntensityZone individuals) | Karvonen, Kentala & Mustala (1957), *Ann. Med. Exp. Biol. Fenn.* 35(3) |
+| Heart Rate Reserve (HRR) | (HR − rest)/(max − rest), clipped [0, 1.2] | `src/algorun/sensors/physiological_state.py` (`compute_hrr`) | Karvonen et al. (1957) |
+| Effort classification | Threshold bins on HRR (Low<0.40, Target<0.70, High<0.85, VeryHigh≥0.85) | `physiological_state.py` (`classify_effort`) | Karvonen zones (thresholds chosen by team) |
+| HR-trend estimation | Least-squares linear slope (`np.polyfit` deg=1) over the window; ±0.05 bpm/s → Increasing/Stable/Decreasing | `physiological_state.py` (`calculate_linear_slope`, `classify_trend`) | standard linear regression |
+| Sliding-window featurization | 30 s window, 5 s stride; per-window mean/std/min/max/delta + HRR + trend | `src/algorun/sensors/build_dataset.py` | standard time-series windowing |
+| Simulated BPM sessions | Piecewise-linear phase ramps + sinusoidal oscillation + Gaussian noise, seed 42 | `src/algorun/sensors/generate_simulated_bpm.py` | team (synthetic sensor data for offline dev) |
 
 ## Planned (entered when the module lands)
 

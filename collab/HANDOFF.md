@@ -27,6 +27,14 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-05 14:00] — Danny (with Claude Code)
+**What I did:** Removed the 5 overlapping theory docs in `report/` (keep the
+repo minimal — the pipeline doesn't need them; final ACSAI report comes with
+M6). Restored `data/simulated/` and `data/processed/` folders. Tridentt's
+sensor scripts are on main in `src/algorun/sensors/`.
+**Open questions:** none.
+
+---
 ### [2026-07-05 12:30] — Danny (with Claude Code)
 **What I did:**
 - **Integrated the teammate's sensor/BPM pipeline** into `src/algorun/sensors/`

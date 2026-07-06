@@ -1,13 +1,8 @@
-"""M1-bis tests — v0.2 additions: disjoint cores, full inverses, reasoner."""
+"""M1-bis tests — v0.2: disjoint cores, full inverses, effort→target."""
 
-import pytest
-from rdflib import Graph, Namespace
 from rdflib.namespace import OWL, RDF
 
-from algorun.ontology.evaluation import check_consistency, sample_kg
 from algorun.ontology.loader import AR, load_ontology
-
-EX = Namespace("http://algorun.org/data#")
 
 
 def test_three_cores_declared_disjoint():
@@ -40,19 +35,3 @@ def test_effort_states_prescribe_targets():
     g = load_ontology().graph
     for effort in (AR.LowEffort, AR.TargetEffort, AR.HighEffort, AR.VeryHighEffort):
         assert list(g.objects(effort, AR.prescribesTarget)), f"{effort} has no target"
-
-
-def test_ontology_alone_is_consistent():
-    assert check_consistency() is True
-
-
-def test_valid_abox_is_consistent():
-    assert check_consistency(sample_kg()) is True
-
-
-def test_individual_in_two_disjoint_cores_is_inconsistent():
-    """The disjointness axioms must actually bite."""
-    bad = Graph()
-    bad.add((EX.weird, RDF.type, AR.Runner))          # ⊑ Agent
-    bad.add((EX.weird, RDF.type, AR.WorkoutSession))  # ⊑ Process
-    assert check_consistency(bad) is False

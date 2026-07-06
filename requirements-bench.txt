@@ -1,0 +1,6 @@
+# Dipendenze SOLO per il benchmark Transformer (benchmarks/validator.py).
+# Il prodotto NON le usa: installale solo per riprodurre il confronto DistilBERT
+# della Regola 4. Il modello spedito e' il validator leggero (scikit-learn).
+-r requirements.txt
+torch>=2.2
+transformers>=4.40

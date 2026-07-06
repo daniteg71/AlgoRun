@@ -2,67 +2,25 @@
 # COSA FA QUESTO FILE
 # -----------------------------------------------------------------------------
 # Strumenti di VALUTAZIONE dell'ontologia (deliverable del corso, Block 13).
-# Due cose:
 #
-#   1. check_consistency() -> lancia un reasoner logico (HermiT) sull'ontologia
-#      (+ eventuali dati) e dice se è CONSISTENTE, cioè priva di contraddizioni.
-#      È la prova che gli assiomi di disgiunzione "mordono" davvero: se un
-#      individuo viene dichiarato sia Agent sia Process (che sono disgiunti),
-#      il reasoner segnala l'inconsistenza.
+#   sample_kg() -> costruisce un piccolo grafo di ESEMPIO valido (una sessione
+#   completa: runner, fasi, letture, canzoni, playlist). Serve da "banco di
+#   prova" per le competency question (le domande a cui l'ontologia deve saper
+#   rispondere, vedi tests/test_competency_questions.py).
 #
-#   2. sample_kg() -> costruisce un piccolo grafo di ESEMPIO valido (una
-#      sessione completa: runner, fasi, letture, canzoni, playlist). Serve da
-#      "banco di prova" per le competency question (le domande a cui l'ontologia
-#      deve saper rispondere, vedi tests/test_competency_questions.py).
-#
-# Reasoner (HermiT) e SHACL fanno due lavori diversi: il reasoner controlla che
-# lo SCHEMA sia coerente; SHACL respinge i singoli DATI sbagliati.
+# La coerenza dello SCHEMA e la correttezza dei DATI le garantisce il gate
+# SHACL (shapes.ttl) + le competency question: nessun reasoner DL a runtime.
 # =============================================================================
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
-
 from rdflib import Graph, Literal, Namespace
 from rdflib.namespace import RDF, XSD
 
-from .loader import AR, DEFAULT_ONTOLOGY_PATH, load_ontology
+from .loader import AR, load_ontology
 
 # prefisso per i DATI di esempio (istanze), distinto da AR (lo schema)
 EX = Namespace("http://algorun.org/data#")
-
-
-def check_consistency(abox: Graph | None = None) -> bool:
-    """Ritorna True se l'ontologia (+ dati opzionali) è logicamente consistente.
-
-    Usa owlready2 + il reasoner HermiT. owlready2 legge bene solo RDF/XML,
-    quindi si scrive il grafo unito in un file temporaneo, lo si carica e si
-    lancia il reasoner: se trova una contraddizione solleva un'eccezione.
-    """
-    import owlready2
-
-    # unisce lo schema (ontologia) con gli eventuali dati da controllare
-    graph = load_ontology().graph
-    if abox is not None:
-        graph = graph + abox
-
-    # HermiT vuole un file su disco: lo scriviamo in RDF/XML (formato "xml")
-    with tempfile.NamedTemporaryFile("w", suffix=".owl", delete=False,
-                                     encoding="utf-8") as fh:
-        fh.write(graph.serialize(format="xml"))
-        tmp_path = fh.name
-
-    world = owlready2.World()                       # "mondo" isolato di owlready2
-    world.get_ontology(f"file://{tmp_path}").load()
-    try:
-        with world.get_ontology("http://algorun.org/reasoning"):
-            owlready2.sync_reasoner(world, debug=0)  # <-- qui gira HermiT
-        return True                                  # nessuna eccezione = consistente
-    except owlready2.OwlReadyInconsistentOntologyError:
-        return False                                 # contraddizione trovata
-    finally:
-        Path(tmp_path).unlink(missing_ok=True)       # pulizia del file temporaneo
 
 
 def sample_kg() -> Graph:

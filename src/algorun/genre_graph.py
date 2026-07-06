@@ -1,83 +1,63 @@
 """Distanza semantica fra generi sul grafo della tassonomia (ontology/genres.ttl).
 
-Compila l'albero skos:broader (leaf -> famiglia -> super-famiglia -> radice) in
-una lista di adiacenza e misura la vicinanza fra due generi come lunghezza del
-cammino minimo, normalizzata in [0, 1]. Due generi nella stessa famiglia sono
-vicini (~0); generi in super-famiglie diverse sono lontani (~1).
-
-Questo e' l'unico uso a runtime dell'ontologia nel recommender: nessun reasoner,
-solo una BFS su un grafo di poche centinaia di nodi caricato una volta.
+BFS sull'albero skos:broader (leaf -> famiglia -> super-famiglia -> radice),
+normalizzata in [0, 1]: stessa famiglia ~vicino, super-famiglie diverse ~1.
+Nessun reasoner — e' l'unico uso a runtime dell'ontologia nel recommender.
 """
 from __future__ import annotations
 
 from collections import deque
-from functools import lru_cache
 from pathlib import Path
 
 from rdflib import Graph
-from rdflib.namespace import SKOS, RDFS
+from rdflib.namespace import RDFS, SKOS
 
-GENRES_TTL = Path(__file__).parents[2] / "ontology" / "genres.ttl"
+_GENRES_TTL = Path(__file__).parents[2] / "ontology" / "genres.ttl"
 
-
-class GenreTaxonomy:
-    def __init__(self, ttl_path: Path = GENRES_TTL):
-        g = Graph().parse(ttl_path, format="turtle")
-        # etichetta -> IRI del concetto foglia/famiglia
-        self.by_label: dict[str, str] = {
-            str(lab): str(node) for node, lab in g.subject_objects(RDFS.label)
-        }
-        # adiacenza non orientata sugli archi skos:broader
-        self.adj: dict[str, set[str]] = {}
-        for child, parent in g.subject_objects(SKOS.broader):
-            c, p = str(child), str(parent)
-            self.adj.setdefault(c, set()).add(p)
-            self.adj.setdefault(p, set()).add(c)
-        self._diameter = self._compute_diameter()
-
-    def _hops(self, a: str, b: str) -> int | None:
-        if a == b:
-            return 0
-        seen = {a}
-        q: deque[tuple[str, int]] = deque([(a, 0)])
-        while q:
-            node, d = q.popleft()
-            for nxt in self.adj.get(node, ()):
-                if nxt == b:
-                    return d + 1
-                if nxt not in seen:
-                    seen.add(nxt)
-                    q.append((nxt, d + 1))
-        return None
-
-    def _compute_diameter(self) -> int:
-        # nell'albero il cammino massimo e' foglia -> radice -> foglia = 2 * profondita'
-        root = self.by_label.get("music")
-        depth = max((self._hops(leaf, root) or 0) for leaf in self.by_label.values())
-        return 2 * depth
-
-    @lru_cache(maxsize=4096)
-    def distance(self, genre_a: str, genre_b: str) -> float:
-        """Distanza normalizzata in [0, 1]. 1.0 se un genere e' sconosciuto."""
-        a = self.by_label.get(genre_a)
-        b = self.by_label.get(genre_b)
-        if a is None or b is None:
-            return 1.0
-        hops = self._hops(a, b)
-        if hops is None:
-            return 1.0
-        return min(1.0, hops / self._diameter)
+_ADJ: dict[str, set[str]] = {}          # adiacenza non orientata sul grafo skos
+_LABEL: dict[str, str] = {}             # etichetta -> IRI del concetto
+_CACHE: dict[tuple[str, str], float] = {}
+_MAXPATH = 1                            # cammino piu' lungo (foglia -> radice -> foglia)
 
 
-_TAXONOMY: GenreTaxonomy | None = None
+def _load() -> None:
+    g = Graph().parse(_GENRES_TTL, format="turtle")
+    for node, lab in g.subject_objects(RDFS.label):
+        _LABEL[str(lab)] = str(node)
+    for child, parent in g.subject_objects(SKOS.broader):
+        _ADJ.setdefault(str(child), set()).add(str(parent))
+        _ADJ.setdefault(str(parent), set()).add(str(child))
+    global _MAXPATH
+    root = _LABEL.get("music")
+    _MAXPATH = 2 * max((_hops(leaf, root) or 0) for leaf in _LABEL.values())
+
+
+def _hops(a: str, b: str) -> int | None:
+    """Numero di archi sul cammino minimo a->b, o None se scollegati."""
+    if a == b:
+        return 0
+    seen, queue = {a}, deque([(a, 0)])
+    while queue:
+        node, d = queue.popleft()
+        for nxt in _ADJ.get(node, ()):
+            if nxt == b:
+                return d + 1
+            if nxt not in seen:
+                seen.add(nxt)
+                queue.append((nxt, d + 1))
+    return None
 
 
 def genre_distance(genre_a: str, genre_b: str) -> float:
-    """Distanza semantica [0,1] fra due generi (0 = identici/vicini, 1 = lontani)."""
-    global _TAXONOMY
-    if _TAXONOMY is None:
-        _TAXONOMY = GenreTaxonomy()
-    return _TAXONOMY.distance(genre_a, genre_b)
+    """Distanza semantica [0, 1] fra due generi (0 = vicini, 1 = lontani/ignoti)."""
+    if not _ADJ:
+        _load()
+    key = (genre_a, genre_b)
+    if key not in _CACHE:
+        a, b = _LABEL.get(genre_a), _LABEL.get(genre_b)
+        hops = _hops(a, b) if a and b else None
+        _CACHE[key] = 1.0 if hops is None else min(1.0, hops / _MAXPATH)
+    return _CACHE[key]
 
 
 if __name__ == "__main__":

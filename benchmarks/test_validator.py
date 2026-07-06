@@ -5,10 +5,15 @@
 
 import pytest
 
+# torch/transformers sono opzionali (requirements-bench.txt): se assenti,
+# l'intero benchmark si salta invece di far fallire la suite del core.
+pytest.importorskip("torch")
+pytest.importorskip("transformers")
+
 from algorun.nlp import dictionary_extract
 from algorun.refinery import extract_candidates
-from algorun.validator import ARCHITECTURES, _model_dir, build_examples, verbalize
 from algorun.ontology.loader import AR
+from benchmarks.validator import ARCHITECTURES, _model_dir, build_examples, verbalize
 
 _trained = [a for a in ARCHITECTURES if _model_dir(a).exists()]
 
@@ -39,7 +44,7 @@ def test_build_examples_has_both_labels():
 @pytest.mark.skipif(not _trained, reason="nessuna architettura ancora allenata")
 @pytest.mark.parametrize("arch", ARCHITECTURES)
 def test_validator_keeps_true_and_drops_false(arch):
-    from algorun.validator import validated_triples
+    from benchmarks.validator import validated_triples
     if arch not in _trained:
         pytest.skip(f"{arch} non ancora allenata")
     text = "The warmup phase targets higheffort."

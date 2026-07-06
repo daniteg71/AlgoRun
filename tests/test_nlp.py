@@ -79,5 +79,5 @@ def test_prf1_helper():
 
 def test_baseline_benchmark_is_strong():
     """The dictionary baseline should score high on the gold prompts."""
-    m = evaluate(GOLD, backend="dictionary")
+    m = evaluate(GOLD)
     assert m["f1"] >= 0.80, m

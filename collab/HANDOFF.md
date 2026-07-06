@@ -27,6 +27,36 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 19:10] — Danny (with Claude Code)
+**What I did:** Passata di minimalismo sul codice (branch `lean-core`). Tolto
+il superfluo e alleggerito il core. **Core `src/algorun`: 2069 -> 1690 righe**,
+e soprattutto **il core non importa piu' torch / transformers / owlready2** (le
+3 dipendenze piu' pesanti). **57 test verdi, 1 skip.**
+- **Quarantena benchmark:** `validator.py` (DistilBERT/RoBERTa) spostato in
+  `benchmarks/` con torch+transformers resi OPZIONALI (`requirements-bench.txt`).
+  Il suo test fa `importorskip("torch")` -> il core resta installabile/testabile
+  senza torch. pyproject: `pythonpath=["src","."]`, `testpaths=["tests","benchmarks"]`.
+- **Tagliato codice morto:** backend GLiNER da `nlp.py` (era "valutato ma non
+  usato"); dispatcher ora dictionary+regex puro.
+- **Via il reasoner DL:** rimosso `check_consistency` (owlready2/HermiT, richiede
+  Java) da `ontology/evaluation.py` + dep `owlready2` + i 3 test relativi.
+  La validita' resta coperta da SHACL + competency questions.
+- **Via il residuo [STAR]:** rimosse le 3 regole SHACL di sicurezza HR
+  (CadenceStep/CriticalHeartRate/EmergencyTarget) da `shapes.ttl` +
+  `test_health_constraints.py`.
+- **`genre_graph.py` semplificato** (via classe/diametro/lru_cache: modulo
+  lineare BFS + cache dict).
+
+**TODOs for the other teammate:** branch `lean-core` pronto per il tuo code
+review. Deps core ora: spacy, rdflib, pyshacl, pandas, numpy, scikit-learn,
+rapidfuzz. Per il benchmark: `pip install -r requirements-bench.txt`.
+**Open questions:** l'ontologia OWL ha ancora classi sensore [STAR]
+(HeartRateReading/CadenceReading/TrendState/ActionPriority) usate da
+`test_shacl_gate`/`sample_kg` come demo del gate; trimmarle e' un passo a parte
+(retheming della demo SHACL su una proprieta' non-sensore). Prossimo modulo
+vero: `recommender.py` (Dynamic Vector Scoring).
+
+---
 ### [2026-07-06 18:35] — Danny (with Claude Code)
 **What I did:** Refresh della documentazione alla v2 (stesso branch
 `genre-ontology-recommender`, che ora contiene TUTTO: ARCHITECTURE.md +

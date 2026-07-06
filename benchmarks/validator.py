@@ -14,14 +14,16 @@ architetture di validator (Rule 4 vuole "multiple Transformer
 architectures"), P/R/F1 sul grafo, per tier, su test.jsonl (mai usato in
 training: si allena su train.jsonl e si sceglie la soglia su val.jsonl).
 
-Due architetture pronte, stesso codice, solo il nome del modello cambia:
-  - "distilbert" (distilbert-base-uncased) — leggero, veloce, per il loop live;
+Modulo di BENCHMARK (quarantena): torch/transformers sono opzionali
+(requirements-bench.txt), NON servono al prodotto. Due architetture, stesso
+codice, cambia solo il nome del modello:
+  - "distilbert" (distilbert-base-uncased) — leggero, veloce;
   - "roberta"    (roberta-base)            — più pesante, più accurato.
 
 Uso:
-  python -m algorun.validator train --arch distilbert   # fine-tuning (~2 min su MPS)
-  python -m algorun.validator train --arch roberta
-  python -m algorun.validator eval                       # confronto: baseline + ogni arch allenata
+  python -m benchmarks.validator train --arch distilbert   # fine-tuning (~2 min su MPS)
+  python -m benchmarks.validator train --arch roberta
+  python -m benchmarks.validator eval                       # confronto: baseline + ogni arch allenata
 Ogni modello finisce in models/validator-<arch>/ (fuori da git).
 """
 

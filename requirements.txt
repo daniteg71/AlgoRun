@@ -6,25 +6,17 @@ spacy>=3.7,<4.0
 
 # Ontology / RDF / SHACL
 rdflib>=7.0
-owlready2>=0.46   # OWL DL reasoner (HermiT) for consistency checks — needs Java
 pyshacl>=0.26
 
-# Transformers & training — OPZIONALI: servono SOLO al validator Transformer
-# (deliverable d'esame, src/algorun/validator.py). Il prodotto vivo
-# (ontologia+SHACL+pipeline+nlp+fusion) NON li importa. Import lazy.
-torch>=2.2
-transformers>=4.40
-
-# GLiNER — opzionale, valutato ma non usato (dizionario più forte sul nostro
-# vocabolario chiuso). GLiREL: scartato (vedi ALGORITHMS.md).
-
-# Data handling + ML classico (il validator LEGGERO usa scikit-learn)
+# Vector scoring + ML classico (scorer e validator LEGGERO)
 pandas>=2.2
 numpy>=1.26
 scikit-learn>=1.4
 
-# Fuzzy matching for personal playlist join
+# Fuzzy matching per il join con la playlist personale
 rapidfuzz>=3.6
 
 # Testing
 pytest>=8.0
+
+# Il benchmark Transformer (DistilBERT) e' opzionale: vedi requirements-bench.txt.

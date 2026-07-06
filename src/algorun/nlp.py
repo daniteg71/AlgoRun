@@ -4,20 +4,16 @@ Trasforma un intento in linguaggio libero ("I want to do intervals for 30
 minutes") nel vocabolario dell'ontologia, così la A-Box può essere popolata
 e validata dal gate SHACL.
 
-Due backend di estrazione dietro UN'UNICA interfaccia (Rule 3 e 7 del corso):
-  - "dictionary": matching rule-based longest-match-first sulle label
-    dell'ontologia (la baseline del corso; sempre disponibile, riusa
-    `loader.label_dictionary`).
-  - "gliner": NER zero-shot (avanzato; `pip install gliner`, import lazy —
-    il modulo funziona anche senza).
-I numeri con unità (velocità, durata) li estrae una piccola regex: i modelli
-NER trovano lo *span* ("5 km/h") ma non interpretano il valore numerico.
+Estrazione baseline (rule-based longest-match-first sulle label OWL, riusa
+`loader.label_dictionary`). I numeri con unità (velocità, durata) li estrae
+una piccola regex. Modelli NLP piu' pesanti (Joint intent+slot, ecc.) vivono
+solo nel benchmark (`benchmarks/`), non qui.
 
-Routing (la distinzione qualitativo/quantitativo — un solo if, non due sistemi):
-  - prompt quantitativo (velocità/durata dichiarate) -> si usa il target
-    dichiarato dall'utente (calcolo "chirurgico" del BPM);
-  - prompt qualitativo (solo parole di umore/sforzo)  -> si delega ai sensori
-    (il ponte HR -> effort -> target in pipeline.py).
+Routing qualitativo/quantitativo (un solo if, non due sistemi):
+  - prompt quantitativo (velocità/durata dichiarate) -> target BPM dichiarato
+    (calcolo "chirurgico");
+  - prompt qualitativo (solo parole di umore/sforzo) -> nessun BPM esatto, il
+    ramo qualitativo dello scorer lavora su energia/valenza.
 
 CLI:  python -m algorun.nlp "I want an easy recovery run for 40 minutes"
 """
@@ -34,9 +30,6 @@ from algorun.ontology.loader import AR, load_ontology, load_shapes
 
 EX = Namespace("http://algorun.org/data#")
 
-# Label per il backend GLiNER, mappate 1:1 sulle classi dell'ontologia.
-GLINER_LABELS = ["workout goal", "training phase", "intensity", "music genre"]
-
 # Regex per gli slot quantitativi (valore + unità).
 _DURATION_RE = re.compile(r"(\d+)\s*(?:min|minute|minutes|minuti)\b", re.I)
 _HOURS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:h|hour|hours|ora|ore)\b", re.I)
@@ -46,11 +39,11 @@ _SPEED_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(?:km/?h|kmh|km/hour|km orari)\b", re
 # ---------------------------------------------------------------- estrazione
 
 def dictionary_extract(text: str) -> list[dict]:
-    """Baseline: dictionary matching longest-match-first sulle label OWL.
+    """Estrazione entità: dictionary matching longest-match-first sulle label OWL.
 
-    Scorre il dizionario (già ordinato dalla forma più lunga alla più corta,
-    come richiede il corso) e marca i caratteri già "presi" per evitare
-    sovrapposizioni. Ritorna entità [{surface, iri, type_iri, start, end}].
+    Scorre il dizionario (già ordinato dalla forma più lunga alla più corta)
+    e marca i caratteri già "presi" per evitare sovrapposizioni.
+    Ritorna entità [{surface, iri, type_iri, start, end}].
     """
     schema = load_ontology()
     lowered = text.lower()
@@ -72,37 +65,6 @@ def dictionary_extract(text: str) -> list[dict]:
             start = lowered.find(surface, end)
     entities.sort(key=lambda e: e["start"])
     return entities
-
-
-def gliner_extract(text: str, threshold: float = 0.4) -> list[dict]:
-    """Backend avanzato: GLiNER zero-shot (nessun fine-tuning).
-
-    Import lazy: il modulo funziona anche senza GLiNER installato. Gli span
-    trovati vengono "ancorati" agli IRI dell'ontologia cercando la superficie
-    nel dizionario delle label (grounding per label).
-    """
-    from gliner import GLiNER  # pip install gliner
-
-    model = GLiNER.from_pretrained("urchade/gliner_small-v2.1")
-    schema = load_ontology()
-    label_dict = schema.label_dictionary()          # già longest-match-first
-    label_to_iri = {s: iri for s, iri, _ in label_dict}
-    out: list[dict] = []
-    for ent in model.predict_entities(text, GLINER_LABELS, threshold=threshold):
-        surface = ent["text"].lower()
-        # grounding: match esatto con la label, altrimenti la label più lunga
-        # CONTENUTA nello span (GLiNER trova "easy recovery run", noi ancoriamo
-        # "recovery run" -> ar:Easy). Senza questo passo il recall crolla.
-        iri = label_to_iri.get(surface)
-        if iri is None:
-            for s, cand, kind in label_dict:
-                if kind == "individual" and s in surface:
-                    iri = cand
-                    break
-        out.append({"surface": ent["text"], "iri": str(iri) if iri else None,
-                    "type_iri": None, "start": ent["start"], "end": ent["end"],
-                    "gliner_label": ent["label"]})
-    return out
 
 
 def parse_quantities(text: str) -> dict:
@@ -158,15 +120,12 @@ _PREDICATE = {
 }
 
 
-def ground(text: str, backend: str = "dictionary") -> dict:
+def ground(text: str) -> dict:
     """Wrapper di grounding: prompt -> triple RDF per la A-Box, più routing.
 
     Ritorna {entities, quantities, mode, bpm_target, graph, shacl_ok}.
-    Nota: `speed_kmh` viene interpretata e trasformata in BPM target; il
-    *controllo* live della velocità arriverà col sensore GPS (vedi gps.py).
     """
-    extract = gliner_extract if backend == "gliner" else dictionary_extract
-    entities = extract(text)
+    entities = dictionary_extract(text)
     quantities = parse_quantities(text)
     mode = classify(quantities)
 
@@ -185,7 +144,8 @@ def ground(text: str, backend: str = "dictionary") -> dict:
                Literal(str(quantities["duration_min"]), datatype=XSD.decimal)))
 
     # Quantitativo + velocità -> BPM chirurgico (esatto, dalla velocità
-    # dichiarata). I prompt qualitativi lasciano None e delegano al ponte HR.
+    # dichiarata). I prompt qualitativi lasciano None: il ramo qualitativo
+    # dello scorer lavora su energia/valenza, non su un BPM esatto.
     bpm_target = None
     if "speed_kmh" in quantities:
         bpm_target = target_bpm(quantities["speed_kmh"])
@@ -214,15 +174,14 @@ def prf1(predicted: set, gold: set) -> dict:
     return {"precision": precision, "recall": recall, "f1": f1}
 
 
-def evaluate(cases: list[dict], backend: str = "dictionary") -> dict:
+def evaluate(cases: list[dict]) -> dict:
     """P/R/F1 micro-mediate dell'estrazione di entità su prompt annotati.
 
-    `cases` è il gold set: [{"text": ..., "gold_iris": [...]}]. Serve per il
-    confronto baseline (dictionary) vs avanzato (gliner) richiesto dal corso.
+    `cases` è il gold set: [{"text": ..., "gold_iris": [...]}].
     """
     tp = fp = fn = 0
     for c in cases:
-        pred = {e["iri"] for e in ground(c["text"], backend)["entities"] if e["iri"]}
+        pred = {e["iri"] for e in ground(c["text"])["entities"] if e["iri"]}
         gold = set(c["gold_iris"])
         tp += len(pred & gold)
         fp += len(pred - gold)
@@ -241,7 +200,7 @@ def main() -> None:
     r = ground(text)
     print(f'Prompt: "{text}"')
     print(f"Mode:   {r['mode']}  (quantitative = target dichiarato; "
-          f"qualitative = delega al sensore HR)")
+          f"qualitative = ramo energia/valenza)")
     print("Entities:")
     for e in r["entities"]:
         print(f"  '{e['surface']}' -> {e['iri']}")

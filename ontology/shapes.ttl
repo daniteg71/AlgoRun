@@ -112,38 +112,3 @@ ar:EnergyShape a sh:NodeShape ; sh:targetSubjectsOf ar:energyValue ;
     sh:property [ sh:path ar:energyValue ; sh:datatype xsd:decimal ;
         sh:minInclusive 0.0 ; sh:maxInclusive 1.0 ;
         sh:message "ar:energyValue must be in [0, 1]." ] .
-
-#################################################################
-# Health / safety constraints (SPARQL-based) — the life-saving rules.
-# The recommender stamps ar:currentCadenceSpm / ar:currentHeartRateBpm /
-# ar:appliedTargetBpm / ar:performedBy on the session at decision time.
-#################################################################
-
-# Cadence guard: applied BPM must not exceed current cadence by >5%
-# (injury prevention — Heiderscheit et al. 2011).
-ar:CadenceStepShape a sh:NodeShape ; sh:targetSubjectsOf ar:appliedTargetBpm ;
-    sh:sparql [ sh:message "Unsafe cadence jump: applied BPM exceeds current cadence by more than 5%." ;
-        sh:select """SELECT $this ?b ?c WHERE {
-            $this <http://algorun.org/ontology#appliedTargetBpm> ?b ;
-                  <http://algorun.org/ontology#currentCadenceSpm> ?c .
-            FILTER (?b > 1.05 * ?c) }""" ] .
-
-# Critical-HR guard: an energetic target (>140 bpm) is forbidden at or
-# above the runner's safe max HR (Terry & Karageorghis 2011).
-ar:CriticalHeartRateShape a sh:NodeShape ; sh:targetSubjectsOf ar:currentHeartRateBpm ;
-    sh:sparql [ sh:message "Critical heart rate: energetic target (>140 bpm) forbidden at/above safe max HR." ;
-        sh:select """SELECT $this ?hr ?b WHERE {
-            $this <http://algorun.org/ontology#currentHeartRateBpm> ?hr ;
-                  <http://algorun.org/ontology#appliedTargetBpm> ?b ;
-                  <http://algorun.org/ontology#performedBy> ?r .
-            ?r <http://algorun.org/ontology#safeMaxHeartRateBpm> ?safe .
-            FILTER (?hr >= ?safe && ?b > 140) }""" ] .
-
-# Emergency guard: under EmergencyPriority the target must be calming (<=140).
-ar:EmergencyTargetShape a sh:NodeShape ; sh:targetSubjectsOf ar:hasActionPriority ;
-    sh:sparql [ sh:message "Emergency state: applied BPM must be <=140 under EmergencyPriority." ;
-        sh:select """SELECT $this ?b WHERE {
-            $this <http://algorun.org/ontology#hasActionPriority>
-                  <http://algorun.org/ontology#EmergencyPriority> ;
-                  <http://algorun.org/ontology#appliedTargetBpm> ?b .
-            FILTER (?b > 140) }""" ] .

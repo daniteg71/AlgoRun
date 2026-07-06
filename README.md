@@ -33,16 +33,22 @@ Transformer validator turns noisy text into reliable RDF triples.
 | **M3 baseline** relation extraction (trigger+distance, course Rule 3) | `src/algorun/refinery.py` | graph F1 **0.241** (P 1.00, R 0.137) |
 | **M4 validator** pairwise generator + DistilBERT logic gate | `src/algorun/validator.py` | graph F1 **0.478** (P 0.90, R 0.33); long-distance tier 0.00 → 0.47 |
 
-Baseline vs Transformer per tier (the course's Rule 4 comparison):
+Multi-architecture comparison on the held-out test set (Rule 4) — from the
+rule-based baseline to the heavy Transformer, showing the cost/benefit curve:
 
-| tier | baseline F1 | DistilBERT F1 |
-|---|---|---|
-| explicit | 0.42 | 0.58 |
-| implicit | 0.16 | 0.57 |
-| long_distance | 0.00 | 0.47 |
-| nested | 0.27 | 0.44 |
+| architecture | overall F1 | cost | size |
+|---|---|---|---|
+| baseline (trigger+distance rules) | 0.24 | free | 0 |
+| **light validator (logistic regression)** | **0.43** | **<1 s CPU** | **~KB** |
+| DistilBERT | 0.48 | ~2 min GPU/MPS | 66M params |
+| RoBERTa-base | *collapsed* (majority-class, lr too high — needs retuning) | GPU | 125M params |
 
-73 tests green (`python -m pytest`).
+Key takeaway (a strong report point): the **lightweight logistic-regression
+validator reaches F1 0.43** — nearly the DistilBERT 0.48 — at a **thousandth of
+the cost and none of the fragility**. It handles the 19/81 class imbalance with
+`class_weight="balanced"`, exactly what RoBERTa failed at.
+
+75 tests green (`python -m pytest`).
 
 ## Demos
 
@@ -51,8 +57,9 @@ python -m algorun.pipeline                       # sensor → effort → SHACL �
 python -m algorun.nlp "tempo run at 12 km/h"     # prompt → entities → surgical BPM
 python -m algorun.fusion                         # prompt+sensor arbitration (safety first)
 python -m algorun.refinery --dataset data/synthetic/test.jsonl   # M3 graph P/R/F1
+python -m algorun.light_validator               # baseline vs logistic-regression (CPU, no GPU)
 python -m algorun.validator train --arch distilbert              # ~2 min on Apple MPS
-python -m algorun.validator eval                 # baseline vs every trained validator
+python -m algorun.validator eval                 # baseline vs every trained Transformer
 ```
 
 ## RoBERTa comparison (Rule 4: "multiple Transformer architectures")

@@ -27,7 +27,25 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
-### [2026-07-06 15:00] — Danny (with Claude Code)
+### [2026-07-06 17:00] — Danny (with Claude Code)
+**What I did:**
+- **RoBERTa (Colab): è COLLASSATA** — val_accuracy fermo a 0.786 (= frazione
+  dei negativi), test F1 0.00. Ha imparato a dire sempre "INVALIDO" (lr 5e-5
+  troppo alto per RoBERTa + sbilanciamento 19/81 non gestito). Fixabile ma
+  conferma: RoBERTa è pesante E fragile per questo compito.
+- **Nuovo validator LEGGERO** (`light_validator.py`): regressione logistica
+  scikit-learn su feature fatte a mano (predicato, trigger presente, distanze
+  trigger↔entità, flag canonici), `class_weight="balanced"`. **F1 0.429**
+  (vs baseline 0.24, DistilBERT 0.48) — ~90% del beneficio del Transformer a
+  <1 s su CPU, ~KB, zero torch/GPU. NON collassa proprio grazie al class
+  weight (il problema di RoBERTa). Demo: `python -m algorun.light_validator`.
+- README/ALGORITHMS aggiornati col confronto a 4 architetture (curva
+  costo/beneficio) e la diagnosi RoBERTa. requirements: chiarito che
+  torch/transformers sono opzionali (solo deliverable). 75 test verdi.
+
+**Open questions:** se ci serve il numero RoBERTa "giusto" per la Rule 4,
+basta rilanciare in Colab con lr=2e-5; ma il leggero racconta una storia
+migliore per il report.
 **What I did:**
 - **Commenti in italiano** riscritti/arricchiti sui 5 moduli che erano ancora
   in inglese: `ontology/loader.py`, `ontology/evaluation.py`,

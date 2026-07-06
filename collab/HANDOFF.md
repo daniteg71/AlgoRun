@@ -27,6 +27,50 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 17:57] — Danny (with Claude Code)
+**What I did:** Wrote **`ARCHITECTURE.md`** — the canonical design document for
+the team (read it alongside GUIDELINES/CLAUDE/README). It supersedes the old
+"real-time DJ with continuous sensors" framing after a long design pass. Core
+decisions, all tagged in the doc ([NOW]/[STAR]/[BENCH]/[EXT]):
+- **Product = text-driven running-music recommender, zero hardware required.**
+  Free-text request → NLP dispatcher (intent {quant|qual} + slots) → ontology
+  derives a target vector + **dynamic feature weights per regime** → **weighted
+  vector scoring** over the catalog → SPARQL over the KG → Spotify playback.
+- **Two regimes carry the theory:** quantitative = biomechanical entrainment
+  (Van Dyck 2015/2018), BPM-dominant, half/double-time ±3% band; qualitative =
+  affective features (energy/valence), effort inference, wider BPM.
+- Kept the strong ideas from the latest design note: **Dynamic Vector Scoring,
+  Sliding Window Memory, Genre–User crossing**. Safety Override kept as a
+  deterministic SHACL/physiological rule (never model-driven).
+- **Ship light, benchmark heavy:** shipped NLP = dictionary+regex; JointBERT
+  (2-head DistilBERT), GLiNER2, SetFit, small instruct-LLM are **benchmark-only**
+  contenders establishing the SOTA ceiling. Evaluate on hand-written phrases,
+  not synthetic slices.
+- **Spotify reality [EXT]:** live audio-features are dead (403 since 2024-11-27)
+  → features from the Kaggle 114k dataset via fuzzy title+artist join; playback
+  needs Premium + active device (no-Premium fallback provided); playlist listing
+  is free.
+- **Sensors + real-time = north-star [STAR]**, not a deliverable requirement —
+  the architecture accepts them in the same two branches but nothing is blocked
+  on them.
+- Benchmark plan is now **five axes** + a reliability capstone (Song→band
+  classifier with calibration/ECE, end-to-end Precision@k, ablation).
+
+Research this session (verified live, 2026): best cadence↔BPM repo
+`JohanVanHoye/spotify-running-playlist-maker` (MIT, `allow_doubled_bpm`); best
+scoring pattern MaxHilsdorf-style weighted Euclidean on a normalized frame
+(MIT refs: egemengundur, unkletam); JointBERT canonical `monologg/JointBERT`
+(frozen 2020 → write a ~150-line 2-head DistilBERT instead); Spotify audio-
+features deprecation + `maharshipandya/spotify-tracks-dataset` (CC0).
+
+**TODOs for the other teammate:** read `ARCHITECTURE.md` first; flag anything
+you disagree with **here** before we open the implementation milestones. The old
+sensor/fusion modules will be trimmed to [STAR] status — shout if you want any
+kept live.
+**Open questions:** does anyone on the team have Spotify Premium for the playback
+demo? (Free accounts get a 403 on `start_playback`.)
+
+---
 ### [2026-07-06 17:00] — Danny (with Claude Code)
 **What I did:**
 - **RoBERTa (Colab): è COLLASSATA** — val_accuracy fermo a 0.786 (= frazione

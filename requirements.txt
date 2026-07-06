@@ -8,6 +8,12 @@ spacy>=3.7,<4.0
 rdflib>=7.0
 pyshacl>=0.26
 
+# Intent del prodotto: SetFit few-shot (classifica il tipo di corsa).
+# NB: SetFit e' un Transformer -> tira dentro torch. Su Python 3.9: sentence-transformers<5.
+setfit>=1.1
+sentence-transformers<5
+# datasets serve SOLO per allenare (train_intent.py), non a runtime.
+
 # Vector scoring + ML classico (scorer e validator LEGGERO)
 pandas>=2.2
 numpy>=1.26

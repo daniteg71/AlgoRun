@@ -27,6 +27,37 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-07 00:40] — Danny (with Claude Code)
+**What I did:** Strato NLP del PRODOTTO ri-fatto con SetFit (few-shot), e
+eliminato il vecchio routing a dizionario. Branch `lean-core`.
+- **`train_intent.py`**: ~60 frasi (12/classe, dai trigger dei 5 tipi) → SetFit
+  con encoder multilingue `paraphrase-multilingual-MiniLM-L12-v2`. Allenato sul
+  M2: **~12 min**, **accuracy 9/10** sul test tenuto fuori (unico errore:
+  "fartlek libero di 30 minuti"→easy; si fixa con piu' esempi 'fartlek'). Modello
+  salvato in `models/intent-setfit/` (git-ignored).
+- **`src/algorun/intent.py`**: NLP del prodotto = regex (numeri) + SetFit (tipo)
+  + `TYPE_PARAMS` (banda BPM/energia/pesi/tau per i 5 tipi). Output un dict
+  `{type, numbers, params}` che va DRITTO nello scorer. Numeri ancorati alla
+  teoria (cadenza 150-190 spm, Van Dyck; arousal, Karageorghis); bande/pesi
+  esatti = design → ablation.
+- **Eliminato il vecchio modello NLP**: `nlp.py` ridotto alla sola
+  `dictionary_extract` (serve al refinery d'esame + al benchmark); rimossi
+  ground/classify/target_bpm/evaluate. Rimosso l'abbozzo `nlp_router.py`.
+  `test_nlp` snellito + nuovo `test_intent` (regex + params, senza caricare il
+  modello). **56 test verdi, 1 skip.**
+- **Nota deps:** SetFit e' un Transformer → `torch` rientra nel prodotto (era in
+  quarantena). Accettato: SetFit e' il modello spedito dell'intento. Su py3.9:
+  `sentence-transformers<5`.
+
+**TODOs teammate:** per allenare: `pip install -r requirements.txt` poi
+`python train_intent.py` (~12 min su M2, salva in models/). Prossimi moduli del
+prodotto: `sensor.py` (legge `data/processed/physiological_windows.csv`, ha gia'
+HRR+effort_state), `controller.py` (media shot → adatta target → safety →
+prossima canzone, comportamento per tipo), `scorer.py` (distanza pesata + softmax
+esplorazione con tau, distanza-generi via genre_graph).
+**Open questions:** i params BPM/pesi/tau vanno validati con un'ablation nel Paper.
+
+---
 ### [2026-07-06 19:10] — Danny (with Claude Code)
 **What I did:** Passata di minimalismo sul codice (branch `lean-core`). Tolto
 il superfluo e alleggerito il core. **Core `src/algorun`: 2069 -> 1690 righe**,

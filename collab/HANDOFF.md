@@ -27,6 +27,31 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-07 01:35] — Danny (with Claude Code)
+**What I did:** L'anello di controllo del prodotto (sensore → target → canzone).
+Branch `lean-core`. **68 test verdi, 1 skip.**
+- **`sensor.py`**: la logica fisiologica del socio (`physiological_state.py`)
+  compattata — stessa matematica (HRR Karvonen, soglie sforzo, trend da pendenza)
+  + `read_session_shots()` che legge le finestre gia' calcolate in
+  `data/processed/physiological_windows.csv`.
+- **`scorer.py`**: distanza pesata al target (BPM con correzione d'ottava
+  1:1/half/double, energia, genere via genre_graph) + selezione **softmax(-Score/tau)**
+  (exploration/exploitation). `make_target()` costruisce il target da NLP+sensore.
+- **`controller.py`**: l'anello. Raggruppa gli shot per canzone → media HRR +
+  effort → `adapt()` aggiorna (bpm*, energy*) per tipo (easy tira giu', tempo
+  spinge su, fartlek segue) con **safety override** a HRR>=0.90 → sceglie la
+  prossima con lo scorer. Demo `python -m algorun.controller` gira sui dati veri.
+- **Training set**: aggiunte le 40 frasi del socio (etichette mappate sui 5 tipi)
+  + adversarial/slang nel test. Riallenamento in corso (100 esempi → ~35 min).
+- Fonti (per il Paper): Karvonen 1957, Van Dyck 2015, Rada 1989, Sutton&Barto.
+  Bande/pesi/tau/soglia 0.90 = design → ablation.
+
+**TODOs teammate:** onda quadra vera per l'interval (target A/B a timer) manca —
+ora interval "tiene". Il termine genere nello scorer si attiva solo con un seme
+di genere (da mood): mood→genere ancora da wirare. `models/` git-ignored: rialleni
+con `python train_intent.py`.
+
+---
 ### [2026-07-07 00:40] — Danny (with Claude Code)
 **What I did:** Strato NLP del PRODOTTO ri-fatto con SetFit (few-shot), e
 eliminato il vecchio routing a dizionario. Branch `lean-core`.

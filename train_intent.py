@@ -44,14 +44,50 @@ TRAIN = [
     ("fartlek per divertirmi", "fartlek"), ("cambi di ritmo casuali", "fartlek"),
     ("quaranta minuti di variazioni", "fartlek"), ("corsa con accelerazioni libere", "fartlek"),
     ("seguo le gambe, cambi di passo", "fartlek"), ("speed play oggi", "fartlek"),
+
+    # --- frasi aggiunte dal socio (etichette mappate sui 5 tipi) ---
+    ("Corsa chill di 20 minuti", "easy"), ("Ho le gambe di legno, andiamo piano", "easy"),
+    ("Scarico totale senza guardare il tempo", "easy"), ("Ritmo super blando oggi", "easy"),
+    ("Passeggiata veloce per recuperare", "easy"), ("Oggi non voglio sudare troppo", "easy"),
+    ("Corsa tranquilla intorno ai 120 battiti", "easy"), ("Solo una sgambata per muovere le gambe", "easy"),
+
+    ("15 km a ritmo costante", "long"), ("Due ore di corsa senza fermarmi mai", "long"),
+    ("Lungo lento per preparare la maratona", "long"), ("Oggi si macinano chilometri", "long"),
+    ("Andatura ipnotica per 90 minuti", "long"), ("Voglio correre fino al tramonto a 6 al km", "long"),
+    ("Resistenza pura, teniamo i 140 bpm a lungo", "long"), ("Mezza maratona di allenamento oggi", "long"),
+
+    ("A 4 e 30 al km spaccati", "tempo"), ("Medio veloce per 40 minuti", "tempo"),
+    ("Soglia anaerobica costante senza cedere", "tempo"), ("Oggi spingiamo a 12 all'ora fissi", "tempo"),
+    ("Ritmo gara 10k da tenere fino alla fine", "tempo"), ("Corsa faticosa ma tenuta per 10 km", "tempo"),
+    ("Voglio stare sui 160 battiti esatti", "tempo"), ("Andatura sfidante ma super regolare", "tempo"),
+
+    ("Ripetute 8 per 1000 metri", "interval"), ("Un minuto a palla e un minuto camminando", "interval"),
+    ("Scatti in salita e recupero in discesa", "interval"), ("400 metri alla morte poi stop", "interval"),
+    ("Intervalli ad altissima intensità", "interval"), ("Massimo sforzo e poi recupero da fermo", "interval"),
+    ("Voglio fare un frazionato di 5 km", "interval"), ("Onda quadra sui battiti, su e giù continuo", "interval"),
+
+    ("Cambi di ritmo a sensazione", "fartlek"), ("Gioco di velocità nel bosco", "fartlek"),
+    ("Variazioni libere per 40 minuti", "fartlek"), ("Oggi fartlek divertente", "fartlek"),
+    ("Accelero solo quando mi va", "fartlek"), ("Corsa mista senza schemi rigidi", "fartlek"),
+    ("Voglio variare tanto la velocità seguendo la musica", "fartlek"), ("Strappi improvvisi ma non programmati", "fartlek"),
 ]
 
+# test tenuto fuori: frasi mie + gli adversarial/slang del socio (etichetta piu' difendibile)
 TEST = [
     ("vado piano oggi, recupero", "easy"), ("solo sciogliere, tranquillo", "easy"),
     ("macino chilometri lenti", "long"), ("fondo lungo di un'ora", "long"),
     ("spingo a ritmo medio costante", "tempo"), ("tempo run impegnativo", "tempo"),
     ("ripetute da quattrocento veloci", "interval"), ("scatti al massimo con pause", "interval"),
     ("vario il ritmo a sensazione", "fartlek"), ("fartlek libero di trenta minuti", "fartlek"),
+    # adversarial (slang / trabocchetti)
+    ("Andiamo a smaltire la pizza di ieri senza nessuna fretta", "easy"),
+    ("Velocità da nonno che guarda i cantieri, andiamo", "easy"),
+    ("Fammela sudare tanto ma senza fare scatti improvvisi", "tempo"),
+    ("Oggi ho un passo da Terminator, imposta una velocità costante e distruttiva", "tempo"),
+    ("Non so cosa voglio fare oggi, fammi solo divertire con i ritmi", "fartlek"),
+    ("Tantissimi chilometri ma voglio tornare a casa ancora vivo", "long"),
+    ("Voglio avere il cuore in gola, ma a fasi alterne", "interval"),
+    ("Oggi mettiamo il turbo al massimo finché non scoppio", "interval"),
 ]
 
 ENCODER = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"

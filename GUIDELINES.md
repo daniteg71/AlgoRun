@@ -97,18 +97,17 @@ raw text → Tokenization → Lemmatization → Entity & Mention Detection (→ 
 
 ## Project-specific commitments (AlgoRun)
 
-- [ ] Sensor scope (team decision 2026-07-04): exactly **two sensors** —
-      accelerometer (→ cadence) and heart-rate sensor (→ beats), from
-      **Sensor Logger**. GPS/speed math is ready in `sensors/gps.py` but out
-      of the live scope for now. Parsing and feature extraction (HRR, effort
-      states, trends) live in `src/algorun/sensors/`.
-- [ ] Sensor sessions are turned into **natural-language narratives** that go
-      through the SAME pipeline as any other text (no shortcut into the KG),
-      while a **direct structured mapping** of the same session produces
-      ground-truth triples for evaluation.
+- [ ] Input is **text** (a short runner utterance), not live sensors. Live
+      GPS/HR sensors + a real-time loop are a designed-for **north-star [STAR]**
+      (see `ARCHITECTURE.md`), never a deliverable requirement — do not build
+      them as if they were.
+- [ ] The music catalog (`data/music/songs.csv`) is mapped by **direct
+      structured mapping** into RDF triples that pass the SHACL gate and enter
+      the KG; the synthetic tiered corpus exercises the text→triples refinery
+      (the benchmarked path).
 - [ ] The playlist recommender reads **only from the RDF Knowledge Graph via
       SPARQL** — never directly from raw CSVs. The KG is the single source of
-      truth.
+      truth. The ontology's only runtime use is the genre semantic distance.
 - [ ] Code identifiers, data and the report are in **English**; **comments and
       docstrings are in Italian** so both teammates read the implementation
       easily (team decision, 2026-07-05). Theoretical rigor over shortcuts:

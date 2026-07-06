@@ -27,6 +27,22 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 18:35] — Danny (with Claude Code)
+**What I did:** Refresh della documentazione alla v2 (stesso branch
+`genre-ontology-recommender`, che ora contiene TUTTO: ARCHITECTURE.md +
+tassonomia generi + pulizia + doc). Riscritto **README.md** da zero (nuovo
+sistema di raccomandazione: dispatcher NLP → ontologia+pesi dinamici → Dynamic
+Vector Scoring + termine genere + Sliding Window; layout/demo/roadmap aggiornati,
+tolte le righe dei moduli rimossi). Aggiornati l'**obiettivo in CLAUDE.md**
+(niente piu' loop real-time coi sensori) e le **commitment in GUIDELINES.md**
+(input testuale; sensori = [STAR]; catalogo `songs.csv`→KG). Nessun codice
+toccato: i 66 test restano verdi.
+
+**TODOs for the other teammate:** la roba e' tutta sul branch
+`genre-ontology-recommender` — apri la PR e fai il code review lì.
+**Open questions:** vedi entry precedente (trim OWL residuo [STAR]; `recommender.py`).
+
+---
 ### [2026-07-06 18:20] — Danny (with Claude Code)
 **What I did:** Prima fetta di implementazione della v2 (branch
 `genre-ontology-recommender`).

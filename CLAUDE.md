@@ -6,31 +6,27 @@ session in this repo.
 
 ## The objective — always keep this end-to-end vision in mind
 
-AlgoRun is a real-time, ontology-driven DJ for runners. Every piece of code
-we write serves this 5-step loop:
+AlgoRun is a **text-driven, ontology-governed running-music recommender**
+(no wearables required). Every piece of code serves this loop — see
+`ARCHITECTURE.md` for the full design and the `[NOW]/[STAR]/[BENCH]/[EXT]` tags:
 
-1. **Edge-to-Core acquisition.** The Sensor Logger app is the "edge" node: it
-   captures raw physical data from the phone and streams it live (webhook /
-   JSON) to our local Python server.
-2. **Dynamic extraction (NLP + sensors).** Our script converts the raw sensor
-   data (e.g. cadence) into ontology-ready values. If the user also types an
-   initial prompt (e.g. "Today I want to push"), a lightweight model (GLiNER)
-   extracts entities dynamically (e.g. "push" -> high intensity) and maps them
-   to the ontology labels.
-3. **Reasoning & validation (SHACL).** *The exam-critical step.* The extracted
-   data populates the ontology. SHACL constraints block corrupted data or
-   hallucinations (e.g. a heart rate logged at 500 bpm). The reasoning engine
-   (pySHACL) evaluates the user's state and logically infers the ideal
-   parameters of the next song.
-4. **Vector search (retrieval).** The ontology reasoner does not pick a song
-   title — it produces a *target point* in a vector space of (BPM, energy,
-   valence). The system runs a K-Nearest-Neighbors query over the vectorized
-   Spotify dataset to find the track geometrically closest to the target.
-5. **Execution (API).** The system takes the winning track ID from the vector
-   database and uses Spotipy to switch the song on the user's Spotify app.
+1. **NLP dispatcher.** A short user utterance → a *regime*
+   (quantitative | qualitative) + slots (speed, duration, mood, genre). Shipped
+   model: dictionary + regex; heavier models are benchmark contenders only.
+2. **Ontology → target + dynamic weights.** The regime decides how the ontology
+   derives the acoustic target (BPM/energy bands) and which features dominate
+   the score. SHACL is the constraint gate — no triple enters the KG without it.
+3. **Dynamic Vector Scoring.** Rank catalog tracks by weighted cosine/distance
+   to the target over bpm/energy/valence/danceability (regime weights), plus a
+   genre semantic-distance term. The recommender reads only from the KG via
+   SPARQL.
+4. **Sliding-Window memory + Spotify.** A deque of recent tracks keeps the
+   sequence coherent; the winning track is played via spotipy.
 
-Whenever a design decision is unclear, choose the option that best serves this
-loop — and always respect `GUIDELINES.md`.
+The graded backbone is offline: synthetic tiered corpus → Data Refinery → KG →
+benchmark. Live GPS/HR sensors and a real-time loop are a **north-star [STAR]**,
+not a requirement. Whenever a design decision is unclear, choose the option that
+best serves this loop — and always respect `ARCHITECTURE.md` and `GUIDELINES.md`.
 
 ## FIRST ACTION of every session (mandatory, before anything else)
 

@@ -27,6 +27,30 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 12:00] — Danny (with Claude Code)
+**What I did:**
+- `validator.py` generalizzato a **multi-architettura**: un registro
+  ARCHITECTURES (distilbert, roberta), stesso loop di training, un modello
+  per cartella (`models/validator-<arch>/`); `eval` ora confronta la baseline
+  con OGNI architettura allenata trovata, in un'unica tabella per tier.
+- **Decisione RoBERTa: utile (la Rule 4 la nomina esplicitamente) ma NON si
+  allena sul laptop** — 125M parametri mettono in ginocchio l'M2. Va allenata
+  su **Google Colab** (T4 gratuita): snippet pronto nel README, sezione
+  "RoBERTa comparison". Chi lo lancia incolla poi i P/R/F1 in ALGORITHMS.md.
+- **README riscritto da capo** allo stato reale: tabella dei risultati
+  misurati (NER 0.947; M3 0.241 → M4 DistilBERT 0.478 con per-tier), elenco
+  demo CLI, layout aggiornato, roadmap onesta di ciò che manca (M5: catalogo
+  musicale, retrieval, server live, Spotify, controller isteresi/lock/panic;
+  integrazione refinery→KG persistente; M6 report; OOPS!; dati reali).
+- Ritocchi a CLAUDE.md (niente training pesanti sul laptop; Python 3.9 ok
+  end-to-end) e GUIDELINES.md (scope sensori aggiornato: accelerometro+HR).
+
+**TODOs for the other teammate:**
+- Lanciare lo snippet Colab del README (5 min) e incollare i numeri RoBERTa
+  in ALGORITHMS.md — chiude M4 al 100%.
+**Open questions:** none.
+
+---
 ### [2026-07-06 03:00] — Danny (with Claude Code)
 **What I did:** **M4 — validator DistilBERT** (`src/algorun/validator.py`).
 Prima una verifica onesta: il generatore trigger-based produceva SOLO

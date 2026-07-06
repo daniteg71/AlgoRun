@@ -27,6 +27,41 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 18:20] — Danny (with Claude Code)
+**What I did:** Prima fetta di implementazione della v2 (branch
+`genre-ontology-recommender`).
+- **Tassonomia dei generi** dai **113 generi reali** del dataset
+  (`data/music/songs.csv`, 89.503 tracce, git-ignored). Generatore
+  `ontology/build_genre_taxonomy.py` → `ontology/genres.ttl`: albero
+  leaf→famiglia→super-famiglia→radice (skos:broader, 146 concetti). L'affinita'
+  `ar:genreSuitsEffort` NON e' inventata: e' lo sforzo modale osservato in
+  `matches_effort` per ciascun genere.
+- **`src/algorun/genre_graph.py`**: distanza semantica fra generi via BFS sul
+  grafo (nessun reasoner). Stessa famiglia ~0.33, stessa super-famiglia ~0.67,
+  super-famiglie diverse 1.0. E' l'unico uso a runtime dell'ontologia nel
+  recommender (termine genere-utente dello scoring). 5 test nuovi.
+- **Pulizia code base:** rimossi i moduli superflui (tutto lo strato [STAR]
+  sensori/real-time) — `sensors/`, `fusion.py`, `pipeline.py` (bridge-sensore)
+  e i test `test_fusion/test_gps/test_pipeline`. Il gate SHACL e la lettura del
+  target (funzioni valutate, senza sensori) sono stati estratti da pipeline.py
+  in **`src/algorun/shacl_gate.py`**; refinery aggiornato.
+- **66 test verdi, 1 skip.** Nessun pezzo valutato toccato (ontologia, datagen,
+  refinery, validator, nlp intatti).
+
+Dataset: colonne gia' allineate all'ontologia (`matches_effort`,
+`supports_goal`, `supports_mood`, `bpm/energy/valence/danceability`,
+`spotify_url`) → il KG si popola per mapping strutturato diretto.
+
+**TODOs for the other teammate:** decisione presa con Danny — l'ontologia serve
+a runtime SOLO per la distanza fra generi; la cosine pesata sulle feature audio
+resta il cuore dello scoring (i due si sommano, non si escludono).
+**Open questions / prossimi passi:** (1) trim dell'ontologia OWL dal residuo
+sensori/safety [STAR] (SensorReading/Trend/ActionPriority + regole SHACL di
+sicurezza + `test_health_constraints`) — piu' invasivo, tocca i test ontologia,
+da fare a parte; (2) `recommender.py`: Dynamic Vector Scoring (cosine pesata,
+pesi per regime) + Sliding Window + termine genere via `genre_graph`.
+
+---
 ### [2026-07-06 17:57] — Danny (with Claude Code)
 **What I did:** Wrote **`ARCHITECTURE.md`** — the canonical design document for
 the team (read it alongside GUIDELINES/CLAUDE/README). It supersedes the old

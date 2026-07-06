@@ -57,7 +57,7 @@ from rdflib.namespace import RDF
 
 from algorun.nlp import dictionary_extract
 from algorun.ontology.loader import AR, load_ontology
-from algorun.pipeline import validate
+from algorun.shacl_gate import validate
 
 EX = Namespace("http://algorun.org/data#")
 

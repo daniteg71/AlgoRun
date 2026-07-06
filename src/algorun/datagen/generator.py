@@ -1,26 +1,29 @@
-"""Tiered synthetic dataset generator (GUIDELINES.md Rule 2).
-
-Instantiates the LLM-authored templates in ``templates.py`` with surface
-forms drawn from the ontology label dictionary — never hardcoded strings —
-and emits gold-annotated JSONL records with a stratified 70/15/15
-train/validation/test split.
-
-Record schema (one JSON object per line):
-    {
-      "id": "rec_000123",
-      "tier": "explicit" | "implicit" | "long_distance" | "nested",
-      "text": "...",
-      "entities": [
-        {"id": "e0", "iri": "...", "type_iri": "...",
-         "surface": "...", "start": 12, "end": 25, "mentioned": true},
-        ...                        # implicit nodes have no span, mentioned=false
-      ],
-      "triples": [["e0", "http://algorun.org/ontology#performsSession", "e1"], ...]
-    }
-
-Usage:
-    python -m algorun.datagen.generator --out data/synthetic --per-tier 200
-"""
+# =============================================================================
+# COSA FA QUESTO FILE
+# -----------------------------------------------------------------------------
+# GENERA il dataset sintetico (Rule 2 del corso). Prende i template di frasi
+# (templates.py), riempie i "buchi" con parole VERE prese dall'ontologia (mai
+# stringhe scritte a mano), e produce record annotati in formato JSONL con lo
+# split 70/15/15 (train/val/test) bilanciato per livello.
+#
+# Ogni record (una riga JSON) ha questa forma:
+#     {
+#       "id": "rec_000123",
+#       "tier": "explicit" | "implicit" | "long_distance" | "nested",
+#       "text": "la frase generata",
+#       "entities": [                     # le entità presenti, con l'IRI giusto
+#         {"id": "e0", "iri": "...", "type_iri": "...",
+#          "surface": "warmup", "spans": [[23,29]], "mentioned": true},
+#         ...        # i nodi impliciti (la sessione) hanno mentioned=false, no span
+#       ],
+#       "triples": [["e0", "...#performsSession", "e1"], ...]   # le risposte GOLD
+#     }
+#
+# Perché serve: è il "compito con le soluzioni" su cui si allena e si misura
+# la pipeline NLP (M3/M4). Le triple gold sono la verità con cui confrontare.
+#
+# Uso:  python -m algorun.datagen.generator --out data/synthetic --per-tier 200
+# =============================================================================
 
 from __future__ import annotations
 
@@ -37,20 +40,21 @@ from algorun.ontology.loader import AR, OntologySchema, load_ontology
 from . import templates as T
 
 DATA = "http://algorun.org/data#"
-SPLIT_RATIOS = (0.70, 0.15, 0.15)  # train / val / test — Rule 2, non-negotiable
+SPLIT_RATIOS = (0.70, 0.15, 0.15)  # train / val / test — Rule 2, non negoziabile
 
 
 def _slug(text: str) -> str:
+    """Trasforma un testo in un pezzo di IRI pulito: minuscolo, spazi e
+    simboli sostituiti da "_" (es. "Neon Pulse" -> "neon_pulse")."""
     return "".join(c if c.isalnum() else "_" for c in text.lower()).strip("_")
 
 
 def _individual_surfaces(schema: OntologySchema, cls: URIRef,
                          canonical: bool) -> list[tuple[URIRef, str]]:
-    """(individual IRI, surface form) pairs for all individuals of a class.
-
-    ``canonical=True`` yields only rdfs:label forms (explicit tier);
-    otherwise every skos:altLabel synonym is offered too (implicit tier).
-    """
+    """Coppie (IRI individuo, forma testuale) per tutti gli individui di una
+    classe. Con canonical=True dà solo le label ufficiali (per i livelli
+    facili); altrimenti aggiunge anche i sinonimi skos:altLabel (per il
+    livello "implicit", dove serve capire un sinonimo)."""
     pairs: list[tuple[URIRef, str]] = []
     for ind in schema.graph.subjects(RDF.type, cls):
         if not isinstance(ind, URIRef) or ind not in schema.individuals:
@@ -63,15 +67,16 @@ def _individual_surfaces(schema: OntologySchema, cls: URIRef,
 
 
 class RecordBuilder:
-    """Fills one template into a fully annotated record."""
+    """Riempie UN template e ne fa un record completo e annotato."""
 
     def __init__(self, schema: OntologySchema, rng: random.Random):
         self.schema = schema
         self.rng = rng
 
     def _pick_slots(self, tier: str) -> dict[str, tuple[str, str, str]]:
-        """slot -> (surface, entity IRI, type IRI). Implicit tier prefers
-        synonym surface forms; other tiers use canonical labels."""
+        """Sceglie a caso una parola per ogni buco. Ritorna slot ->
+        (parola, IRI, tipo). Nel livello "implicit" preferisce i sinonimi,
+        negli altri usa le label ufficiali."""
         canonical = tier != "implicit"
         rng = self.rng
         wtype = rng.choice(_individual_surfaces(self.schema, AR.WorkoutType, canonical))
@@ -93,7 +98,8 @@ class RecordBuilder:
             "cad": (rng.choice(T.CADENCE_VALUES), None, None),
         }
 
-    # slots that exist as graph nodes but never as text spans
+    # buchi che esistono come nodi del grafo ma non compaiono mai nel testo
+    # (la sessione, le letture): non hanno una parola, si creano "impliciti"
     IMPLICIT_NODES = {
         "session_implicit": str(AR.WorkoutSession),
         "hr_reading": str(AR.HeartRateReading),
@@ -116,7 +122,7 @@ class RecordBuilder:
             entry = {"id": eid, "iri": iri, "type_iri": type_iri,
                      "mentioned": surface is not None}
             if surface is not None:
-                # annotate every occurrence of the surface form
+                # trova TUTTE le posizioni in cui la parola compare nel testo
                 spans, start = [], 0
                 lowered, needle = text.lower(), surface.lower()
                 while (idx := lowered.find(needle, start)) != -1:
@@ -159,7 +165,8 @@ def generate(per_tier: int, seed: int = 42) -> list[dict]:
 
 
 def split_records(records: list[dict], seed: int = 42) -> dict[str, list[dict]]:
-    """Stratified-by-tier 70/15/15 split (Rule 2)."""
+    """Split 70/15/15 stratificato per livello: ogni livello viene diviso
+    separatamente, così train/val/test restano bilanciati (Rule 2)."""
     rng = random.Random(seed)
     splits: dict[str, list[dict]] = {"train": [], "val": [], "test": []}
     tiers: dict[str, list[dict]] = {}

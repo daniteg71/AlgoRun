@@ -27,6 +27,27 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-06 15:00] — Danny (with Claude Code)
+**What I did:**
+- **Commenti in italiano** riscritti/arricchiti sui 5 moduli che erano ancora
+  in inglese: `ontology/loader.py`, `ontology/evaluation.py`,
+  `datagen/generator.py`, `datagen/templates.py`, `datagen/validate.py`.
+  Ogni file ora ha in cima un blocco "COSA FA QUESTO FILE" e commenti fitti a
+  fianco. Nessuna logica toccata: 73 test ancora verdi.
+- **Fix device del validator**: prima sceglieva solo mps/cpu → su Colab
+  avrebbe allenato su CPU ignorando la GPU. Ora `cuda` (NVIDIA/Colab) → `mps`
+  (Mac) → `cpu`.
+- **Fix snippet Colab nel README**: tolto `owlready2` (compila da sorgente,
+  lento, e NON serve al training — solo al reasoner). Era la causa del
+  fallimento (install interrotto → rdflib mancante).
+- **Nota di onestà in ALGORITHMS.md**: l'architettura Transformer è pesante e
+  serve al deliverable d'esame (Rule 3/4), NON al prodotto — il core
+  (ontologia+SHACL+formule) è leggero e senza ML. torch/transformers restano
+  import lazy isolati in validator.py.
+
+**Open questions:** RoBERTa numbers ancora da incollare dopo il run Colab.
+
+---
 ### [2026-07-06 12:00] — Danny (with Claude Code)
 **What I did:**
 - `validator.py` generalizzato a **multi-architettura**: un registro

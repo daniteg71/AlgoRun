@@ -1,27 +1,27 @@
-"""LLM-authored sentence templates for the four complexity tiers.
-
-These templates were written by an LLM (Claude) under ontology constraints
-(GUIDELINES.md Rule 2): every placeholder resolves to a surface form taken
-from the ontology label dictionary, and every template declares the gold
-triples it expresses. The generator (generator.py) instantiates them into
-annotated JSONL records.
-
-Tier semantics (Block 14):
-  1. explicit      — direct trigger words in a single, simple sentence.
-  2. implicit      — synonym resolution / broader context required (uses
-                     skos:altLabel surface forms, no canonical trigger).
-  3. long_distance — entities separated by multiple clauses or sentences.
-  4. nested        — dense, ambiguous text with multiple overlapping triples.
-
-Placeholder vocabulary:
-  {runner}    a runner name            {session}   a session mention
-  {wtype}     workout type surface     {phase}     training phase surface
-  {zone}      intensity zone surface   {song}      a song title
-  {genre}     a genre name             {playlist}  a playlist name
-  {hr}        heart rate value         {cad}       cadence value
-Each template lists ``triples`` as (subject_slot, relation_iri_suffix,
-object_slot) so the generator can emit gold annotations without any NLP.
-"""
+# =============================================================================
+# COSA FA QUESTO FILE
+# -----------------------------------------------------------------------------
+# Contiene i TEMPLATE di frasi (scritti da un LLM) usati per generare il
+# dataset sintetico. Ogni template è una frase con dei "buchi" ({runner},
+# {wtype}, ...) che il generatore (generator.py) riempie con le parole prese
+# dall'ontologia, più la lista delle triple GOLD (le risposte corrette) che
+# quella frase esprime.
+#
+# I 4 LIVELLI DI COMPLESSITÀ (Block 14) — servono a testare l'NLP in
+# condizioni via via più difficili:
+#   1. explicit      — trigger diretto, una frase semplice ("targets").
+#   2. implicit      — serve capire un sinonimo ("aims for" invece di "targets").
+#   3. long_distance — le entità sono lontane, separate da tante parole.
+#   4. nested        — frase densa con più triple sovrapposte e ambigue.
+#
+# I "buchi" disponibili:
+#   {runner}=nome corridore   {wtype}=tipo allenamento   {phase}=fase
+#   {zone}=stato di sforzo     {song}=titolo canzone      {genre}=genere
+#   {playlist}=nome playlist   {hr}=battito               {cad}=cadenza
+#
+# Ogni template elenca le sue ``triples`` come (slot_soggetto, nome_relazione,
+# slot_oggetto): così il generatore sa le risposte corrette SENZA fare NLP.
+# =============================================================================
 
 TEMPLATES = {
     "explicit": [
@@ -70,44 +70,44 @@ TEMPLATES = {
     ],
     "implicit": [
         {
-            # "completes" / "does" instead of "performs"; workout synonym
+            # "completes"/"does" al posto di "performs"; sinonimo di allenamento
             "text": "{runner} completes a tough {wtype} before breakfast.",
             "triples": [("runner", "performsSession", "session_implicit"),
                         ("session_implicit", "hasWorkoutType", "wtype")],
         },
         {
-            # pulse == heart rate (altLabel), zone phrasing without "reading"
+            # "pulse" = battito (sinonimo), sforzo espresso senza dire "reading"
             "text": "Halfway through, the pulse of {runner} climbs into {zone}.",
             "triples": [("session_implicit", "hasEffortState", "zone")],
         },
         {
-            # "fits" instead of "suits"
+            # "fits" al posto di "suits"
             "text": "{song} really fits a {phase}, with its steady groove.",
             "triples": [("song", "suitsPhase", "phase")],
         },
         {
-            # "queued in" instead of "included in"
+            # "queued in" al posto di "included in"
             "text": "The tune {song} gets queued in {playlist} for tomorrow.",
             "triples": [("song", "includedIn", "playlist")],
         },
         {
-            # "logs" instead of "records"
+            # "logs" al posto di "records"
             "text": "The watch logs a beat of {hr} for this run.",
             "triples": [("session_implicit", "recordsReading", "hr_reading")],
         },
         {
-            # "tailored to" instead of "built for"
+            # "tailored to" al posto di "built for"
             "text": "{playlist} feels tailored to an intense {wtype}.",
             "triples": [("playlist", "builtForSession", "session_implicit"),
                         ("session_implicit", "hasWorkoutType", "wtype")],
         },
         {
-            # genre by style word
+            # genere indicato da una parola di stile
             "text": "With its unmistakable style, {song} is pure {genre}.",
             "triples": [("song", "hasGenre", "genre")],
         },
         {
-            # "aims for" instead of "targets"
+            # "aims for" al posto di "targets"
             "text": "Every {phase} aims for {zone}, coach says.",
             "triples": [("phase", "targetsEffort", "zone")],
         },

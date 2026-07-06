@@ -70,3 +70,17 @@ Format per entry: what / variant / where in the codebase / source.
   demo-able theory point.
 - Verify arXiv IDs/venues above against the originals before the final
   presentation.
+- **Right-sizing / honesty point (good slide).** The *product* is deliberately
+  light: HR → effort → BPM runs on the ontology + SHACL + two small formulas
+  (Karvonen HRR, cadence regression) — no ML, no GPU, instant. The *prompt* NLP
+  is best served by the rule-based dictionary (F1 0.947), not by a Transformer
+  (GLiNER-small 0.20). The DistilBERT/RoBERTa validator is heavy (66M / 125M
+  params) and exists to satisfy the course's Rule 3/4 requirement (baseline vs
+  Transformer on the free-text Data Refinery), NOT because the running app
+  needs it — a real user types short structured intents, not narrative
+  paragraphs. The dependency stays isolated: `torch`/`transformers` are lazy
+  imports inside `validator.py`; `pipeline.py`, `nlp.py`, `fusion.py` do not
+  import them, so the live system runs without any deep-learning stack.
+  A lighter validator (logistic regression on token-distance / entity-type /
+  trigger-presence features) would likely be competitive on this simple,
+  schema-constrained dataset — worth mentioning as future work.

@@ -44,7 +44,14 @@ ARCHITECTURES = {
     "roberta": "roberta-base",
 }
 MODELS_ROOT = Path("models")
-DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+# sceglie l'acceleratore disponibile: GPU NVIDIA (cuda, es. Colab) ->
+# GPU Apple Silicon (mps, es. MacBook M2) -> altrimenti CPU
+if torch.cuda.is_available():
+    DEVICE = "cuda"
+elif torch.backends.mps.is_available():
+    DEVICE = "mps"
+else:
+    DEVICE = "cpu"
 
 
 def _model_dir(arch: str) -> Path:

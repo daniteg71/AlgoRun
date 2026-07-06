@@ -61,10 +61,13 @@ The code is ready (`--arch roberta`), but roberta-base (125M params) is heavy
 for a laptop — train it on **Google Colab** (free T4 GPU) instead:
 
 ```python
-# Colab: Runtime > Change runtime type > T4 GPU, then run:
+# Colab: Runtime > Change runtime type > T4 GPU, then run ONE cell (don't interrupt):
 !git clone https://github.com/daniteg71/AlgoRun.git
 %cd AlgoRun
-!pip -q install rdflib pyshacl owlready2 "spacy>=3.7" transformers torch pandas
+# NOTE: no owlready2 here — it compiles slowly from source and is NOT needed for
+# training (it's only for the HermiT reasoner). torch/transformers are usually
+# preinstalled on Colab; the validator auto-uses the T4 GPU (cuda).
+!pip -q install rdflib pyshacl "spacy>=3.7" transformers pandas
 !python -m spacy download en_core_web_sm -q
 !pip -q install -e .
 !python -m algorun.validator train --arch roberta

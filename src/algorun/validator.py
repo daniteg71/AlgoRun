@@ -1,22 +1,28 @@
-"""Il validator supervisionato (M4): DistilBERT come "logic gate" VALID/INVALID.
+"""Il validator supervisionato (M4): un Transformer come "logic gate" VALID/INVALID.
 
 Architettura Generator/Validator del corso (la "architectural shift"):
   - il GENERATORE (`refinery.extract_candidates`) sovra-genera: tutte le
     coppie di entità compatibili con domain/range, senza trigger — su train
     ~1 positivo ogni 4 negativi, ceiling recall 0.39 (vs 0.14 baseline);
-  - il VALIDATOR (questo modulo) è un DistilBERT fine-tuned che riceve
+  - il VALIDATOR (questo modulo) è un Transformer fine-tuned che riceve
     (frase, candidato verbalizzato) e risponde VALIDO/INVALIDO. Il modello
     non "inventa" relazioni: fa solo da cancello logico stabile sui candidati
     proposti — mai generatore, sempre giudice.
 
-Confronto richiesto dalla Rule 4: baseline trigger+distanza (M3) vs questo
-generatore+validator, P/R/F1 sul grafo, per tier, su test.jsonl (mai usato
-in training: si allena su train.jsonl e si sceglie la soglia su val.jsonl).
+Confronto richiesto dalla Rule 4: baseline trigger+distanza (M3) vs più
+architetture di validator (Rule 4 vuole "multiple Transformer
+architectures"), P/R/F1 sul grafo, per tier, su test.jsonl (mai usato in
+training: si allena su train.jsonl e si sceglie la soglia su val.jsonl).
+
+Due architetture pronte, stesso codice, solo il nome del modello cambia:
+  - "distilbert" (distilbert-base-uncased) — leggero, veloce, per il loop live;
+  - "roberta"    (roberta-base)            — più pesante, più accurato.
 
 Uso:
-  python -m algorun.validator train        # fine-tuning (~2 min su MPS)
-  python -m algorun.validator eval         # confronto su test.jsonl
-Il modello finisce in models/validator-distilbert/ (fuori da git).
+  python -m algorun.validator train --arch distilbert   # fine-tuning (~2 min su MPS)
+  python -m algorun.validator train --arch roberta
+  python -m algorun.validator eval                       # confronto: baseline + ogni arch allenata
+Ogni modello finisce in models/validator-<arch>/ (fuori da git).
 """
 
 from __future__ import annotations
@@ -32,9 +38,17 @@ from algorun.nlp import dictionary_extract
 from algorun.refinery import (_gold_triples, _prf1, evaluate_on_dataset,
                               extract_candidates)
 
-MODEL_NAME = "distilbert-base-uncased"
-MODEL_DIR = Path("models/validator-distilbert")
+# architettura -> checkpoint HuggingFace. Aggiungerne una è una riga sola.
+ARCHITECTURES = {
+    "distilbert": "distilbert-base-uncased",
+    "roberta": "roberta-base",
+}
+MODELS_ROOT = Path("models")
 DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+
+
+def _model_dir(arch: str) -> Path:
+    return MODELS_ROOT / f"validator-{arch}"
 
 
 # ------------------------------------------------------------ verbalizzazione
@@ -101,20 +115,25 @@ class _PairDataset(Dataset):
 
 # ------------------------------------------------------------------- training
 
-def train_validator(train_path="data/synthetic/train.jsonl",
+def train_validator(arch: str = "distilbert",
+                    train_path="data/synthetic/train.jsonl",
                     val_path="data/synthetic/val.jsonl",
-                    out_dir: Path | str = MODEL_DIR,
+                    out_dir: Path | str | None = None,
                     epochs: int = 3, batch_size: int = 16, lr: float = 5e-5):
-    """Fine-tuning di DistilBERT come classificatore binario VALID/INVALID.
+    """Fine-tuning di un Transformer (`arch`) come classificatore binario
+    VALID/INVALID. Stesso loop per qualunque architettura del registro —
+    simmetria richiesta dalla Rule 7 (backend intercambiabili, stessa forma).
 
     Loop di training esplicito (niente Trainer) — più leggibile e senza
     dipendenze extra. Su Apple Silicon usa la GPU (MPS).
     """
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    model_name = ARCHITECTURES[arch]
+    out_dir = Path(out_dir) if out_dir is not None else _model_dir(arch)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_NAME, num_labels=2).to(DEVICE)
+        model_name, num_labels=2).to(DEVICE)
 
     train_ex = build_examples(train_path)
     val_ex = build_examples(val_path)
@@ -139,7 +158,6 @@ def train_validator(train_path="data/synthetic/train.jsonl",
         print(f"epoch {epoch + 1}/{epochs}  loss={total_loss / len(loader):.4f}  "
               f"val_accuracy={acc:.3f}")
 
-    out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(out_dir)
     tokenizer.save_pretrained(out_dir)
@@ -160,22 +178,22 @@ def _accuracy(model, tokenizer, examples: list[dict]) -> float:
 
 # ------------------------------------------------------------------ inferenza
 
-_LOADED = None   # (model, tokenizer), caricati pigramente una sola volta
+_LOADED: dict[str, tuple] = {}   # model_dir -> (model, tokenizer), cache pigra
 
 
-def _load(model_dir: Path | str = MODEL_DIR):
-    global _LOADED
-    if _LOADED is None:
+def _load(model_dir: Path | str):
+    key = str(model_dir)
+    if key not in _LOADED:
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
         tok = AutoTokenizer.from_pretrained(model_dir)
         model = AutoModelForSequenceClassification.from_pretrained(model_dir).to(DEVICE)
         model.eval()
-        _LOADED = (model, tok)
-    return _LOADED
+        _LOADED[key] = (model, tok)
+    return _LOADED[key]
 
 
 @torch.no_grad()
-def validated_triples(text: str, model_dir: Path | str = MODEL_DIR) -> set[tuple]:
+def validated_triples(text: str, model_dir: Path | str) -> set[tuple]:
     """Il grafo predetto della pipeline avanzata: generatore pairwise ->
     validator DistilBERT -> restano solo i candidati giudicati VALIDI."""
     cands = extract_candidates(text, dictionary_extract(text))
@@ -189,8 +207,8 @@ def validated_triples(text: str, model_dir: Path | str = MODEL_DIR) -> set[tuple
     return {c for c, k in zip(cands, keep) if k == 1}
 
 
-def evaluate_with_validator(path="data/synthetic/test.jsonl",
-                            model_dir: Path | str = MODEL_DIR) -> dict:
+def evaluate_with_validator(model_dir: Path | str,
+                            path="data/synthetic/test.jsonl") -> dict:
     """P/R/F1 (complessivo + per tier) della pipeline generatore+validator,
     stessa metrica di refinery.evaluate_on_dataset per il confronto Rule 4."""
     records = [json.loads(l) for l in Path(path).read_text().splitlines() if l.strip()]
@@ -214,22 +232,37 @@ def evaluate_with_validator(path="data/synthetic/test.jsonl",
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["train", "eval"])
+    parser.add_argument("--arch", choices=list(ARCHITECTURES), default="distilbert",
+                        help="solo per 'train': quale architettura allenare")
     args = parser.parse_args()
 
     if args.command == "train":
-        train_validator()
+        train_validator(arch=args.arch)
         return
 
     print("== Baseline M3 (trigger+distanza) su test.jsonl ==")
     base = evaluate_on_dataset("data/synthetic/test.jsonl")
     print(f"  overall {base['overall']}")
-    print("\n== M4 (pairwise + validator DistilBERT) su test.jsonl ==")
-    adv = evaluate_with_validator()
-    print(f"  overall {adv['overall']}")
-    print("\n  per tier:")
-    for tier, m in adv["per_tier"].items():
-        b = base["per_tier"][tier]
-        print(f"    {tier:15} baseline F1={b['f1']:.2f} -> validator F1={m['f1']:.2f}")
+
+    trained = [a for a in ARCHITECTURES if _model_dir(a).exists()]
+    if not trained:
+        print("\nNessun validator allenato — esegui prima 'train --arch <nome>'.")
+        return
+
+    results = {}
+    for arch in trained:
+        print(f"\n== M4 (pairwise + validator {arch}) su test.jsonl ==")
+        adv = evaluate_with_validator(_model_dir(arch))
+        results[arch] = adv
+        print(f"  overall {adv['overall']}")
+
+    header = f"\n{'tier':15}{'baseline':>12}" + "".join(f"{a:>14}" for a in trained)
+    print(header)
+    for tier, b in base["per_tier"].items():
+        row = f"{tier:15}{b['f1']:>12.2f}"
+        for arch in trained:
+            row += f"{results[arch]['per_tier'][tier]['f1']:>14.2f}"
+        print(row)
 
 
 if __name__ == "__main__":

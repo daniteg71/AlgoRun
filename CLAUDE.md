@@ -97,7 +97,9 @@ deliverable = code + presentation).
 - Language: chat with the user may be in Italian; **all code, comments, docs,
   data and the report are in English**.
 - Project plan and milestones: see `README.md`. Course rules: `GUIDELINES.md`.
-- Python ≥ 3.9 (3.11+ for M4 training). Source in `src/algorun/`; tests in
-  `tests/` (pytest).
+- Python ≥ 3.9 works end-to-end (incl. Transformer training on Apple MPS;
+  on 3.9 pin `spacy<3.8`). Source in `src/algorun/`; tests in `tests/` (pytest).
+- Heavy trainings (e.g. roberta-base) do NOT run on the user's laptop —
+  prepare a Colab snippet instead (see README).
 - `data/sensor/` and `data/music/` stay out of git; `data/synthetic/` is a
   course deliverable and stays in.

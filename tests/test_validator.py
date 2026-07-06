@@ -1,18 +1,16 @@
-# test del validator M4 (generatore pairwise + DistilBERT).
-# il training NON gira nella suite (troppo lento): i test sull'inferenza
-# si saltano se il modello non è ancora stato allenato
-# (python -m algorun.validator train).
-
-from pathlib import Path
+# test del validator M4 (generatore pairwise + Transformer). il training NON
+# gira nella suite (troppo lento): i test sull'inferenza si saltano per
+# ogni architettura non ancora allenata (python -m algorun.validator train
+# --arch distilbert|roberta).
 
 import pytest
 
 from algorun.nlp import dictionary_extract
 from algorun.refinery import extract_candidates
-from algorun.validator import MODEL_DIR, build_examples, verbalize
+from algorun.validator import ARCHITECTURES, _model_dir, build_examples, verbalize
 from algorun.ontology.loader import AR
 
-_model_missing = not Path(MODEL_DIR).exists()
+_trained = [a for a in ARCHITECTURES if _model_dir(a).exists()]
 
 
 def test_pairwise_generator_overgenerates():
@@ -38,11 +36,14 @@ def test_build_examples_has_both_labels():
     assert labels == {0, 1}      # senza negativi il validator non impara nulla
 
 
-@pytest.mark.skipif(_model_missing, reason="modello non ancora allenato")
-def test_validator_keeps_true_and_drops_false():
+@pytest.mark.skipif(not _trained, reason="nessuna architettura ancora allenata")
+@pytest.mark.parametrize("arch", ARCHITECTURES)
+def test_validator_keeps_true_and_drops_false(arch):
     from algorun.validator import validated_triples
+    if arch not in _trained:
+        pytest.skip(f"{arch} non ancora allenata")
     text = "The warmup phase targets higheffort."
-    kept = validated_triples(text)
+    kept = validated_triples(text, _model_dir(arch))
     assert (str(AR.WarmUp), str(AR.targetsEffort), str(AR.HighEffort)) in kept
     # il pairwise propone anche l'inverso sbagliato (Hard/…): non deve restare
     for triple in kept:

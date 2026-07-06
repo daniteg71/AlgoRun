@@ -97,9 +97,11 @@ raw text → Tokenization → Lemmatization → Entity & Mention Detection (→ 
 
 ## Project-specific commitments (AlgoRun)
 
-- [ ] Sensor data comes from **Sensor Logger** exports (Location, Accelerometer,
-      Gravity, Barometer, Heart Rate via watch companion). Parsing and feature
-      extraction (pace, cadence, HR zones) live in `src/algorun/sensors/`.
+- [ ] Sensor scope (team decision 2026-07-04): exactly **two sensors** —
+      accelerometer (→ cadence) and heart-rate sensor (→ beats), from
+      **Sensor Logger**. GPS/speed math is ready in `sensors/gps.py` but out
+      of the live scope for now. Parsing and feature extraction (HRR, effort
+      states, trends) live in `src/algorun/sensors/`.
 - [ ] Sensor sessions are turned into **natural-language narratives** that go
       through the SAME pipeline as any other text (no shortcut into the KG),
       while a **direct structured mapping** of the same session produces

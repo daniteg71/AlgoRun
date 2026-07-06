@@ -87,6 +87,7 @@ Paste the printed P/R/F1 back into `ALGORITHMS.md`.
 
 | Path | Purpose |
 |---|---|
+| `ARCHITECTURE.md` | **Canonical design** — what AlgoRun is and how we build it (read first) |
 | `CLAUDE.md` | AI session protocol (pull-first, handoff-first, PR-always) |
 | `GUIDELINES.md` | Binding course rules — read before coding |
 | `ALGORITHMS.md` | Provenance ledger: every algorithm, variant, source, measured result |

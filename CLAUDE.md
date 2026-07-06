@@ -48,6 +48,10 @@ surface the handoff summary first, then continue.
 
 ## Before writing ANY code
 
+- Read `ARCHITECTURE.md` — the canonical design document (what AlgoRun is and
+  how we build it). Its `[NOW]/[STAR]/[BENCH]/[EXT]` tags tell you what to build
+  now vs. what is north-star, benchmark-only, or an external constraint. Do not
+  build a `[STAR]` (sensors, real-time) as if it were required.
 - Read `GUIDELINES.md` and verify the applicable checklists. Those rules are
   binding: pipeline stage order, 70/15/15 split, 4 complexity tiers,
   generator/validator dissociation, SHACL-before-RDF, graph-based P/R/F1

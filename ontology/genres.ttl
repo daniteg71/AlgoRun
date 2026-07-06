@@ -1,0 +1,164 @@
+# GENERATO da ontology/build_genre_taxonomy.py — non editare a mano.
+@prefix ar:   <http://algorun.org/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ar:MusicGenreScheme a skos:ConceptScheme ; rdfs:label "music genre taxonomy" .
+ar:g_root a ar:Genre, skos:Concept ; rdfs:label "music" ; skos:inScheme ar:MusicGenreScheme .
+
+ar:gs_rock a ar:Genre, skos:Concept ; rdfs:label "rock" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_rock_core a ar:Genre, skos:Concept ; rdfs:label "rock_core" ; skos:broader ar:gs_rock .
+ar:g_rock a ar:Genre, skos:Concept ; rdfs:label "rock" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_alt_rock a ar:Genre, skos:Concept ; rdfs:label "alt-rock" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_alternative a ar:Genre, skos:Concept ; rdfs:label "alternative" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_hard_rock a ar:Genre, skos:Concept ; rdfs:label "hard-rock" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_psych_rock a ar:Genre, skos:Concept ; rdfs:label "psych-rock" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_rock_n_roll a ar:Genre, skos:Concept ; rdfs:label "rock-n-roll" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_rockabilly a ar:Genre, skos:Concept ; rdfs:label "rockabilly" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_british a ar:Genre, skos:Concept ; rdfs:label "british" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_guitar a ar:Genre, skos:Concept ; rdfs:label "guitar" ; skos:broader ar:gf_rock_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_indie a ar:Genre, skos:Concept ; rdfs:label "indie" ; skos:broader ar:gs_rock .
+ar:g_indie a ar:Genre, skos:Concept ; rdfs:label "indie" ; skos:broader ar:gf_indie ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_indie_pop a ar:Genre, skos:Concept ; rdfs:label "indie-pop" ; skos:broader ar:gf_indie ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_power_pop a ar:Genre, skos:Concept ; rdfs:label "power-pop" ; skos:broader ar:gf_indie ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_grunge a ar:Genre, skos:Concept ; rdfs:label "grunge" ; skos:broader ar:gf_indie ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_emo a ar:Genre, skos:Concept ; rdfs:label "emo" ; skos:broader ar:gf_indie ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_punk a ar:Genre, skos:Concept ; rdfs:label "punk" ; skos:broader ar:gs_rock .
+ar:g_punk a ar:Genre, skos:Concept ; rdfs:label "punk" ; skos:broader ar:gf_punk ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_punk_rock a ar:Genre, skos:Concept ; rdfs:label "punk-rock" ; skos:broader ar:gf_punk ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_ska a ar:Genre, skos:Concept ; rdfs:label "ska" ; skos:broader ar:gf_punk ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_garage a ar:Genre, skos:Concept ; rdfs:label "garage" ; skos:broader ar:gf_punk ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_jrock a ar:Genre, skos:Concept ; rdfs:label "jrock" ; skos:broader ar:gs_rock .
+ar:g_j_rock a ar:Genre, skos:Concept ; rdfs:label "j-rock" ; skos:broader ar:gf_jrock ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_metal a ar:Genre, skos:Concept ; rdfs:label "metal" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_metal_core a ar:Genre, skos:Concept ; rdfs:label "metal_core" ; skos:broader ar:gs_metal .
+ar:g_metal a ar:Genre, skos:Concept ; rdfs:label "metal" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_heavy_metal a ar:Genre, skos:Concept ; rdfs:label "heavy-metal" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_black_metal a ar:Genre, skos:Concept ; rdfs:label "black-metal" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_death_metal a ar:Genre, skos:Concept ; rdfs:label "death-metal" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_metalcore a ar:Genre, skos:Concept ; rdfs:label "metalcore" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_grindcore a ar:Genre, skos:Concept ; rdfs:label "grindcore" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_hardcore a ar:Genre, skos:Concept ; rdfs:label "hardcore" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_industrial a ar:Genre, skos:Concept ; rdfs:label "industrial" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_goth a ar:Genre, skos:Concept ; rdfs:label "goth" ; skos:broader ar:gf_metal_core ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_electronic a ar:Genre, skos:Concept ; rdfs:label "electronic" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_house a ar:Genre, skos:Concept ; rdfs:label "house" ; skos:broader ar:gs_electronic .
+ar:g_house a ar:Genre, skos:Concept ; rdfs:label "house" ; skos:broader ar:gf_house ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_deep_house a ar:Genre, skos:Concept ; rdfs:label "deep-house" ; skos:broader ar:gf_house ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_chicago_house a ar:Genre, skos:Concept ; rdfs:label "chicago-house" ; skos:broader ar:gf_house ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_progressive_house a ar:Genre, skos:Concept ; rdfs:label "progressive-house" ; skos:broader ar:gf_house ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_disco a ar:Genre, skos:Concept ; rdfs:label "disco" ; skos:broader ar:gf_house ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_techno a ar:Genre, skos:Concept ; rdfs:label "techno" ; skos:broader ar:gs_electronic .
+ar:g_techno a ar:Genre, skos:Concept ; rdfs:label "techno" ; skos:broader ar:gf_techno ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_detroit_techno a ar:Genre, skos:Concept ; rdfs:label "detroit-techno" ; skos:broader ar:gf_techno ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_minimal_techno a ar:Genre, skos:Concept ; rdfs:label "minimal-techno" ; skos:broader ar:gf_techno ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_bass a ar:Genre, skos:Concept ; rdfs:label "bass" ; skos:broader ar:gs_electronic .
+ar:g_dubstep a ar:Genre, skos:Concept ; rdfs:label "dubstep" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_drum_and_bass a ar:Genre, skos:Concept ; rdfs:label "drum-and-bass" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:VeryHighEffort .
+ar:g_breakbeat a ar:Genre, skos:Concept ; rdfs:label "breakbeat" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_hardstyle a ar:Genre, skos:Concept ; rdfs:label "hardstyle" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:VeryHighEffort .
+ar:g_idm a ar:Genre, skos:Concept ; rdfs:label "idm" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_dub a ar:Genre, skos:Concept ; rdfs:label "dub" ; skos:broader ar:gf_bass ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_edm a ar:Genre, skos:Concept ; rdfs:label "edm" ; skos:broader ar:gs_electronic .
+ar:g_edm a ar:Genre, skos:Concept ; rdfs:label "edm" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_electro a ar:Genre, skos:Concept ; rdfs:label "electro" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_electronic a ar:Genre, skos:Concept ; rdfs:label "electronic" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_trance a ar:Genre, skos:Concept ; rdfs:label "trance" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_club a ar:Genre, skos:Concept ; rdfs:label "club" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_dance a ar:Genre, skos:Concept ; rdfs:label "dance" ; skos:broader ar:gf_edm ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_downtempo a ar:Genre, skos:Concept ; rdfs:label "downtempo" ; skos:broader ar:gs_electronic .
+ar:g_trip_hop a ar:Genre, skos:Concept ; rdfs:label "trip-hop" ; skos:broader ar:gf_downtempo ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_ambient a ar:Genre, skos:Concept ; rdfs:label "ambient" ; skos:broader ar:gf_downtempo ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_pop a ar:Genre, skos:Concept ; rdfs:label "pop" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_pop_core a ar:Genre, skos:Concept ; rdfs:label "pop_core" ; skos:broader ar:gs_pop .
+ar:g_pop a ar:Genre, skos:Concept ; rdfs:label "pop" ; skos:broader ar:gf_pop_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_synth_pop a ar:Genre, skos:Concept ; rdfs:label "synth-pop" ; skos:broader ar:gf_pop_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_pop_film a ar:Genre, skos:Concept ; rdfs:label "pop-film" ; skos:broader ar:gf_pop_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_dance_pop a ar:Genre, skos:Concept ; rdfs:label "dance_pop" ; skos:broader ar:gs_pop .
+ar:g_party a ar:Genre, skos:Concept ; rdfs:label "party" ; skos:broader ar:gf_dance_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_happy a ar:Genre, skos:Concept ; rdfs:label "happy" ; skos:broader ar:gf_dance_pop ; ar:genreSuitsEffort ar:VeryHighEffort .
+ar:gf_asian_pop a ar:Genre, skos:Concept ; rdfs:label "asian_pop" ; skos:broader ar:gs_pop .
+ar:g_j_pop a ar:Genre, skos:Concept ; rdfs:label "j-pop" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_k_pop a ar:Genre, skos:Concept ; rdfs:label "k-pop" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_cantopop a ar:Genre, skos:Concept ; rdfs:label "cantopop" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_mandopop a ar:Genre, skos:Concept ; rdfs:label "mandopop" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_j_idol a ar:Genre, skos:Concept ; rdfs:label "j-idol" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_j_dance a ar:Genre, skos:Concept ; rdfs:label "j-dance" ; skos:broader ar:gf_asian_pop ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_urban a ar:Genre, skos:Concept ; rdfs:label "urban" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_hiphop a ar:Genre, skos:Concept ; rdfs:label "hiphop" ; skos:broader ar:gs_urban .
+ar:g_hip_hop a ar:Genre, skos:Concept ; rdfs:label "hip-hop" ; skos:broader ar:gf_hiphop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_r_n_b a ar:Genre, skos:Concept ; rdfs:label "r-n-b" ; skos:broader ar:gf_hiphop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_soul a ar:Genre, skos:Concept ; rdfs:label "soul" ; skos:broader ar:gf_hiphop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_funk a ar:Genre, skos:Concept ; rdfs:label "funk" ; skos:broader ar:gf_hiphop ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_groove a ar:Genre, skos:Concept ; rdfs:label "groove" ; skos:broader ar:gf_hiphop ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_jazz_blues a ar:Genre, skos:Concept ; rdfs:label "jazz_blues" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_jazz_blues a ar:Genre, skos:Concept ; rdfs:label "jazz_blues" ; skos:broader ar:gs_jazz_blues .
+ar:g_jazz a ar:Genre, skos:Concept ; rdfs:label "jazz" ; skos:broader ar:gf_jazz_blues ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_blues a ar:Genre, skos:Concept ; rdfs:label "blues" ; skos:broader ar:gf_jazz_blues ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_bluegrass a ar:Genre, skos:Concept ; rdfs:label "bluegrass" ; skos:broader ar:gf_jazz_blues ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_honky_tonk a ar:Genre, skos:Concept ; rdfs:label "honky-tonk" ; skos:broader ar:gf_jazz_blues ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_gospel a ar:Genre, skos:Concept ; rdfs:label "gospel" ; skos:broader ar:gf_jazz_blues ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_folk a ar:Genre, skos:Concept ; rdfs:label "folk" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_folk_acoustic a ar:Genre, skos:Concept ; rdfs:label "folk_acoustic" ; skos:broader ar:gs_folk .
+ar:g_folk a ar:Genre, skos:Concept ; rdfs:label "folk" ; skos:broader ar:gf_folk_acoustic ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_acoustic a ar:Genre, skos:Concept ; rdfs:label "acoustic" ; skos:broader ar:gf_folk_acoustic ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_singer_songwriter a ar:Genre, skos:Concept ; rdfs:label "singer-songwriter" ; skos:broader ar:gf_folk_acoustic ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_country a ar:Genre, skos:Concept ; rdfs:label "country" ; skos:broader ar:gf_folk_acoustic ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_classical a ar:Genre, skos:Concept ; rdfs:label "classical" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_classical_core a ar:Genre, skos:Concept ; rdfs:label "classical_core" ; skos:broader ar:gs_classical .
+ar:g_classical a ar:Genre, skos:Concept ; rdfs:label "classical" ; skos:broader ar:gf_classical_core ; ar:genreSuitsEffort ar:LowEffort .
+ar:g_opera a ar:Genre, skos:Concept ; rdfs:label "opera" ; skos:broader ar:gf_classical_core ; ar:genreSuitsEffort ar:LowEffort .
+ar:g_piano a ar:Genre, skos:Concept ; rdfs:label "piano" ; skos:broader ar:gf_classical_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_new_age a ar:Genre, skos:Concept ; rdfs:label "new-age" ; skos:broader ar:gf_classical_core ; ar:genreSuitsEffort ar:LowEffort .
+ar:g_show_tunes a ar:Genre, skos:Concept ; rdfs:label "show-tunes" ; skos:broader ar:gf_classical_core ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_latin a ar:Genre, skos:Concept ; rdfs:label "latin" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_latin_core a ar:Genre, skos:Concept ; rdfs:label "latin_core" ; skos:broader ar:gs_latin .
+ar:g_latin a ar:Genre, skos:Concept ; rdfs:label "latin" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_latino a ar:Genre, skos:Concept ; rdfs:label "latino" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_reggaeton a ar:Genre, skos:Concept ; rdfs:label "reggaeton" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_salsa a ar:Genre, skos:Concept ; rdfs:label "salsa" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_samba a ar:Genre, skos:Concept ; rdfs:label "samba" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_mpb a ar:Genre, skos:Concept ; rdfs:label "mpb" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_forro a ar:Genre, skos:Concept ; rdfs:label "forro" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:HighEffort .
+ar:g_pagode a ar:Genre, skos:Concept ; rdfs:label "pagode" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_sertanejo a ar:Genre, skos:Concept ; rdfs:label "sertanejo" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_brazil a ar:Genre, skos:Concept ; rdfs:label "brazil" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_tango a ar:Genre, skos:Concept ; rdfs:label "tango" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_spanish a ar:Genre, skos:Concept ; rdfs:label "spanish" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_dancehall a ar:Genre, skos:Concept ; rdfs:label "dancehall" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_reggae a ar:Genre, skos:Concept ; rdfs:label "reggae" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_afrobeat a ar:Genre, skos:Concept ; rdfs:label "afrobeat" ; skos:broader ar:gf_latin_core ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_world a ar:Genre, skos:Concept ; rdfs:label "world" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_world_regional a ar:Genre, skos:Concept ; rdfs:label "world_regional" ; skos:broader ar:gs_world .
+ar:g_world_music a ar:Genre, skos:Concept ; rdfs:label "world-music" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_indian a ar:Genre, skos:Concept ; rdfs:label "indian" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_iranian a ar:Genre, skos:Concept ; rdfs:label "iranian" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_turkish a ar:Genre, skos:Concept ; rdfs:label "turkish" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_malay a ar:Genre, skos:Concept ; rdfs:label "malay" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_german a ar:Genre, skos:Concept ; rdfs:label "german" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_swedish a ar:Genre, skos:Concept ; rdfs:label "swedish" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_french a ar:Genre, skos:Concept ; rdfs:label "french" ; skos:broader ar:gf_world_regional ; ar:genreSuitsEffort ar:TargetEffort .
+
+ar:gs_functional a ar:Genre, skos:Concept ; rdfs:label "functional" ; skos:broader ar:g_root ; skos:topConceptOf ar:MusicGenreScheme .
+ar:gf_mood a ar:Genre, skos:Concept ; rdfs:label "mood" ; skos:broader ar:gs_functional .
+ar:g_chill a ar:Genre, skos:Concept ; rdfs:label "chill" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_sad a ar:Genre, skos:Concept ; rdfs:label "sad" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_sleep a ar:Genre, skos:Concept ; rdfs:label "sleep" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_study a ar:Genre, skos:Concept ; rdfs:label "study" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_romance a ar:Genre, skos:Concept ; rdfs:label "romance" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:LowEffort .
+ar:g_comedy a ar:Genre, skos:Concept ; rdfs:label "comedy" ; skos:broader ar:gf_mood ; ar:genreSuitsEffort ar:TargetEffort .
+ar:gf_media a ar:Genre, skos:Concept ; rdfs:label "media" ; skos:broader ar:gs_functional .
+ar:g_anime a ar:Genre, skos:Concept ; rdfs:label "anime" ; skos:broader ar:gf_media ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_disney a ar:Genre, skos:Concept ; rdfs:label "disney" ; skos:broader ar:gf_media ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_children a ar:Genre, skos:Concept ; rdfs:label "children" ; skos:broader ar:gf_media ; ar:genreSuitsEffort ar:TargetEffort .
+ar:g_kids a ar:Genre, skos:Concept ; rdfs:label "kids" ; skos:broader ar:gf_media ; ar:genreSuitsEffort ar:TargetEffort .
+

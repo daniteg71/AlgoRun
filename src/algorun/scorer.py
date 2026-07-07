@@ -56,16 +56,27 @@ def score_row(row, target: dict) -> float:
     return w["bpm"] * d_bpm + w["energy"] * d_energy + w["genre"] * d_genre
 
 
-def choose(target: dict, exclude=(), df: pd.DataFrame | None = None, rng=None):
-    """Ritorna la riga-canzone scelta: softmax se tau alto, altrimenti il minimo."""
+def rank(target: dict, exclude=(), df: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Il cuore del recommender: ogni canzone con `score` (distanza pesata) e
+    `prob` (softmax dello score), ordinate dalla migliore. Il socio lavora qui.
+    """
     df = catalog() if df is None else df
-    cand = df[~df["song_id"].isin(exclude)] if "song_id" in df.columns else df
+    cand = (df[~df["song_id"].isin(exclude)].copy()
+            if "song_id" in df.columns else df.copy())
     scores = cand.apply(lambda r: score_row(r, target), axis=1).to_numpy()
     tau = max(target.get("tau", 0.3), 1e-3)
-    if tau <= 0.05:                              # exploitation puro
-        return cand.iloc[int(scores.argmin())]
     logits = -scores / tau
     p = np.exp(logits - logits.max())
-    p /= p.sum()
-    idx = (rng or np.random).choice(len(cand), p=p)   # exploration
-    return cand.iloc[int(idx)]
+    cand["score"] = scores
+    cand["prob"] = p / p.sum()
+    return cand.sort_values("score")
+
+
+def choose(target: dict, exclude=(), df: pd.DataFrame | None = None, rng=None):
+    """Sceglie una canzone dalle probabilita': softmax se tau alto (esplora),
+    altrimenti la migliore (exploit)."""
+    ranked = rank(target, exclude, df)
+    if max(target.get("tau", 0.3), 1e-3) <= 0.05:
+        return ranked.iloc[0]
+    idx = (rng or np.random).choice(len(ranked), p=ranked["prob"].to_numpy())
+    return ranked.iloc[int(idx)]

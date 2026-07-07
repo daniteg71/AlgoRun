@@ -19,6 +19,60 @@
 
 ---
 
+## 0. Current design — TWO separate tracks (read this first)
+
+AlgoRun is **two tracks that share only the genre taxonomy**. Keeping them
+separate is what keeps the code simple. Do not mix them.
+
+### Track A — THE PRODUCT (the running DJ) = the recommendation system
+Input: a runner's phrase **+ live sensor data**. Output: the next song.
+
+```
+[START]  frase → intent.py (SetFit + regex) → {type, numbers, params}   (target iniziale)
+[DURANTE] sensori → sensor.py → shot (HRR/effort/trend)
+                    controller.py  = IL "MEZZO": per ogni canzone aggrega gli shot,
+                                     aggiorna il target (per tipo) + safety (HRR≥0.90)
+                    scorer.py  →  score → probabilità (softmax) → prossima canzone
+```
+
+Files: `intent.py`, `sensor.py`, `scorer.py`, `controller.py`, `genres.ttl`.
+The only ontology it uses is **`genres.ttl`** (genre distance, Rada 1989).
+**No SHACL, no refinery, no `algorun.owl`.** Sensors are **[NOW]** here (they are
+the master: the data already exists in `data/processed/physiological_windows.csv`).
+
+### Track B — THE EXAM (Block 14 deliverable) = text → Knowledge Graph
+Synthetic text → ontology-governed RDF, benchmarked across architectures.
+Files: `algorun.owl`, `datagen/`, `refinery.py`, `shacl_gate.py`,
+`light_validator.py`, `benchmarks/`. **The recommender uses NONE of these.**
+
+### The recurring questions, answered for good
+- **What is `light_validator` for?** Track B only. It's the lightweight logistic
+  validator that decides VALID/INVALID on candidate KG triples in the refinery,
+  and it's the benchmark champion (F1 0.43 ≈ DistilBERT). Nothing to do with songs.
+- **Why is the ontology still "general" and not just genres?** Because
+  `algorun.owl` is **Track B's** (the exam). The product/recommender touches
+  **only `genres.ttl`**. They are two different files, two different jobs.
+- **How is the "middle" (user input + sensors during the run) handled, and by
+  which code?** The phrase sets the **initial** target once (`intent.py`); the
+  sensors **continuously adjust** it. They meet in **`controller.py`**, which every
+  song aggregates the shots, calls `adapt()` (per-type + safety), then asks
+  `scorer.py` for the next song. `controller.py` IS the middle.
+
+### What the colleague still needs to build the recommender well (Track A gaps)
+1. **mood→genre seed** — the genre term in `scorer.py` stays off until a seed
+   genre is passed; wire mood (from the phrase) → seed genre.
+2. **interval square-wave** — `controller.adapt()` currently "holds" for interval;
+   add the A/B target on a timer.
+3. **Spotify playback** — `controller` picks the song but does not play it yet.
+4. **real timing** — how many shots per song (derive from the track duration).
+5. **tuning** of bands/weights/τ (ablation for the paper).
+
+The score→probability engine he builds on: **`scorer.rank(target)`** → every song
+with `score` + `prob`; **`scorer.choose(target)`** samples one. `make_target()`
+builds the target from the NLP params + the sensor-updated bpm/energy.
+
+---
+
 ## 1. Objective and the task
 
 AlgoRun turns a runner's **free-text request** into the **ideal track**, chosen

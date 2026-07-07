@@ -1,7 +1,7 @@
 """M2 tests — synthetic dataset generation, annotation integrity, split."""
 
-from algorun.datagen.generator import SPLIT_RATIOS, generate, split_records
-from algorun.datagen.validate import validate_record
+from algorun.exam.datagen.generator import SPLIT_RATIOS, generate, split_records
+from algorun.exam.datagen.validate import validate_record
 from algorun.ontology.loader import load_ontology
 
 

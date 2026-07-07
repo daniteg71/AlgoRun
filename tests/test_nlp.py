@@ -1,5 +1,5 @@
 """Test dell'estrattore entità del refinery (dictionary NER sulle label OWL)."""
-from algorun.nlp import dictionary_extract
+from algorun.exam.nlp import dictionary_extract
 from algorun.ontology.loader import AR
 
 

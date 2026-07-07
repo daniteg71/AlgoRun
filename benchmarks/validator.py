@@ -36,8 +36,8 @@ from pathlib import Path
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from algorun.nlp import dictionary_extract
-from algorun.refinery import (_gold_triples, _prf1, evaluate_on_dataset,
+from algorun.exam.nlp import dictionary_extract
+from algorun.exam.refinery import (_gold_triples, _prf1, evaluate_on_dataset,
                               extract_candidates)
 
 # architettura -> checkpoint HuggingFace. Aggiungerne una è una riga sola.

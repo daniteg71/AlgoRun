@@ -3,9 +3,9 @@
 # tutto il dataset è lento; qui verifichiamo solo che la catena funzioni e
 # che il modello leggero batta il baseline simbolico.
 
-from algorun.light_validator import (_entity_token_positions, evaluate_light,
+from algorun.exam.light_validator import (_entity_token_positions, evaluate_light,
                                      features)
-from algorun.nlp import dictionary_extract
+from algorun.exam.nlp import dictionary_extract
 from algorun.ontology.loader import AR
 
 

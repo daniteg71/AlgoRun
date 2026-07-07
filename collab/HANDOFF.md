@@ -27,6 +27,25 @@
 <!-- NEW ENTRIES GO DIRECTLY BELOW THIS LINE -->
 
 ---
+### [2026-07-07 02:30] — Danny (with Claude Code)
+**What I did:** Riorganizzato il repo per separare il **prodotto** (da studiare)
+dal resto. **70 test verdi.**
+- **`STUDY_MAP.md`** (nuovo): partiziona tutto in 🎯 PRODOTTO (i 5 file
+  `src/algorun/{intent,sensor,scorer,controller,genre_graph}.py`) · 📚 ESAME ·
+  🔧 SUPPORTO.
+- **`src/algorun/exam/`** (nuovo package): spostati `nlp.py`, `refinery.py`,
+  `shacl_gate.py`, `light_validator.py`, `datagen/` (il binario testo→KG). Import
+  aggiornati (`algorun.exam.*`); il prodotto NON e' stato toccato (i suoi path
+  `__file__` restano validi).
+- **`training/train_intent.py`** (spostato da root).
+- README: banner in cima verso STUDY_MAP/PIPELINE + path aggiornati (era datato).
+
+**TODOs teammate:** per capire cosa studiare parti da `STUDY_MAP.md`. Il prodotto
+e' `src/algorun/` (i 5 file in cima) + `docs/PIPELINE.md`. L'esame e'
+`src/algorun/exam/` + `benchmarks/`. Il README ha ancora sezioni del vecchio
+design (banner lo segnala) — andrebbe riscritto.
+
+---
 ### [2026-07-07 01:35] — Danny (with Claude Code)
 **What I did:** L'anello di controllo del prodotto (sensore → target → canzone).
 Branch `lean-core`. **68 test verdi, 1 skip.**

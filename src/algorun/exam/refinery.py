@@ -55,9 +55,9 @@ from pathlib import Path
 from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import RDF
 
-from algorun.nlp import dictionary_extract
+from algorun.exam.nlp import dictionary_extract
 from algorun.ontology.loader import AR, load_ontology
-from algorun.shacl_gate import validate
+from algorun.exam.shacl_gate import validate
 
 EX = Namespace("http://algorun.org/data#")
 

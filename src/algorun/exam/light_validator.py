@@ -28,9 +28,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from algorun.nlp import dictionary_extract
+from algorun.exam.nlp import dictionary_extract
 from algorun.ontology.loader import AR, load_ontology
-from algorun.refinery import (DISTANCE_WINDOW, _char_to_token_index, _gold_triples,
+from algorun.exam.refinery import (DISTANCE_WINDOW, _char_to_token_index, _gold_triples,
                               _lemma_of_word, _prf1, _trigger_occurrences,
                               evaluate_on_dataset, extract_candidates, tokenize)
 

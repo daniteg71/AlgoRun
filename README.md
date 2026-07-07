@@ -1,5 +1,10 @@
 # AlgoRun 🏃🎵
 
+> **Struttura attuale e cosa studiare → [`STUDY_MAP.md`](STUDY_MAP.md).**
+> Flusso completo (grafico + matematica) → [`docs/PIPELINE.md`](docs/PIPELINE.md).
+> Alcune sezioni qui sotto descrivono un design precedente: la fonte aggiornata
+> sono STUDY_MAP + PIPELINE.
+
 **Text-driven, ontology-governed running-music recommender** — AI-LAB 2025/2026
 exam project.
 
@@ -64,10 +69,10 @@ compiled graph, no reasoner in the loop. Everything else the ontology does
 | SHACL constraint gate (domain/range) | `ontology/shapes.ttl` | rejects bad domain/range before any triple enters the KG |
 | **Genre taxonomy from the real dataset** | `ontology/genres.ttl`, `genre_graph.py` | 113 genres → families → super-families (146 concepts); genre→effort affinity read from the data |
 | Synthetic tiered dataset, 70/15/15, 4 tiers | `data/synthetic/`, `datagen/` | 800 records, tier-balanced |
-| Prompt NLP: entities + quantities, qual/quant routing | `src/algorun/nlp.py` | NER F1 **0.947** (dictionary) on the prompt gold set |
-| **M3 baseline** relation extraction (trigger+distance) | `src/algorun/refinery.py` | graph F1 **0.241** (P 1.00, R 0.137) |
-| **M4 validator** pairwise generator + DistilBERT gate | `src/algorun/validator.py` | graph F1 **0.478** (P 0.90, R 0.33) |
-| Lightweight logistic validator (no GPU) | `src/algorun/light_validator.py` | graph F1 **0.43** — nearly DistilBERT at a thousandth of the cost |
+| Prompt NLP: entities + quantities, qual/quant routing | `src/algorun/exam/nlp.py` | NER F1 **0.947** (dictionary) on the prompt gold set |
+| **M3 baseline** relation extraction (trigger+distance) | `src/algorun/exam/refinery.py` | graph F1 **0.241** (P 1.00, R 0.137) |
+| **M4 validator** pairwise generator + DistilBERT gate | `benchmarks/validator.py` | graph F1 **0.478** (P 0.90, R 0.33) |
+| Lightweight logistic validator (no GPU) | `src/algorun/exam/light_validator.py` | graph F1 **0.43** — nearly DistilBERT at a thousandth of the cost |
 
 Multi-architecture comparison on the held-out test set (the Rule-4 benchmark):
 
@@ -97,10 +102,10 @@ Key report point: the **light model reaches F1 0.43** — nearly the DistilBERT
 
 ```bash
 python -m algorun.genre_graph                    # semantic distance between genres
-python -m algorun.nlp "tempo run at 12 km/h"     # prompt → entities → surgical BPM
-python -m algorun.refinery --dataset data/synthetic/test.jsonl   # M3 graph P/R/F1
-python -m algorun.light_validator                # baseline vs logistic (CPU, no GPU)
-python -m algorun.validator eval                 # baseline vs trained Transformer(s)
+python -m algorun.exam.nlp "tempo run at 12 km/h"     # prompt → entities → surgical BPM
+python -m algorun.exam.refinery --dataset data/synthetic/test.jsonl   # M3 graph P/R/F1
+python -m algorun.exam.light_validator                # baseline vs logistic (CPU, no GPU)
+python -m benchmarks.validator eval                 # baseline vs trained Transformer(s)
 python ontology/build_genre_taxonomy.py          # regenerate ontology/genres.ttl
 ```
 
@@ -118,11 +123,11 @@ python ontology/build_genre_taxonomy.py          # regenerate ontology/genres.tt
 | `ontology/genres.ttl` | Genre taxonomy (generated from the dataset) |
 | `ontology/build_genre_taxonomy.py` | Generator for the genre taxonomy |
 | `src/algorun/genre_graph.py` | Genre semantic distance (runtime, no reasoner) |
-| `src/algorun/nlp.py` | Prompt → entities/quantities → regime + slots |
-| `src/algorun/refinery.py` | Data Refinery: relation extraction + graph P/R/F1 |
-| `src/algorun/validator.py` | Transformer validator (multi-arch benchmark) |
-| `src/algorun/light_validator.py` | Lightweight logistic validator (shipped) |
-| `src/algorun/shacl_gate.py` | SHACL gate + ontology target lookup |
+| `src/algorun/exam/nlp.py` | Prompt → entities/quantities → regime + slots |
+| `src/algorun/exam/refinery.py` | Data Refinery: relation extraction + graph P/R/F1 |
+| `benchmarks/validator.py` | Transformer validator (multi-arch benchmark) |
+| `src/algorun/exam/light_validator.py` | Lightweight logistic validator (shipped) |
+| `src/algorun/exam/shacl_gate.py` | SHACL gate + ontology target lookup |
 | `data/synthetic/` | Tiered JSONL dataset (in git) |
 | `tests/` | 66 pytest tests |
 

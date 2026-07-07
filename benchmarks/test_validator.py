@@ -10,8 +10,8 @@ import pytest
 pytest.importorskip("torch")
 pytest.importorskip("transformers")
 
-from algorun.nlp import dictionary_extract
-from algorun.refinery import extract_candidates
+from algorun.exam.nlp import dictionary_extract
+from algorun.exam.refinery import extract_candidates
 from algorun.ontology.loader import AR
 from benchmarks.validator import ARCHITECTURES, _model_dir, build_examples, verbalize
 

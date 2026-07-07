@@ -7,8 +7,8 @@
 #   - alcune relazioni (hasWorkoutType, hasEffortState) non hanno mai il loro
 #     trigger letterale vicino all'entità nelle frasi del dataset
 
-from algorun.refinery import evaluate_on_dataset, extract_relations
-from algorun.nlp import dictionary_extract
+from algorun.exam.refinery import evaluate_on_dataset, extract_relations
+from algorun.exam.nlp import dictionary_extract
 from algorun.ontology.loader import AR
 
 

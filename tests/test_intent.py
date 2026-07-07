@@ -3,7 +3,13 @@
 `route()` carica SetFit (torch): fuori dalla suite veloce. Qui si testa
 `parse_numbers` (deterministico) e la coerenza di TYPE_PARAMS.
 """
-from algorun.intent import TYPE_PARAMS, parse_numbers
+from algorun.intent import TYPE_PARAMS, detect_mood_seed, parse_numbers
+
+
+def test_mood_maps_to_seed_genre():
+    assert detect_mood_seed("oggi sono carico")[1] == "metal"
+    assert detect_mood_seed("qualcosa di chill")[1] == "chill"
+    assert detect_mood_seed("corsa normale") == (None, None)
 
 
 def test_parse_speed_kmh():

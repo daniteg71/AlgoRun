@@ -30,6 +30,26 @@ TYPE_PARAMS: dict[str, dict] = {
 }
 
 
+# mood -> genere-seme sull'albero dei generi (mood-oriented).
+# arousal/valenza -> genere (Russell 1980); i generi esistono in genres.ttl.
+MOOD_SEED: dict[str, str] = {
+    "carico": "metal", "carica": "metal", "gasato": "edm", "energico": "edm",
+    "arrabbiato": "hardcore", "incazzato": "hardcore", "grintoso": "hard-rock",
+    "concentrato": "minimal-techno", "felice": "happy", "allegro": "happy",
+    "chill": "chill", "tranquillo": "ambient", "rilassato": "ambient",
+    "calmo": "ambient", "triste": "sad", "malinconico": "sad", "funky": "funk",
+}
+
+
+def detect_mood_seed(text: str) -> tuple[str | None, str | None]:
+    """Cerca una parola di mood nella frase -> (mood, genere-seme) o (None, None)."""
+    low = text.lower()
+    for word, genre in MOOD_SEED.items():
+        if word in low:
+            return word, genre
+    return None, None
+
+
 def _model():
     global _MODEL
     if _MODEL is None:
@@ -53,9 +73,11 @@ def parse_numbers(text: str) -> dict:
 
 
 def route(text: str) -> dict:
-    """Frase -> {type, numbers, params}. È tutto ciò che serve allo scorer."""
+    """Frase -> {type, mood, genre_seed, numbers, params}. Input dello scorer."""
     wtype = _model().predict([text])[0]
-    return {"type": wtype, "numbers": parse_numbers(text), "params": TYPE_PARAMS[wtype]}
+    mood, genre_seed = detect_mood_seed(text)
+    return {"type": wtype, "mood": mood, "genre_seed": genre_seed,
+            "numbers": parse_numbers(text), "params": TYPE_PARAMS[wtype]}
 
 
 if __name__ == "__main__":

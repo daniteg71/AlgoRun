@@ -51,8 +51,9 @@ def run_session(session_id: str, intent: dict, shots_per_song: int = 6,
         m_hrr = mean(s["mean_hrr"] for s in chunk)
         effort = Counter(s["effort_state"] for s in chunk).most_common(1)[0][0]
         bpm, energy = adapt(params, wtype, m_hrr, effort)
-        song = scorer.choose(scorer.make_target(params, bpm=bpm, energy=energy),
-                             exclude=set(played))
+        target = scorer.make_target(params, bpm=bpm, energy=energy,
+                                    genre=intent.get("genre_seed"))
+        song = scorer.choose(target, exclude=set(played))
         played.append(song["song_id"])
         trajectory.append({"mean_hrr": round(m_hrr, 2), "effort": effort,
                            "target_bpm": round(bpm), "song": song["title"],

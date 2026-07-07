@@ -19,20 +19,24 @@ from algorun.sensor import read_session_shots
 SAFE_HRR = 0.90          # oltre questa HRR: forza recupero (design, ~limite fisiologico)
 
 
-def adapt(params: dict, wtype: str, mean_hrr: float, effort: str) -> tuple[float, float]:
-    """Aggiorna (bpm*, energy*) dagli shot, secondo il tipo. Ritorna (bpm, energy)."""
+def adapt(params: dict, wtype: str, mean_hrr: float, effort: str,
+          base_bpm: float | None = None) -> tuple[float, float]:
+    """Aggiorna (bpm*, energy*) dagli shot. `base_bpm` = BPM dalla velocità
+    dichiarata (regime quantitativo): se c'e' comanda lui, altrimenti la banda
+    del tipo. Il cuore ha l'ultima parola (safety override)."""
     lo, hi = params["bpm"]
-    bpm, energy = (lo + hi) / 2, params["energy"]
-    if mean_hrr >= SAFE_HRR:                                  # safety: rallenta sempre
-        return lo, min(energy, 0.30)
-    if wtype == "easy" and effort in ("HighEffort", "VeryHighEffort"):
-        return lo, energy * 0.7                              # sta salendo -> tira giu'
+    bpm = base_bpm if base_bpm is not None else (lo + hi) / 2
+    energy = params["energy"]
+    if mean_hrr >= SAFE_HRR:                                  # safety: HR pericolosa -> recupero
+        return lo, min(energy, 0.30)                          # (ignora l'intento "spingere")
     if wtype == "tempo" and effort == "LowEffort":
-        return hi, min(1.0, energy * 1.2)                    # sotto target -> spingi su
-    if wtype == "fartlek":
-        up = effort in ("HighEffort", "VeryHighEffort")
-        return (hi, min(1.0, energy * 1.2)) if up else (lo, energy * 0.7)
-    return bpm, energy                                       # long/interval/base: tieni
+        energy = min(1.0, energy * 1.2)                      # dici tempo ma vai piano -> spingi
+    elif wtype == "easy" and effort in ("HighEffort", "VeryHighEffort"):
+        energy = energy * 0.7                                # dici easy ma sali -> calma
+    elif wtype == "fartlek":
+        energy = (min(1.0, energy * 1.2)
+                  if effort in ("HighEffort", "VeryHighEffort") else energy * 0.7)
+    return bpm, energy
 
 
 def run_session(session_id: str, intent: dict, shots_per_song: int = 6,
@@ -41,6 +45,7 @@ def run_session(session_id: str, intent: dict, shots_per_song: int = 6,
     (una voce per canzone): sforzo osservato -> target aggiornato -> canzone scelta.
     """
     params, wtype = intent["params"], intent["type"]
+    base_bpm = intent.get("target_bpm")            # BPM dalla velocità dichiarata, se c'e'
     shots = read_session_shots(session_id)
     played: deque = deque(maxlen=memory)
     trajectory: list[dict] = []
@@ -50,7 +55,7 @@ def run_session(session_id: str, intent: dict, shots_per_song: int = 6,
             break
         m_hrr = mean(s["mean_hrr"] for s in chunk)
         effort = Counter(s["effort_state"] for s in chunk).most_common(1)[0][0]
-        bpm, energy = adapt(params, wtype, m_hrr, effort)
+        bpm, energy = adapt(params, wtype, m_hrr, effort, base_bpm=base_bpm)
         target = scorer.make_target(params, bpm=bpm, energy=energy,
                                     genre=intent.get("genre_seed"))
         song = scorer.choose(target, exclude=set(played))

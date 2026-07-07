@@ -72,12 +72,28 @@ def parse_numbers(text: str) -> dict:
     return n
 
 
+# velocità dichiarata -> cadenza (spm) -> BPM target. BPM = cadenza (entrainment
+# 1:1, Van Dyck 2015). Regressione clampata alla cadenza naturale di corsa 150-190.
+_CAD_INTERCEPT, _CAD_SLOPE, _CAD_MIN, _CAD_MAX = 134.0, 2.9, 150.0, 190.0
+
+
+def bpm_from_speed(speed_kmh: float) -> int:
+    """Velocità (km/h) -> BPM desiderato (calcolo 'chirurgico', regime quantitativo)."""
+    return round(min(_CAD_MAX, max(_CAD_MIN, _CAD_INTERCEPT + _CAD_SLOPE * speed_kmh)))
+
+
 def route(text: str) -> dict:
-    """Frase -> {type, mood, genre_seed, numbers, params}. Input dello scorer."""
+    """Frase -> {type, mood, genre_seed, numbers, target_bpm, params}.
+
+    Se la velocità è dichiarata (regime quantitativo), `target_bpm` è il BPM
+    'chirurgico' dalla cadenza; altrimenti None e comanda la banda del tipo.
+    """
     wtype = _model().predict([text])[0]
     mood, genre_seed = detect_mood_seed(text)
+    numbers = parse_numbers(text)
+    target_bpm = bpm_from_speed(numbers["speed_kmh"]) if numbers.get("speed_kmh") else None
     return {"type": wtype, "mood": mood, "genre_seed": genre_seed,
-            "numbers": parse_numbers(text), "params": TYPE_PARAMS[wtype]}
+            "numbers": numbers, "target_bpm": target_bpm, "params": TYPE_PARAMS[wtype]}
 
 
 if __name__ == "__main__":
